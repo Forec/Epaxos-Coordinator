@@ -5,7 +5,7 @@
 #ifndef TKDATABASE_TK_CONFIG_H
 #define TKDATABASE_TK_CONFIG_H
 
-#include <tk_consensus.h>
+#include "tk_consensus.h"
 #include <cstdint>
 
 

@@ -2,8 +2,9 @@
 // Created by jingle on 17-4-12.
 //
 
+#include "../../execution/include/exec.h"
 #include "../include/tk_server.h"
-#include "chan/chan.h"
+// #include "chan/chan.h"
 
 
 
@@ -47,17 +48,20 @@ int init_replica_server(replica_server_param_t* param)
         return ret;
     }
 
+    // initialize execution environment
+    instance_stack = (tk_instance_t **) malloc(instance_stack_size * sizeof(tk_instance_t *));
+
     if(strcmp(param->string_path, "") == 1){
 
         sprintf(param->string_path,"%s-%d", "/tmp/test", param->replicaId);
     }
     param->InstanceMatrix = (tk_instance_t**) malloc(param->group_size * sizeof(tk_instance_t *));
     param->MaxInstanceNum = (uint64_t *) malloc(param->group_size * sizeof(uint64_t));
-    param->excuteupto = (uint64_t *) malloc(param->group_size * sizeof (uint64_t));
+    param->executeupto = (uint64_t *) malloc(param->group_size * sizeof (uint64_t));
     for(uint8_t i = 0; i < param->group_size; i++){
         param->InstanceMatrix[i] = (tk_instance_t *)malloc(1024 * 1024 * sizeof(tk_instance_t));
         param->MaxInstanceNum[i] = 0;
-        param->excuteupto[i] = 0;
+        param->executeupto[i] = 0;
     }
 
     if(param->restore){

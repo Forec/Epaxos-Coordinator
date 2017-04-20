@@ -9,6 +9,7 @@
 
 
 #include "debug.h"
+#include "../../include/Tkdatabase.h"
 #include "../../include/Tkdatanode.h"
 
 #define BATCH_INTERVAL 50
@@ -68,11 +69,12 @@ struct replica_server_param{
     uint8_t group_size;
     Tkdatabase_t* statemachine;
     uint64_t* MaxInstanceNum;
-    uint64_t* excuteupto;
+    uint64_t* executeupto;
     char ** addrs;
     bool restore;
     bool enablepersistent;
     bool enablebatching;
+    bool enablereply; // reply to client after command has been executed?
     FILE *log_fp;
     uint64_t ProposeNum;
     tk_instance_t** InstanceMatrix;

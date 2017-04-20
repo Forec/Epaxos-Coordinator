@@ -5,10 +5,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
         include/Tkdatabase.h
-        src/Tkdatabase.cpp
-        src/Tkdatanode.cpp
         include/Tkdatanode.h
-        test/add_node_test.cpp
         consensus/include/tk_consensus.h
         consensus/include/tk_config.h
         consensus/include/tk_log.h
@@ -16,5 +13,10 @@ set(SOURCE_FILES
         consensus/include/tk_elog.h
         consensus/include/tk_server.h
         consensus/include/tk_message.h
-        consensus/src/replica.cpp)
+        execution/include/exec.h
+        src/Tkdatabase.cpp
+        src/Tkdatanode.cpp
+        test/add_node_test.cpp
+        consensus/src/replica.cpp
+        execution/src/exec.c)
 add_executable(TkDatabase ${SOURCE_FILES})

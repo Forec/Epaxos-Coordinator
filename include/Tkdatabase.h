@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "../c/generated/zookeeper.jute.h"
+#include "zookeeper.jute.h"
 
 using namespace std;
 

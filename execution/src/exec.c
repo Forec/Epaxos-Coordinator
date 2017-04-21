@@ -2,7 +2,7 @@
 // Created by forec on 17-4-20.
 //
 
-#include "../include/exec.h"
+#include "exec.h"
 
 
 void nano_sleep(unsigned int ns){
@@ -76,7 +76,7 @@ strong_connect(replica_server_param_t * r,
             while (NULL == w->cmds)
                 nano_sleep(1000 * 1000);
             for (idx = 0; idx < w->cmds_count; ++idx) {
-                int val = execute(w->cmds[idx], r->statemachine);
+                int val = execute_command(w->cmds[idx], r->statemachine);
                 if (r->enablereply && w->lb && w->lb->clientProposals) {
                     /*
                      * call API: replyProposal(w->lb->clientProposals[idx].id, ...args)
@@ -101,9 +101,11 @@ find_SCC(replica_server_param_t * r, tk_instance_t * v)
 static uint8_t
 execute_instance(replica_server_param_t * r, int replica, int instance)
 {
-    if (!(r->InstanceMatrix[replica][instance].flag & USED_MASK))
-        return 0;
     tk_instance_t * v = &(r->InstanceMatrix[replica][instance]);
+    if (!v)
+        return 0;
+    if (!(v->flag & USED_MASK))
+        return 0;
     if (v->flag & EXECUTED_MASK)
         return 1;
     if (!(v->flag & COMMITTED_MASK))
@@ -111,4 +113,9 @@ execute_instance(replica_server_param_t * r, int replica, int instance)
     if (!find_SCC(r, v))
         return 0;
     return 1;
+}
+
+static char *
+execute_command(tk_command_t c, Tkdatabase_t * st) {
+
 }

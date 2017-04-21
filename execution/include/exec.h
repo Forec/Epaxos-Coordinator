@@ -5,8 +5,8 @@
 #ifndef TKDATABASE_EXEC_H
 #define TKDATABASE_EXEC_H
 
-#include "../../consensus/include/tk_elog.h"
-#include "../../consensus/include/tk_server.h"
+#include "tk_elog.h"
+#include "tk_server.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
@@ -32,5 +32,6 @@ static uint8_t execute_instance(replica_server_param_t * r,
                                int replica,
                                int instance);
 
-static char * execute_command(tk_command_t * c, )
+static char * execute_command(tk_command_t c,
+                              Tkdatabase_t * st);
 #endif //TKDATABASE_EXEC_H

@@ -9,8 +9,7 @@
 
 
 #include "debug.h"
-#include "../../include/Tkdatabase.h"
-#include "../../include/Tkdatanode.h"
+#include "Tkdatanode.h"
 
 #define BATCH_INTERVAL 50
 #define TIMEOUT_INTERVAL 50

@@ -33,7 +33,7 @@ using namespace __gnu_cxx;
 //    int cversion;
 //    int aversion;
 //    uint64_t ephemeralOwner; // 临时节点对应的client session id, 默认为0;
-//    int dataLength;
+//    uint64_t dataLength;
 //    int numClidren;
 //    uint64_t  ptxid; // 最后一次修改子节点个数的txid;
 //
@@ -75,10 +75,12 @@ string parse_path_parent(const string & node_path);
 
 int add_node_to_db(Tkdatabase_t* db, datanode_t *datanode, const string & node_path);
 
-int getdata_from_db(const Tkdatabase_t *db, const string & node_path, char* & getdata);
+int getdata_from_db(const Tkdatabase_t *db, const char *node_path_cstr, char** getdata);
 
 int del_node_in_db(Tkdatabase_t *db, const string &node_path);
 
 int getchildren_from_db(Tkdatabase_t *db, const string & path, unordered_set<string> & res);
 
 int setData_to_datanode(Tkdatabase_t *db, const string & path, char *data);
+
+int putData_into_db(Tkdatabase_t *db, const char * path, char *data);

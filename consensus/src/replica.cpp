@@ -2,8 +2,8 @@
 // Created by jingle on 17-4-12.
 //
 
-#include "../../execution/include/exec.h"
-#include "../include/tk_server.h"
+#include "exec.h"
+#include "tk_server.h"
 // #include "chan/chan.h"
 
 
@@ -64,7 +64,7 @@ int init_replica_server(replica_server_param_t* param)
         param->executeupto[i] = 0;
     }
 
-    if(param->restore){
+    if(param->flag & RESTORE_MASK){
         //TODO: recovery from log file;
     }
 

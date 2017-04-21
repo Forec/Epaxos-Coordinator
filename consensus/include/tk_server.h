@@ -19,6 +19,11 @@
 
 #define PORT 1111
 
+#define PERSISTENT_MASK 0x01
+#define BATCHING_MASK 0x02
+#define REPLY_MASK 0x04  // reply to client after command has been executed?
+#define RESTORE_MASK 0x08
+#define SHUTDOWN_MASK 0x10
 
 
 //struct replica_server{
@@ -70,10 +75,7 @@ struct replica_server_param{
     uint64_t* MaxInstanceNum;
     uint64_t* executeupto;
     char ** addrs;
-    bool restore;
-    bool enablepersistent;
-    bool enablebatching;
-    bool enablereply; // reply to client after command has been executed?
+    uint8_t flag;
     FILE *log_fp;
     uint64_t ProposeNum;
     tk_instance_t** InstanceMatrix;

@@ -76,8 +76,8 @@ strong_connect(replica_server_param_t * r,
             while (NULL == w->cmds)
                 nano_sleep(1000 * 1000);
             for (idx = 0; idx < w->cmds_count; ++idx) {
-                int val = execute_command(w->cmds[idx], r->statemachine);
-                if (r->enablereply && w->lb && w->lb->clientProposals) {
+                char * val = execute_command(w->cmds[idx], r->statemachine);
+                if ((r->flag & REPLY_MASK) && w->lb && w->lb->clientProposals) {
                     /*
                      * call API: replyProposal(w->lb->clientProposals[idx].id, ...args)
                      */
@@ -99,7 +99,7 @@ find_SCC(replica_server_param_t * r, tk_instance_t * v)
 }
 
 static uint8_t
-execute_instance(replica_server_param_t * r, int replica, int instance)
+execute_instance(replica_server_param_t * r, int replica, uint64_t instance)
 {
     tk_instance_t * v = &(r->InstanceMatrix[replica][instance]);
     if (!v)
@@ -117,5 +117,76 @@ execute_instance(replica_server_param_t * r, int replica, int instance)
 
 static char *
 execute_command(tk_command_t c, Tkdatabase_t * st) {
+    switch (c.opcode) {
+        case PUT:
+            if (1 == putData_into_db(st, c.key, c.val))
+                return c.val;
+            else
+                return NULL;
+        case GET:
+            char * res = NULL;
+            if (1 == getdata_from_db(st, c.key, &res))
+                return res;
+            else
+                return NULL;
+        default:
+            return NULL;
+    }
+}
 
+void execute_thread(replica_server_param_t * r) {
+
+    if (!r) {
+        info(stderr, "initialize replica first!");
+        return;
+    }
+
+    int64_t * problemInstance = (int64_t *) malloc (sizeof(int64_t) * r->group_size);
+    uint64_t * timeout = (uint64_t *) malloc (sizeof(uint64_t) * r->group_size);
+    uint8_t q, executed;
+    uint64_t inst;
+
+    for (q = 0; q < r->group_size; ++q) {
+        problemInstance[q] = -1;
+        timeout[q] = 0;
+    }
+
+    while (!(r->flag & SHUTDOWN_MASK)) {
+        executed = 0;
+        for (q = 0; q < r->group_size; ++q) {
+            for (inst = r->executeupto[q] + 1; inst < r->MaxInstanceNum[q]; ++inst) {
+                if ((r->InstanceMatrix[q][inst].flag & USED_MASK) &&
+                    (r->InstanceMatrix[q][inst].flag & EXECUTED_MASK)) {
+                    if (inst == r->executeupto[q] + 1)
+                        r->executeupto[q] = inst;
+                    continue;
+                }
+                if ((r->InstanceMatrix[q][inst].flag & USED_MASK) == 0 ||
+                    (r->InstanceMatrix[q][inst].flag & COMMITTED_MASK) == 0) {
+                    if (inst == problemInstance[q]) {
+                        timeout[q] += SLEEP_TIME_NS;
+                        if (timeout[q] >= COMMIT_GRACE_PERIOD) {
+                            /*
+                             * start recovery phase for instanceMatrix[q][inst]
+                             */
+                            timeout[q] = 0;
+                        } else {
+                            problemInstance[q] = inst;
+                            timeout[q] = 0;
+                        }
+                        if (!(r->InstanceMatrix[q][inst].flag & USED_MASK))
+                            continue;
+                        break;
+                    }
+                    if (execute_instance(r, q, inst)) {
+                        executed = 1;
+                        if (inst == r->executeupto[q] + 1)
+                            r->executeupto[q] = inst;
+                    }
+                }
+            }
+            if (!executed)
+                nano_sleep(SLEEP_TIME_NS);
+        }
+    }
 }

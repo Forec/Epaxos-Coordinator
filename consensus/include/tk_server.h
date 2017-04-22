@@ -5,11 +5,8 @@
 #ifndef TKDATABASE_TK_SERVER_H
 #define TKDATABASE_TK_SERVER_H
 
-#include "tk_elog.h"
-
-
 #include "debug.h"
-#include "Tkdatanode.h"
+#include "../../include/Tkdatabase.h"
 
 #define BATCH_INTERVAL 50
 #define TIMEOUT_INTERVAL 50
@@ -58,15 +55,6 @@ struct pack_replica {
 };
 
 typedef struct pack_replica pack_replica_t;
-
-
-
-struct propose_request {
-    tk_command_t cmd;
-    uint64_t  id;
-};
-
-typedef struct propose_request propose_request_t;
 
 struct replica_server_param{
     uint8_t replicaId;

@@ -23,7 +23,9 @@ set(SOURCE_FILES
         consensus/include/tk_elog.h
         consensus/include/tk_server.h
         consensus/include/tk_message.h
+        consensus/include/replica.h
         consensus/src/replica.cpp
         execution/include/exec.h
-        execution/src/exec.c)
+        execution/src/exec.cpp execution/test/etest.h)
+
 add_executable(TkDatabase ${SOURCE_FILES})

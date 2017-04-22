@@ -16,40 +16,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "zookeeper.jute.h"
+#include "Tkdatanode.h"
+//#include "../c/generated/zookeeper.jute.h"
 
 using namespace std;
 
-using namespace __gnu_cxx;
-
-
-//struct Stat {
-//
-//    uint64_t ctxid; //创建的txid;
-//    uint64_t mtxid;// 最新修改txid;
-//    uint64_t  ctime; //创建时间;
-//    uint64_t mtime; //修改时间;
-//    int  version;  //对应的Znode data;
-//    int cversion;
-//    int aversion;
-//    uint64_t ephemeralOwner; // 临时节点对应的client session id, 默认为0;
-//    uint64_t dataLength;
-//    int numClidren;
-//    uint64_t  ptxid; // 最后一次修改子节点个数的txid;
-//
-//};
-typedef struct Stat Stat_t;
-
-typedef struct datanode datanode_t;
-struct datanode{
-    datanode_t* parent;
-    //uint32_t acl;
-    char * data;
-    unordered_set <string> children;
-    //Stat_t stat;
-};
-
-
+//using namespace __gnu_cxx;
 
 
 struct Tkdatabase {
@@ -83,4 +55,4 @@ int getchildren_from_db(Tkdatabase_t *db, const string & path, unordered_set<str
 
 int setData_to_datanode(Tkdatabase_t *db, const string & path, char *data);
 
-int putData_into_db(Tkdatabase_t *db, const char * path, char *data);
+int putData_into_db(Tkdatabase_t *db, const char *path, char *data);

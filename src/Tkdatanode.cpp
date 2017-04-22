@@ -5,11 +5,11 @@
 
 
 #include "../include/Tkdatanode.h"
-
+#include <iostream>
 
 void addchild(datanode_t *root,  const string &child)
 {
-    cout << "add a child" << endl;
+//    cout << "add a child" << endl;
     root->children.insert(child);
 }
 

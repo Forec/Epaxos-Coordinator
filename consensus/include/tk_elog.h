@@ -22,6 +22,12 @@ struct tk_command{
 
 typedef struct tk_command tk_command_t;
 
+struct propose_request {
+    tk_command_t cmd;
+    uint64_t  id;
+};
+
+typedef struct propose_request propose_request_t;
 
 struct LeaderBookkeeping {
     /*
@@ -31,6 +37,7 @@ struct LeaderBookkeeping {
      * uint32_t maxRecvBallot;
      * ...
      */
+    propose_request_t * clientProposals;
 };
 
 typedef struct LeaderBookkeeping lb_t;

@@ -5,11 +5,8 @@
 #ifndef TKDATABASE_TK_SERVER_H
 #define TKDATABASE_TK_SERVER_H
 
-#include "tk_elog.h"
-
-
 #include "debug.h"
-#include "../../include/Tkdatanode.h"
+#include "../../include/Tkdatabase.h"
 
 #define BATCH_INTERVAL 50
 #define TIMEOUT_INTERVAL 50
@@ -19,6 +16,11 @@
 
 #define PORT 1111
 
+#define PERSISTENT_MASK 0x01
+#define BATCHING_MASK 0x02
+#define REPLY_MASK 0x04  // reply to client after command has been executed?
+#define RESTORE_MASK 0x08
+#define SHUTDOWN_MASK 0x10
 
 
 //struct replica_server{
@@ -54,25 +56,14 @@ struct pack_replica {
 
 typedef struct pack_replica pack_replica_t;
 
-
-
-struct propose_request {
-    tk_command_t cmd;
-    uint64_t  id;
-};
-
-typedef struct propose_request propose_request_t;
-
 struct replica_server_param{
     uint8_t replicaId;
     uint8_t group_size;
     Tkdatabase_t* statemachine;
     uint64_t* MaxInstanceNum;
-    uint64_t* excuteupto;
+    uint64_t* executeupto;
     char ** addrs;
-    bool restore;
-    bool enablepersistent;
-    bool enablebatching;
+    uint8_t flag;
     FILE *log_fp;
     uint64_t ProposeNum;
     tk_instance_t** InstanceMatrix;

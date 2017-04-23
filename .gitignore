@@ -1,2 +1,16 @@
 cmake-build-debug
 .idea
+*.txt
+*.o
+*.a
+*.exe
+Makefile
+*.cbp
+CMakeFiles
+cmake_install.cmake
+*.log
+eTest
+!CMakeLists.txt
+!NOTICE.txt
+!LICENSE.txt
+etest

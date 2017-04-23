@@ -4,13 +4,13 @@
 
 
 
-#include "../include/Tkdatanode.h"
+#include "../include/Tkdatabase.h"
 
 
 void init_tkdatabase(Tkdatabase_t *db)
 
 {
-    cout <<"init the Tkdatabase" << endl;
+    //cout <<"init the Tkdatabase" << endl;
     string root_path="/";
 
     datanode_t* root_node;
@@ -34,7 +34,7 @@ void init_tkdatabase(Tkdatabase_t *db)
 
     addchild(root_node, procChildTk);
     db->Tkdb.insert(pair<string, datanode_t*>(procTk_path, procTk_node));
-    cout <<"init compelete!" << endl;
+    //cout <<"init compelete!" << endl;
 }
 
 void destroy_tkdatabase(Tkdatabase_t *db)
@@ -79,17 +79,16 @@ int add_node_to_db(Tkdatabase_t* db, datanode_t *datanode, const string & node_p
 }
 
 
-int getdata_from_db(const Tkdatabase_t *db, const string & node_path, char* & getdata)
+int getdata_from_db(const Tkdatabase_t *db, const char * node_path_cstr, char** getdata)
 {
+    string node_path(node_path_cstr);
     unordered_map<string, datanode_t*>::const_iterator it = db->Tkdb.find(node_path);
-    cout << "Welcome to get data" << endl;
+    //cout << "Welcome to get data" << endl;
     if(db->Tkdb.end() == it){
-        cout<<"Find failed" << endl;
+        //cout<<"Find failed" << endl;
         return -1;
     }else{
-        getdata = it->second->data;
-
-
+        *getdata = it->second->data;
         return 1;
     }
 
@@ -144,12 +143,24 @@ int setData_to_datanode(Tkdatabase_t *db, const string & path, char *data)
 
     if(it == db->Tkdb.cend()){
 
-        cout << "Can not find this node, set operation failed" << endl;
+        //cout << "Can not find this node, set operation failed" << endl;
         return -1;
     }else{
         it->second->data = data;
         return 1;
     }
+}
+
+int putData_into_db(Tkdatabase_t *db, const char *path, char *data)
+{
+    int res;
+    string path_str(path);
+    if (-1 == (res = setData_to_datanode(db, path_str, data))) {
+        datanode_t * new_node = new datanode_t();
+        new_node->data = data;
+        return add_node_to_db(db, new_node, path_str);
+    }
+    return res;
 }
 
 

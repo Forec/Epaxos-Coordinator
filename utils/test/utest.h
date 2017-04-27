@@ -37,9 +37,7 @@ typedef struct mq_timer mq_timer_t;
 
 struct param {
     MsgQueue_t * mq;
-    union {
-        Test_Struct_t * test_structs;
-    };
+    Test_Struct_t * test_structs;
 };
 
 typedef struct param param_t;

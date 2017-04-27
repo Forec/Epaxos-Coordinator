@@ -26,6 +26,6 @@ set(SOURCE_FILES
         consensus/include/replica.h
         consensus/src/replica.cpp
         execution/include/exec.h
-        execution/src/exec.cpp execution/test/etest.h utils/include/msg_queue.h utils/test/utest.cpp utils/test/utest.h utils/src/msg_queue.cpp)
+        execution/src/exec.cpp execution/test/etest.h utils/include/msg_queue.h utils/test/utest.cpp utils/test/utest.h utils/src/msg_queue.cpp utils/test/test_catch.cpp)
 
 add_executable(TkDatabase ${SOURCE_FILES})

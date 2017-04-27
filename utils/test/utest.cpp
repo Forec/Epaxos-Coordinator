@@ -4,8 +4,6 @@
 
 #include "utest.h"
 
-int passed = 0;
-
 TEST_CASE("message queue", "mq") {
     MsgQueue_t * mq = initMsgQueue(TEST_SIZE, MSG_SIZE);
 
@@ -106,8 +104,9 @@ TEST_CASE("message queue", "mq") {
         }
 
         for (i = 0; i < TEST_SIZE * 2; ++i) {
-            Test_Struct_t *p = &test_structs[i];
-            putIntoMsgQueue(mq, &p);
+            Test_Struct_t **p = (Test_Struct_t **)malloc(sizeof(Test_Struct_t*));
+            *p = &test_structs[i];
+            putIntoMsgQueue(mq, p);
         }
 
         for (i = 0; i < TEST_SIZE; ++i)
@@ -121,74 +120,72 @@ TEST_CASE("message queue", "mq") {
     }
 
 
-//    SECTION("race condition on multiple writes") {
-//        param_t *ptr = (param_t *) malloc(sizeof(param_t));
-//        ptr->mq = mq;
-//        ptr->test_structs = test_structs;
-//
-//        pthread_t thread[TEST_SIZE];
-//        int i, pid[TEST_SIZE];
-//        for (i = 0; i < TEST_SIZE; ++i) {
-//            pid[i] = pthread_create(&thread[i], NULL, putMsgQueue_thread, (void *) ptr);
-//            REQUIRE(pid[i] >= 0);
-//        }
-//
-//        for (i = 0; i < (TEST_SIZE + 1) * TEST_SIZE; ++i) {
-//            Test_Struct_t *p = *(Test_Struct_t **) getNextMsg(mq);
-//            char *tmp = (char *) malloc(sizeof(char) * p->buf_len);
-//            int j;
-//            for (j = 0; j < p->buf_len - 1; ++j)
-//                tmp[j] = (char)('a' + p->id);
-//            tmp[p->buf_len - 1] = '\0';
-//            REQUIRE(NULL != p->buf);
-//            REQUIRE(!strcmp(tmp, p->buf));
-//        }
-//
-//        for (i = 0; i < TEST_SIZE; ++i)
-//            pthread_join(thread[i], NULL);
-//
-//        REQUIRE(0 == availableMsgCount(mq));
-//    }
-//
-//
-//    SECTION("race condition on read and write") {
-//
-//        param_t * ptr = (param_t *) malloc (sizeof(param_t));
-//        ptr->mq = mq;
-//        ptr->test_structs = test_structs;
-//
-//        int i;
-//        pthread_t thread_write[TEST_SIZE];
-//        int pid_write[TEST_SIZE];
-//        for (i = 0; i < TEST_SIZE; ++i) {
-//            pid_write[i] = pthread_create(&thread_write[i], NULL, putMsgQueue_thread, (void *) ptr);
-//            REQUIRE(pid_write[i] >= 0);
-//        }
-//
-//        pthread_t thread_read[TEST_SIZE * (TEST_SIZE + 1) / 2];
-//        int pid_read[TEST_SIZE * (TEST_SIZE + 1) / 2];
-//        for (i = 0; i < TEST_SIZE * (TEST_SIZE + 1) / 2; ++i) {
-//            pid_read[i] = pthread_create(&thread_read[i], NULL, readMsgQueue_thread, (void *) ptr);
-//            REQUIRE(pid_read[i] >= 0);
-//        }
-//
-//        for (i = 0; i < TEST_SIZE; ++i)
-//            pthread_join(thread_write[i], NULL);
-//        for (i = 0; i < TEST_SIZE * (TEST_SIZE + 1) / 2; ++i)
-//            pthread_join(thread_read[i], NULL);
-//
-//        REQUIRE(0 == availableMsgCount(mq));
-//    }
+    SECTION("race condition on multiple writes") {
+        param_t *ptr = (param_t *) malloc(sizeof(param_t));
+        ptr->mq = mq;
+        ptr->test_structs = test_structs;
+
+        pthread_t thread[TEST_SIZE];
+        int i, pid[TEST_SIZE];
+        for (i = 0; i < TEST_SIZE; ++i) {
+            pid[i] = pthread_create(&thread[i], NULL, putMsgQueue_thread, (void *) ptr);
+            REQUIRE(pid[i] >= 0);
+        }
+
+        for (i = 0; i < (TEST_SIZE + 1) * TEST_SIZE; ++i) {
+            Test_Struct_t *p = *(Test_Struct_t **) getNextMsg(mq);
+            char *tmp = (char *) malloc(sizeof(char) * p->buf_len);
+            int j;
+            for (j = 0; j < p->buf_len - 1; ++j)
+                tmp[j] = (char)('a' + p->id);
+            tmp[p->buf_len - 1] = '\0';
+            REQUIRE(NULL != p->buf);
+            REQUIRE(!strcmp(tmp, p->buf));
+        }
+
+        for (i = 0; i < TEST_SIZE; ++i)
+            pthread_join(thread[i], NULL);
+
+        REQUIRE(0 == availableMsgCount(mq));
+    }
+
+
+    SECTION("race condition on read and write") {
+
+        param_t * ptr = (param_t *) malloc (sizeof(param_t));
+        ptr->mq = mq;
+        ptr->test_structs = test_structs;
+
+        int i;
+        pthread_t thread_write[TEST_SIZE];
+        int pid_write[TEST_SIZE];
+        for (i = 0; i < TEST_SIZE; ++i) {
+            pid_write[i] = pthread_create(&thread_write[i], NULL, putMsgQueue_thread, (void *) ptr);
+            REQUIRE(pid_write[i] >= 0);
+        }
+
+        pthread_t thread_read[TEST_SIZE * (TEST_SIZE + 1) / 2];
+        int pid_read[TEST_SIZE * (TEST_SIZE + 1) / 2];
+        for (i = 0; i < TEST_SIZE * (TEST_SIZE + 1) / 2; ++i) {
+            pid_read[i] = pthread_create(&thread_read[i], NULL, readMsgQueue_thread, (void *) ptr);
+            REQUIRE(pid_read[i] >= 0);
+        }
+
+        for (i = 0; i < TEST_SIZE; ++i)
+            pthread_join(thread_write[i], NULL);
+        for (i = 0; i < TEST_SIZE * (TEST_SIZE + 1) / 2; ++i)
+            pthread_join(thread_read[i], NULL);
+
+        REQUIRE(0 == availableMsgCount(mq));
+    }
 }
 
 static void readMsgQueue_cb(EV_P_ ev_timer * w_, int r) {
     mq_timer_t * w = (mq_timer_t *) w_;
     MsgQueue_t * mq = w->mq;
-
     REQUIRE(NULL != mq);
 
     // mq should be blocked when full
-
     REQUIRE(TEST_SIZE == availableMsgCount(mq));
 
     Test_Struct_t * p = *(Test_Struct_t **) getNextMsg(mq);
@@ -232,8 +229,9 @@ void * putMsgQueue_thread(void * arg) {
     REQUIRE(NULL != src);
     int i;
     for (i = 0; i <= TEST_SIZE; ++i) {
-        Test_Struct_t * p = &src[i];
-        putIntoMsgQueue(mq, &p);
+        Test_Struct_t ** p = (Test_Struct_t **)malloc(sizeof(Test_Struct_t *));
+        *p = &src[i];
+        putIntoMsgQueue(mq, p);
     }
     return (void*)NULL;
 }

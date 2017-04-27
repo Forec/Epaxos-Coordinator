@@ -16,6 +16,8 @@ set(SOURCE_FILES
         src/Tkdatabase.cpp
         include/Tkdatanode.h
         src/Tkdatanode.cpp
+        utils/include/msg_queue.h
+        utils/src/msg_queue.cpp
         consensus/include/tk_consensus.h
         consensus/include/tk_config.h
         consensus/include/tk_log.h
@@ -26,6 +28,7 @@ set(SOURCE_FILES
         consensus/include/replica.h
         consensus/src/replica.cpp
         execution/include/exec.h
-        execution/src/exec.cpp execution/test/etest.h utils/include/msg_queue.h utils/test/utest.cpp utils/test/utest.h utils/src/msg_queue.cpp utils/test/test_catch.cpp)
+        execution/src/exec.cpp
+        )
 
 add_executable(TkDatabase ${SOURCE_FILES})

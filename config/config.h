@@ -14,6 +14,9 @@
 
 #define PORT 1111
 
+#define MAX_BATCH 1000
+#define ADAPT_TIME_SEC 10
+
 enum OP {
     PUT = 0,
     GET

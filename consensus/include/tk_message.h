@@ -11,7 +11,7 @@
 #include "tk_command.h"
 
 struct Prepare {
-    TYPE Type;
+    uint32_t Type;
     int32_t LeaderId;
     int32_t Replica;
     int32_t Instance;
@@ -214,6 +214,20 @@ struct InstanceId {
         replica(_replica), instance(_instance){
         Type = INSTANCE_ID;
     }
+};
+
+struct Clock {
+    uint32_t Type;
+};
+
+struct Beacon_msg {
+    uint32_t Type;
+    int Rid;
+    uint64_t timestamp;
+};
+
+struct ClientConnect {
+    uint32_t type;
 };
 
 #endif //TKDATABASE_TK_MESSAGE_H

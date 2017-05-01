@@ -61,5 +61,13 @@ struct tk_instance {
     unsigned short low;
 };
 
+struct tk_recovery_instance {
+    tk_command * cmds;
+    uint8_t status;
+    uint32_t seq;
+    uint32_t * deps;
+    int preAcceptCount;
+    uint8_t leaderRespond;
+};
 
 #endif //TKDATABASE_TK_ELOG_H

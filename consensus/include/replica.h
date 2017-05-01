@@ -6,9 +6,11 @@
 #define TKDATABASE_REPLICA_H
 
 #include "debug.h"
+#include "tk_message.h"
 #include "tk_elog.h"
 #include "../../config/config.h"
 #include "../../include/Tkdatabase.h"
+#include "../../utils/include/msg_queue.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -40,6 +42,9 @@ struct Replica {
     FILE *log_fp;
     tk_instance *** InstanceMatrix;
 
+    MsgQueue_t * mq;
+    MsgQueue_t * pro_mq;
+
     int32_t maxSeq;
     int32_t latestCPReplica;
     int32_t latestCPInstance;
@@ -52,5 +57,50 @@ struct Replica {
     bool run();
 };
 
+void connectToPeers(Replica * param);
+void updatePreferredPeerOrder(Replica * r);
+
+// threads TODO
+void * waitForClientConnections(void * arg);
+void * stopAdapting(void * arg);
+void * slowClock(void * arg);
+void * fastClock(void * arg);
+
+
+// handlers for different msg TODO
+void handlePropose(Replica * r, Propose * msgp);
+void handlePrepare(Replica * r, Prepare * msgp);
+void handlePreAccept(Replica * r, PreAccept * msgp);
+void handleAccept(Replica * r, Accept * msgp);
+void handleCommit(Replica * r, Commit * msgp);
+void handleCommitShort(Replica * r, CommitShort * msgp);
+void handlePrepareReply(Replica * r, PrepareReply * msgp);
+void handlePreAcceptReply(Replica * r, PreAcceptReply * msgp);
+void handlePreAcceptOK(Replica * r, PreAcceptOk * msgp);
+void handleAcceptReply(Replica * r, AcceptReply * msgp);
+void handleTryPreAccept(Replica * r, TryPreAccept * msgp);
+void handleTryPreAcceptReply(Replica * r, TryPreAcceptReply * msgp);
+void replyBeacon(Replica * r, Beacon_msg * beacon);
+void sendBeacon(Replica * r, int id);
+void startRecoveryForInstance(Replica * r, InstanceId * iid);
+
+// Phase 1
+void startPhase1(Replica * r, uint64_t instance,
+                 uint32_t ballot, Propose * proposals,
+                 tk_command * cmds, long batchSize);
+
+// Helper functions
+void updateAttributes(Replica * r, long len, tk_command * cmds,
+                      unsigned int * seq, unsigned int * deps, int replica, uint64_t instance);
+void updateConflicts(Replica * r, long len, tk_command * cmds, uint8_t replica,
+                     uint64_t instance, unsigned int seq);
+
+
+// inter replica communications
+void bcastPreAccept(Replica * r, uint8_t replica, uint64_t instance,
+                    uint32_t ballot, tk_command * cmds, unsigned int seq, unsigned int * deps);
+
+extern int conflict, weird, slow, happy;
+extern int cpcounter;
 
 #endif //TKDATABASE_REPLICA_H

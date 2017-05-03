@@ -7,7 +7,7 @@ struct serializeBuff {
 };
 
 //serialize & deserialize prepare
-void serializePrepre(PreAccept_t *pat,struct serializeBuff* oa);
+void serializePrepare(PreAccept_t *pat,struct serializeBuff* oa);
 void deserializePrepare(struct serializeBuff* ia,struct Prepare *pat);
 //serialize & deserialize PrepareReply
 void serializePrepareReply(PrepareReply_t *pat,struct serializeBuff* oa);

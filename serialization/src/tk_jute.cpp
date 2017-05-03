@@ -8,7 +8,7 @@
 using namespace std;
 
 
-void serializePrepre(PreAccept_t *pat,struct serializeBuff* oa){
+void serializePrepare(PreAccept_t *pat,struct serializeBuff* oa){
 
 	tkJute::PrepareJute pa;
 	pa.set_ballot(pat->Ballot);

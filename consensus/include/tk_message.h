@@ -6,22 +6,32 @@
 #define TKDATABASE_TK_MESSAGE_H
 
 #include "tk_elog.h"
+#include <vector>
 
-#define NONE 0
-#define PREACCEPTED 1
-#define PREACCEPTED_EQ 2
-#define ACCEPTED   3
-#define COMMITTED  4
-#define EXECUTED   5
+enum Status {
+    NONE = 0,
+    PREACCEPTED,
+    PREACCEPTED_EQ,
+    ACCEPTED,
+    COMMITTED,
+    EXECUTED
+};
+
+enum TYPE {
+    
+};
 
 
 struct Prepare {
-
+    uint8_t type;
     int32_t LeaderId;
     int32_t Replica;
     int32_t Instance;
     int32_t Ballot;
+    Prepare(int32_t _leaderId, int32_t _replica, int32_t _instance, int32_t _ballot) {
+        type = PRE
 
+    }
 };
 
 typedef struct Prepare Prepare_t;
@@ -151,12 +161,6 @@ typedef struct TryPreAcceptReply {
 };
 
 typedef struct TryPreAcceptReply TryPreAcceptReply_t;
-
-
-
-
-
-
 
 
 #endif //TKDATABASE_TK_MESSAGE_H

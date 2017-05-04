@@ -1,0 +1,54 @@
+//
+// Created by forec on 17-5-4.
+//
+
+#ifndef TKDATABASE_CONFIG_H
+#define TKDATABASE_CONFIG_H
+
+
+#define BATCH_INTERVAL 50
+#define TIMEOUT_INTERVAL 50
+#define EXECUTE_INTERVAL 50
+#define GROUP_SZIE  3
+#define CHECKPOINT_CYCLE 1024
+
+#define PORT 1111
+
+enum OP {
+    PUT = 0,
+    GET
+};
+
+enum STATUS {
+    NONE = 0,
+    PREACCEPTED,
+    PREACCEPTED_EQ,
+    ACCEPTED,
+    COMMITTED,
+    EXECUTED
+};
+
+enum TYPE {
+    DEFAULT = 0,
+    PROPOSE,
+    PROPOSE_REPLY,
+    PREPARE,
+    PREACCEPT,
+    ACCEPT,
+    COMMIT,
+    COMMIT_SHORT,
+    PREPARE_REPLY,
+    PREACCEPT_REPLY,
+    PREACCEPT_OK,
+    ACCEPT_REPLY,
+    TRY_PREACCEPT,
+    TRY_PREACCEPT_REPLY,
+    BEACON,
+    FAST_CLOCK,
+    SLOW_CLOCK,
+    CLIENT_CONNECT,
+    RECOVER_INSTANCE,
+    INSTANCE_ID
+};
+
+#endif //TKDATABASE_CONFIG_H

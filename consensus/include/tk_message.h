@@ -5,162 +5,215 @@
 #ifndef TKDATABASE_TK_MESSAGE_H
 #define TKDATABASE_TK_MESSAGE_H
 
-#include "tk_elog.h"
+#include "../../config/config.h"
 #include <vector>
-
-enum Status {
-    NONE = 0,
-    PREACCEPTED,
-    PREACCEPTED_EQ,
-    ACCEPTED,
-    COMMITTED,
-    EXECUTED
-};
-
-enum TYPE {
-    
-};
-
+#include <array>
+#include "tk_command.h"
 
 struct Prepare {
-    uint8_t type;
+    TYPE Type;
     int32_t LeaderId;
     int32_t Replica;
     int32_t Instance;
     int32_t Ballot;
-    Prepare(int32_t _leaderId, int32_t _replica, int32_t _instance, int32_t _ballot) {
-        type = PRE
-
+    Prepare(int32_t _leaderId, int32_t _replica, int32_t _instance, int32_t _ballot) :
+        LeaderId(_leaderId), Replica(_replica), Instance(_instance), Ballot(_ballot){
+        Type = PREPARE;
     }
 };
 
-typedef struct Prepare Prepare_t;
-
-
 struct PrepareReply {
-
+    bool Ok;
+    TYPE Type;
+    STATUS  Status;
     int32_t AcceptorId;
     int32_t Replica;
     int32_t Instance;
-    uint8_t Ok;
     int32_t Ballot;
-    int8_t  Status;
-    tk_command_t cmd;
     int32_t Seq;
-    int32_t Deps[5];
-
+    std::vector<tk_command> Command;
+    std::array<int32_t, GROUP_SZIE> Deps;
+    PrepareReply(int32_t _acceptorId, int32_t _replica, int32_t _instance,
+                 bool _ok, int32_t _ballot, STATUS _status, int32_t _seq,
+                 std::vector<tk_command> &_command,
+                 std::array<int32_t, GROUP_SZIE> &_deps) :
+    AcceptorId(_acceptorId), Replica(_replica), Instance(_instance), Ok(_ok),
+    Ballot(_ballot), Seq(_seq), Status(_status), Command(_command), Deps(_deps) {
+        Type = PREPARE_REPLY;
+    }
 };
-
-typedef struct PrepareReply  PrepareReply_t;
-
 
 struct PreAccept {
+    TYPE Type;
     int32_t LeaderId;
     int32_t Replica;
     int32_t  Instance;
     int32_t Ballot;
-    tk_command_t cmd;
     int32_t  Seq;
-    int32_t  Deps[5];
+    std::vector<tk_command> Command;
+    std::array<int32_t, GROUP_SZIE> Deps;
+    PreAccept(int32_t _leaderId, int32_t _replica, int32_t _instance,
+              int32_t _ballot, int32_t _seq, std::vector<tk_command> &_command,
+              std::array<int32_t, GROUP_SZIE> &_deps):
+        LeaderId(_leaderId), Replica(_replica), Instance(_instance), Ballot(_ballot),
+        Seq(_seq), Command(_command), Deps(_deps){
+        Type = PREACCEPT;
+    }
 };
-
-
-typedef struct PreAccept PreAccept_t;
-
 
 struct PreAcceptReply {
-
+    bool  Ok;
+    TYPE Type;
     int32_t Replica;
     int32_t Instance;
-    uint8_t  Ok;
     int32_t  Ballot;
     int32_t  Seq;
-    int32_t  Deps[5];
-    int32_t  CommittedDeps[5];
+    std::array<int32_t, GROUP_SZIE> Deps;
+    std::array<int32_t, GROUP_SZIE> CommittedDeps;
+    PreAcceptReply(int32_t _replica, int32_t _instance, bool _ok, int32_t _ballot,
+                   int32_t _seq, std::array<int32_t, GROUP_SZIE> &_deps,
+                   std::array<int32_t, GROUP_SZIE> _cmDeps) :
+        Replica(_replica), Instance(_instance), Ok(_ok), Ballot(_ballot),
+        Seq(_seq), Deps(_deps), CommittedDeps(_cmDeps) {
+        Type = PREACCEPT_REPLY;
+    }
 };
-
-typedef struct PreAcceptReply PreAcceptReply_t;
-
 
 struct PreAcceptOk {
-
+    TYPE Type;
     int32_t Instance;
-
+    PreAcceptOk(int32_t _instance) : Instance(_instance) {
+        Type = PREACCEPT_OK;
+    }
 };
 
-typedef struct PreAcceptOk PreAcceptOk_t;
-
-
 struct Accept {
-
+    TYPE Type;
     int32_t  LeaderId;
     int32_t  Replica;
     int32_t  Instance;
     int32_t  Ballot;
     int32_t  Count;
     int32_t  Seq;
-    int32_t  Deps[5];
+    std::array<int32_t, GROUP_SZIE> Deps;
+    Accept(int32_t _leaderId, int32_t _replica, int32_t _instance,
+           int32_t _ballot, int32_t _count, int32_t _seq,
+           std::array<int32_t, GROUP_SZIE> & _deps) :
+        LeaderId(_leaderId), Replica(_replica), Instance(_instance),
+        Ballot(_ballot), Count(_count), Seq(_seq), Deps(_deps) {
+        Type = ACCEPT;
+    }
 };
-
-typedef struct Accept Accept_t;
-
 
 struct AcceptReply {
-
+    bool Ok;
+    TYPE Type;
     int32_t Replica;
     int32_t Instance;
-    uint8_t Ok;
     int32_t Ballot;
+    AcceptReply(int32_t _replica, int32_t _instance, int32_t _ballot, bool _ok) :
+        Replica(_replica), Instance(_instance), Ballot(_ballot), Ok(_ok) {
+        Type = ACCEPT_REPLY;
+    }
 };
 
-typedef struct AcceptReply AcceptReply_t;
-
-
 struct Commit {
+    TYPE Type;
     int32_t LeaderId;
     int32_t Replica;
     int32_t Instance;
-    tk_command_t cmd;
     int32_t Seq;
-    int32_t Deps[5];
+    std::vector<tk_command> Command;
+    std::array<int32_t, GROUP_SZIE> Deps;
+    Commit(int32_t _leaderId, int32_t _replica, int32_t _instance, int32_t _seq,
+        std::vector<tk_command> &_cmds, std::array<int32_t, GROUP_SZIE> &_deps) :
+        LeaderId(_leaderId), Replica(_replica), Instance(_instance),
+        Seq(_seq), Command(_cmds), Deps(_deps) {
+        Type = COMMIT;
+    }
 };
 
-typedef struct Commit Commit_t;
-
 struct CommitShort {
+    TYPE Type;
     int32_t  LeaderId;
     int32_t  Replica;
     int32_t  Instance;
     int32_t  Count;
     int32_t  Seq;
-    int32_t  Deps[5];
+    std::array<int32_t, GROUP_SZIE> Deps;
+    CommitShort(int32_t _leaderId, int32_t _replica, int32_t _instance,
+                int32_t _count, int32_t _seq, std::array<int32_t, GROUP_SZIE> & _deps):
+        LeaderId(_leaderId), Replica(_replica), Instance(_instance), Count(_count),
+        Seq(_seq), Deps(_deps) {
+        Type = COMMIT_SHORT;
+    }
 };
 
-typedef struct CommitShort CommitShort_t;
-
-
 struct TryPreAccept {
+    TYPE Type;
     int32_t LeaderId;
     int32_t Replica;
     int32_t Instance;
     int32_t Ballot;
-    tk_command_t cmd;
     int32_t Seq;
-    int32_t Deps[5];
+    std::vector<tk_command> Command;
+    std::array<int32_t, GROUP_SZIE> Deps;
+    TryPreAccept(int32_t _leaderId, int32_t _replica, int32_t _instance, int32_t _ballot,
+                 int32_t _seq, std::vector<tk_command> &_cmds, std::array<int32_t, GROUP_SZIE> &_deps) :
+        LeaderId(_leaderId), Replica(_replica), Instance(_instance), Ballot(_ballot),
+        Seq(_seq), Command(_cmds), Deps(_deps) {
+        Type = TRY_PREACCEPT;
+    }
 };
 
-typedef struct TryPreAcceptReply {
+struct TryPreAcceptReply {
+    bool Ok;
+    TYPE Type;
     int32_t AcceptorId;
     int32_t Replica;
     int32_t Instance;
-    uint8_t Ok;
     int32_t Ballot;
-    int32_t ConfilctReplica;
-    int32_t ConfilctInstance;
-    int32_t ConfilctStatus;
+    int32_t ConflictReplica;
+    int32_t ConflictInstance;
+    int32_t ConflictStatus;
+    TryPreAcceptReply(int32_t _acceptorId, int32_t _replica, int32_t  _instance, int32_t _ballot, bool _ok,
+                      int32_t _conflictReplica, int32_t _conflictInstance, int32_t _conflictStatus) :
+        AcceptorId(_acceptorId), Replica(_replica), Instance(_instance), Ballot(_ballot),
+        ConflictReplica(_conflictReplica), ConflictInstance(_conflictInstance), ConflictStatus(_conflictStatus) {
+        Type = TRY_PREACCEPT_REPLY;
+        Ok = _ok;
+    }
 };
 
-typedef struct TryPreAcceptReply TryPreAcceptReply_t;
+struct Propose {
+    TYPE Type;
+    int32_t CommandId;
+    int64_t Timestamp;
+    tk_command Command;
+    // TODO: RDMA REPLY HANDLE
+    Propose(int32_t _commandId, int64_t _timestamp, tk_command & _cmd) :
+        CommandId(_commandId), Timestamp(_timestamp), Command(_cmd) {
+        Type = PROPOSE;
+    }
+};
 
+struct ProposeReply {
+    TYPE Type;
+    uint8_t OK;
+    int32_t CommandId;
+    ProposeReply(uint8_t _ok, int32_t _cmdId) : OK(_ok), CommandId(_cmdId) {
+        Type = PROPOSE_REPLY;
+    }
+};
+
+struct InstanceId {
+    TYPE Type;
+    int32_t replica;
+    int32_t instance;
+    InstanceId(int32_t _replica, int32_t _instance) :
+        replica(_replica), instance(_instance){
+        Type = INSTANCE_ID;
+    }
+};
 
 #endif //TKDATABASE_TK_MESSAGE_H

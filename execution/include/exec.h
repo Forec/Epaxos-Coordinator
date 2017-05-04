@@ -6,7 +6,7 @@
 #define TKDATABASE_EXEC_H
 
 #include "../../consensus/include/tk_elog.h"
-#include "../../consensus/include/tk_server.h"
+#include "../../consensus/include/replica.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
@@ -17,27 +17,21 @@
 #define COMMIT_GRACE_PERIOD 10*SLEEP_TIME_NS
 
 extern unsigned int instance_stack_size;
-extern tk_instance_t ** instance_stack;
+extern tk_instance ** instance_stack;
 extern unsigned int top;
 
 void nano_sleep(unsigned int ns);
 
 int cmp_instance(const void *p1, const void *p2);
 
-uint8_t strong_connect(replica_server_param_t * r,
-                       tk_instance_t * v,
-                       unsigned short * index);
+bool strong_connect(Replica * r, tk_instance * v, unsigned short * index);
 
-uint8_t find_SCC(replica_server_param_t * r,
-                 tk_instance_t * v);
+bool find_SCC(Replica * r, tk_instance * v);
 
-uint8_t execute_instance(replica_server_param_t * r,
-                         int replica,
-                         uint64_t instance);
+bool execute_instance(Replica * r, int replica, int instance);
 
-char * execute_command(tk_command_t * c,
-                       Tkdatabase_t * st);
+char * execute_command(tk_command * c, Tkdatabase_t * st);
 
-void execute_thread(replica_server_param_t * r);
+void execute_thread(Replica * r);
 
 #endif //TKDATABASE_EXEC_H

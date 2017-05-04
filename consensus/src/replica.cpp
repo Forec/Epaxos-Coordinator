@@ -4,72 +4,57 @@
 #include "../include/replica.h"
 
 
-int verify_param(replica_server_param_t* param)
-{
-    int ret  = 0;
-    if(param->group_size == 0){
-        param->group_size = GROUP_SZIE;
+bool Replica::verify() {
+    if(group_size == 0) {
+        group_size = GROUP_SZIE;
     }
-    if(param->group_size % 2 == 0){
-        error_exit(0, param->log_fp, "Group size must be odd !");
-        ret = 1;
+    if(group_size % 2 == 0) {
+        error_exit(0, log_fp, "Group size must be odd !");
+        return false;
     }
 
-    if(param->checkpoint_cycle == 0){
-        param->checkpoint_cycle = CHECKPOINT_CYCLE;
+    if(checkpoint_cycle == 0) {
+        checkpoint_cycle = CHECKPOINT_CYCLE;
     }
-    if(param->addrs == NULL){
-        param->addrs = (char **)malloc(param->group_size * sizeof(char*));
-        int i = 0;
-        for(i = 0; i < param-> group_size; i++){
-            char* addr;
-            int len =0;
-            len = sprintf(addr, "localhost:%d", PORT + i);
-            if(len != 0){
-                *(param->addrs + i) = addr;
-            }
+    if (PeerAddrList.size() == 0) {
+        for (int i = 0; i < group_size; i++) {
+            std::string addr = "localhost:" + to_string(PORT + i);
+            PeerAddrList.push_back(addr);
         }
     }
-
-    return ret;
+    return true;
 }
 
 
-int init_replica_server(replica_server_param_t* param)
-{
-    int ret = verify_param(param);
+bool Replica::init() {
 
-    if(ret){
+    if(!verify()){
         printf("init failed, more detail to see the log!\n");
-        return ret;
+        return false;
     }
 
-    if(strcmp(param->string_path, "") == 1){
+    if(path.empty()){
+        path = "/tmp/test" + to_string(Id);
+    }
 
-        sprintf(param->string_path,"%s-%d", "/tmp/test", param->replicaId);
+    InstanceMatrix = (tk_instance ***) malloc(group_size * sizeof(tk_instance **));
+    crtInstance.resize(group_size, 0);
+    executeUpTo.resize(group_size, 0);
+    for(unsigned int i = 0; i < group_size; i++){
+        InstanceMatrix[i] = (tk_instance **)malloc(2 * 1024 * 1024 * sizeof(tk_instance *));
+        memset(InstanceMatrix[i], 0, 2 * 1024 * 1024 * sizeof(tk_instance *));
     }
-    param->InstanceMatrix = (tk_instance_t**) malloc(param->group_size * sizeof(tk_instance_t *));
-    param->MaxInstanceNum = (uint64_t *) malloc(param->group_size * sizeof(uint64_t));
-    param->executeupto = (uint64_t *) malloc(param->group_size * sizeof (uint64_t));
-    for(uint8_t i = 0; i < param->group_size; i++){
-        param->InstanceMatrix[i] = (tk_instance_t *)malloc(1024 * 1024 * sizeof(tk_instance_t));
-        memset(param->InstanceMatrix[i], 0, 1024 * 1024 * sizeof(tk_instance_t));
-        param->MaxInstanceNum[i] = 0;
-        param->executeupto[i] = 0;
-    }
-    if(param->flag & RESTORE_MASK){
+    if(Restore){
         //TODO: recovery from log file;
     }
 
-//    chan_init(1000);
-    return ret;
+    return true;
 }
 
 
-int start_replica_server(replica_server_param_t *param)
-{
+bool Replica::run() {
 
-    init_replica_server(param);
+    init();
 
     // TODO: 1. event loop; -- To process the message from servers each other, get msgs from a channel;
 
@@ -82,8 +67,5 @@ int start_replica_server(replica_server_param_t *param)
     //TODO:  network start;    --  connect peer and peer, and process the message.
 
     //coroutine method;
-
-
-
-
+    return true;
 }

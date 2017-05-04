@@ -12,12 +12,14 @@
 #include <pthread.h>
 #include "../../consensus/include/replica.h"
 #include "../include/exec.h"
+#include <vector>
+#include <string>
 
 struct my_timer {
     ev_timer timer;
     union {
-        tk_instance_t * instance;
-        replica_server_param_t * replica;
+        tk_instance * instance;
+        Replica * replica;
     };
 };
 

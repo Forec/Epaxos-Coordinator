@@ -16,6 +16,8 @@
 
 #define MAX_BATCH 1000
 #define ADAPT_TIME_SEC 10
+#define DO_CHECKPOINTING false
+#define CHECKPOINT_PERIOD 10000
 
 enum OP {
     PUT = 0,

@@ -90,7 +90,7 @@ void startPhase1(Replica * r, uint64_t instance,
                  tk_command * cmds, long batchSize);
 
 // Helper functions
-void updateAttributes(Replica * r, long len, tk_command * cmds,
+uint8_t updateAttributes(Replica * r, long cmds_len, tk_command * cmds,
                       unsigned int * seq, unsigned int * deps, int replica, uint64_t instance);
 void updateConflicts(Replica * r, long len, tk_command * cmds, uint8_t replica,
                      uint64_t instance, unsigned int seq);
@@ -99,6 +99,10 @@ void updateConflicts(Replica * r, long len, tk_command * cmds, uint8_t replica,
 // inter replica communications
 void bcastPreAccept(Replica * r, uint8_t replica, uint64_t instance,
                     uint32_t ballot, tk_command * cmds, unsigned int seq, unsigned int * deps);
+
+
+// recovery actions
+void replyPrepare(Replica * r, int32_t LeaderId, PrepareReply * preply);
 
 extern int conflict, weird, slow, happy;
 extern int cpcounter;

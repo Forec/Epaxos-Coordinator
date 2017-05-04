@@ -43,6 +43,7 @@ bool Replica::init() {
     for(unsigned int i = 0; i < group_size; i++){
         InstanceMatrix[i] = (tk_instance **)malloc(2 * 1024 * 1024 * sizeof(tk_instance *));
         memset(InstanceMatrix[i], 0, 2 * 1024 * 1024 * sizeof(tk_instance *));
+        conflicts[i] = unordered_map<std::string, int32_t>();
     }
     if(Restore){
         //TODO: recovery from log file;
@@ -168,10 +169,10 @@ bool Replica::run() {
 
 // TODO
 void * waitForClientConnections(void * arg) {
-    replica_server_param_t * r = (replica_server_param_t *) arg;
-    ClientConnect_t * notice = (ClientConnect_t *)malloc(sizeof(ClientConnect_t));
+    Replica * r = (Replica *) arg;
+    ClientConnect * notice = (ClientConnect *)malloc(sizeof(ClientConnect));
     notice->type = CLIENT_CONNECT;
-    while (!(r->flag & SHUTDOWN_MASK)) {
+    while (!r->Shutdown) {
         // accept requests from clients
         // go(clientListener);
         putIntoMsgQueue(r->mq, &notice);
@@ -180,10 +181,10 @@ void * waitForClientConnections(void * arg) {
 }
 
 void * slowClock(void * arg) {
-    replica_server_param_t * r = (replica_server_param_t *) arg;
-    Clock_t * timeout = (Clock_t *)malloc(sizeof(Clock_t));
-    timeout->type = SLOW_CLOCK;
-    while (!(r->flag & SHUTDOWN_MASK)) {
+    Replica * r = (Replica *) arg;
+    Clock * timeout = (Clock *)malloc(sizeof(Clock));
+    timeout->Type = SLOW_CLOCK;
+    while (!r->Shutdown) {
         nano_sleep(150 * 1000000); // 150 ms
         putIntoMsgQueue(r->mq, &timeout);
     }
@@ -298,7 +299,7 @@ void startPhase1(Replica * r, uint64_t instance,
 
     updateAttributes(r, batchSize, cmds, &seq, deps, r->Id, instance);
 
-    tk_instance newInstance = {cmds, batchSize, deps, seq, 0, 0, NULL};
+    tk_instance newInstance = {cmds, batchSize, ballot, deps, seq, 0, 0, 0, NULL};
     lb_t * lb = (lb_t *)malloc(sizeof(lb_t));
     uint32_t * committedDeps = (uint32_t *) malloc (sizeof(uint32_t) * r->group_size);
     memset(lb, 0, sizeof(lb_t));
@@ -322,10 +323,10 @@ void startPhase1(Replica * r, uint64_t instance,
      * sync(); // sync with stable storage
      */
 
-    bcastPreAccept(r, r->replicaId, instance, ballot, cmds, seq, deps);
+    bcastPreAccept(r, r->Id, instance, ballot, cmds, seq, deps);
     cpcounter += batchSize;
 
-    if (r->replicaId == 0 && DO_CHECKPOINTING && cpcounter >= CHECKPOINT_PERIOD) {
+    if (r->Id == 0 && DO_CHECKPOINTING && cpcounter >= CHECKPOINT_PERIOD) {
         // by default this block will not execute
         /*
          * cpcounter = 0;
@@ -337,13 +338,66 @@ void startPhase1(Replica * r, uint64_t instance,
     }
 }
 
+void handlePreAccept(Replica * r, PreAccept * msgp) {
+    tk_instance * inst = r->InstanceMatrix[msgp->LeaderId][msgp->Instance];
+    if (msgp->Seq >= r->maxSeq)
+        r->maxSeq = msgp->Seq + 1;
+    if (inst && (inst->status == COMMITTED || inst->status == ACCEPTED)) {
+        if (inst->cmds.empty()) {
+            inst->cmds = msgp->Command;
+            updateConflicts(r, msgp->Command.size(), msgp->Command,
+                            msgp->Replica, msgp->Instance, msgp->Seq);
+        }
+        // TODO: recordCommands(msgp->cmds, msgp->cmds_count);
+        // TODO: sync(r);
+        return;
+    }
+    if (msgp->Instance >= r->MaxInstanceNum[msgp->Replica])
+        r->MaxInstanceNum[msgp->Replica] = msgp->Instance + 1;
+
+    // update attributes for command
+    uint8_t  changed = updateAttributes(r, msgp->cmds_count, msgp->cmds, &msgp->Seq,
+                                        msgp->deps, msgp->Replica, msgp->Instance);
+
+    uint8_t uncommittedDeps = 0;
+    int q;
+    for (q = 0; q < r->group_size; q++) {
+        if (msgp->deps[q] > r->committedupto[q]) {
+            uncommittedDeps = 1;
+            break;
+        }
+    }
+    uint8_t status = PREACCEPTED_EQ;
+    if (changed) {
+        status = PREACCEPT;
+    }
+    if (inst) {
+        if (msgp->Ballot < inst->ballot) {
+            PreAcceptReply * preacply = (PreAcceptReply *) malloc(sizeof(PreAcceptReply));
+            preacply->Type = PREACCEPT_REPLY;
+            preacply->Replica = msgp->Replica;
+            preacply->Instance = msgp->Instance;
+            preacply->Ok = 0;
+            preacply->Ballot = inst->ballot;
+            preacply->Seq = inst->seq;
+            preacply->Deps = inst->deps;
+            preacply->CommittedDeps = r->committedUpTo;
+            // TODO: replyPreAccept(r, preacply);
+            return;
+        } else {
+            inst->cmds = msgp->Command;
+        }
+    }
+
+}
+
 // TODO
 void bcastPreAccept() {
     // Broadcast PreAccept
 }
 
 // ********************************* Helper Functions **********************************
-void updateAttributes(Replica * r, long len, tk_command * cmds,
+uint8_t updateAttributes(Replica * r, long len, tk_command * cmds,
                       unsigned int * seq, unsigned int * deps, int replica, uint64_t instance) {
     uint8_t changed = 0;
     int i, q;
@@ -371,6 +425,7 @@ void updateAttributes(Replica * r, long len, tk_command * cmds,
             *seq = s->second + 1;
         }
     }
+    return changed;
 }
 
 void updateConflicts(Replica * r, long len, tk_command * cmds,
@@ -391,4 +446,47 @@ void updateConflicts(Replica * r, long len, tk_command * cmds,
             r->maxSeqPerKey[std::string(cmds[i].key)] = seq;
         }
     }
+}
+
+// ********************************* Recovery Actions ************************************
+// TODO: This function has problem? Not sure yet.
+void handlePrepare(Replica * r, Prepare *msgp) {
+    tk_instance * inst = r->InstanceMatrix[msgp->Replica][msgp->Instance];
+    PrepareReply * preply = (PrepareReply *) malloc (sizeof(PrepareReply));
+    unsigned int * nilDeps = (unsigned int *) malloc (sizeof(unsigned int) * r->group_size);
+    if (!inst) {
+        tk_instance newInstance;
+        newInstance = {NULL, 0, msgp->Ballot, nilDeps, 0, USED_MASK, 0, 0, NULL};
+        preply->Type = PREPARE_REPLY;
+        preply->AcceptorId = r->Id;
+        preply->Replica = msgp->Replica;
+        preply->Instance = msgp->Instance;
+        preply->Ok = 1;
+        preply->Ballot = -1;
+        preply->Status = 0;
+        preply->cmds = NULL;
+        preply->cmds_count = 0;
+        preply->Seq = -1;
+        preply->deps = nilDeps;
+        preply->deps_count = 0;
+    } else {
+        uint8_t ok = 1;
+        if (msgp->Ballot < inst.ballot)
+            ok = 0;
+        else
+            inst.ballot = msgp->Ballot;
+        preply->type = PREPARE_REPLY;
+        preply->AcceptorId = msgp->LeaderId;
+        preply->Replica = msgp->Replica;
+        preply->Ok = ok;
+        preply->Ballot = inst.ballot;
+        preply->Status = inst.flag;
+        preply->cmds = inst.cmds;
+        preply->cmds_count = inst.cmds_count;
+        preply->Seq = inst.seq;
+        preply->deps = inst.deps;
+        preply->deps_count = inst.deps_count;
+    }
+    // TODO
+    replyPrepare(r, msgp->LeaderId, preply);
 }

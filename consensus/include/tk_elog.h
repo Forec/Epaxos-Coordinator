@@ -6,68 +6,60 @@
 #define TKDATABASE_TK_ELOG_H
 
 #include <stdint.h>
+#include <array>
+#include <vector>
+#include "../../config/config.h"
+#include "tk_command.h"
+#include "tk_message.h"
 
-#define PUT 1
-#define GET  2
-
-#define EXECUTED_MASK 0x01
-#define USED_MASK 0x02
-#define COMMITTED_MASK 0x04
-
-struct tk_command{
-    uint8_t opcode;
-    char* key;
-    char* val;
+struct RecoverInstance {
+    bool leaderResponded;
+    int8_t status;
+    int32_t seq;
+    int preAcceptCount;
+    std::array<int32_t, GROUP_SZIE> deps;
+    std::vector<tk_command> cmds;
+    RecoverInstance(bool _leaderResponded, int8_t _status,
+                    int32_t _seq, int _preAcceptCount,
+                    std::array<int32_t, GROUP_SZIE> & _deps,
+                    std::vector<tk_command> & _cmds) :
+        leaderResponded(_leaderResponded), status(_status),
+        seq(_seq), preAcceptCount(_preAcceptCount), deps(_deps), cmds(_cmds) {
+    };
 };
-
-typedef struct tk_command tk_command_t;
-
-struct propose_request {
-    tk_command_t cmd;
-    uint64_t  id;
-};
-
-typedef struct propose_request propose_request_t;
 
 struct LeaderBookkeeping {
-    /*
-     * to be considered
-     * maintain the client proposals related with this instance
-     * Propose * clientProposals;
-     * uint32_t maxRecvBallot;
-     * ...
-     */
-    propose_request_t * clientProposals;
+    int32_t maxRecvBallot;
+    int prepareOKs;
+    bool allEqual;
+    int preAcceptOKs;
+    int acceptOKs;
+    int nacks;
+    std::array<int32_t, GROUP_SZIE> originalDeps;
+    std::vector<int32_t> committedDeps;
+    RecoverInstance * recoveryInst;
+    bool preparing;
+    bool tryingToPreAccept;
+    // TODO::Should not use vector<bool> here
+    std::vector<bool> possibleQuorum;
+    std::vector<Propose> clientProposals;
+    int tapOKs;
 };
 
 typedef struct LeaderBookkeeping lb_t;
 
 struct tk_instance {
-
-    tk_command_t * cmds;
-    unsigned int   cmds_count;
-    unsigned int * deps;
-    unsigned int   seq;
-    uint8_t        flag;
-    /*
-     * flag & EXECUTED_MASK = executed
-     * flag & USED_MASK = used
-     * flag & COMMITTED_MASK = committed
-     */
+    std::vector<tk_command> cmds;
+    int32_t  ballot;
+    int8_t  status;
+    int32_t  seq;
+    std::array<int32_t, GROUP_SZIE> deps;
+    lb_t * lb;
 
     // dfn and low: for tarjan algorithm in execution loop
     unsigned short dfn;
     unsigned short low;
-
-    lb_t * lb;
 };
-
-typedef struct tk_instance tk_instance_t;
-
-
-
-
-
 
 
 #endif //TKDATABASE_TK_ELOG_H

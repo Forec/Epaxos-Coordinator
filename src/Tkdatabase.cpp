@@ -79,9 +79,7 @@ int add_node_to_db(Tkdatabase_t* db, datanode_t *datanode, const string & node_p
 }
 
 
-int getdata_from_db(const Tkdatabase_t *db, const char * node_path_cstr, char** getdata)
-{
-    string node_path(node_path_cstr);
+int getdata_from_db(const Tkdatabase_t *db, const string &node_path, char** getdata) {
     unordered_map<string, datanode_t*>::const_iterator it = db->Tkdb.find(node_path);
     //cout << "Welcome to get data" << endl;
     if(db->Tkdb.end() == it){
@@ -151,14 +149,13 @@ int setData_to_datanode(Tkdatabase_t *db, const string & path, char *data)
     }
 }
 
-int putData_into_db(Tkdatabase_t *db, const char *path, char *data)
+int putData_into_db(Tkdatabase_t *db, const std::string & path, char *data)
 {
     int res;
-    string path_str(path);
-    if (-1 == (res = setData_to_datanode(db, path_str, data))) {
+    if (-1 == (res = setData_to_datanode(db, path, data))) {
         datanode_t * new_node = new datanode_t();
         new_node->data = data;
-        return add_node_to_db(db, new_node, path_str);
+        return add_node_to_db(db, new_node, path);
     }
     return res;
 }

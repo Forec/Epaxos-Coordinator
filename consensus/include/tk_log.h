@@ -29,7 +29,7 @@ struct tk_log_entry{
     uint64_t clt_id;   /*LID of the client*/
     uint8_t  type;      /*CSM, CONFIG, NOOP, HEAD*/
     union {
-        tk_command_t cmd;
+        tk_command cmd;
         tk_cid_t cid;
         uint64_t head;
     }data;  /* The entry data */
@@ -458,7 +458,7 @@ log_append_entry(tk_log_t* log,
                   uint8_t  type,
                   void *data )
 {
-    tk_command_t *cmd = (tk_command_t*)data;
+    tk_command *cmd = (tk_command *)data;
     tk_cid_t *cid = (tk_cid_t*)data; //for vote.
     uint64_t *head = (uint64_t*)data; //for snapshot.
     if (type != HEAD) {

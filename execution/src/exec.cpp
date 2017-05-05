@@ -76,12 +76,11 @@ strong_connect(Replica * r,
     if (v->low == v->dfn) {
         qsort(&STACK[pos], top - pos, sizeof(tk_instance *), cmp_instance);
 
-        unsigned int j, idx;
-        for (j = pos; j < top; ++j) {
+        for (int j = pos; j < top; ++j) {
             w = STACK[j];
             while (w == nullptr || w->cmds.empty())
                 nano_sleep(1000 * 1000);
-            for (idx = 0; idx < w->cmds.size(); ++idx) {
+            for (int idx = 0; idx < w->cmds.size(); ++idx) {
                 char * val = execute_command(&(w->cmds[idx]), r->statemachine);
 #ifndef DEBUG_EXEC
                 if (r->Dreply && w->lb && !w->lb->clientProposals.empty()) {

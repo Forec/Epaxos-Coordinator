@@ -98,7 +98,7 @@ strong_connect(Replica * r,
                 }
 #endif
             }
-            w->status == EXECUTED;
+            w->status = EXECUTED;
 #ifdef DEBUG_EXEC
             printf("EXECUTED %d COMMANDS\n", w->cmds.size());
 #endif

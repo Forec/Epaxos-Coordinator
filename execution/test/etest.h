@@ -27,6 +27,5 @@ typedef struct my_timer my_timer_t;
 
 static void commit_timeout_cb(EV_P_ ev_timer *w, int r);
 static void shutdown_timeout_cb(EV_P_ ev_timer *w, int r);
-void * execute_thread_t(void * arg);
 
 #endif //TKDATABASE_ETEST_H

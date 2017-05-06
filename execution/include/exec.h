@@ -7,10 +7,9 @@
 
 #include "../../consensus/include/tk_elog.h"
 #include "../../consensus/include/replica.h"
+#include "../../utils/include/utils.h"
 #include <stdint.h>
 #include <stdlib.h>
-#include <time.h>
-
 
 #define STACK instance_stack
 #define SLEEP_TIME_NS 1000000
@@ -19,8 +18,6 @@
 extern unsigned int instance_stack_size;
 extern tk_instance ** instance_stack;
 extern unsigned int top;
-
-void nano_sleep(unsigned int ns);
 
 int cmp_instance(const void *p1, const void *p2);
 
@@ -32,6 +29,6 @@ bool execute_instance(Replica * r, int replica, int instance);
 
 char * execute_command(tk_command * c, Tkdatabase_t * st);
 
-void execute_thread(Replica * r);
+void * execute_thread(void * arg);
 
 #endif //TKDATABASE_EXEC_H

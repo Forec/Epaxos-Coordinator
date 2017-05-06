@@ -10,12 +10,6 @@ unsigned int instance_stack_size;
 tk_instance ** instance_stack;
 unsigned int top;
 
-void nano_sleep(unsigned int ns){
-    struct timespec ts;
-    ts.tv_sec = 0; ts.tv_nsec = ns;
-    nanosleep(&ts, 0);
-}
-
 int cmp_instance(const void *p1, const void *p2) {
     if ((*(tk_instance **)p1)->seq <  (*(tk_instance **)p2)->seq) return -1;
     if ((*(tk_instance **)p1)->seq == (*(tk_instance **)p2)->seq) return 0;
@@ -145,11 +139,12 @@ execute_command(tk_command * c, Tkdatabase_t * st) {
     return res;
 }
 
-void execute_thread(Replica * r) {
+void * execute_thread(void * arg) {
+    Replica * r = (Replica *)arg;
 
     if (!r) {
         info(stderr, "initialize replica first!\n");
-        return;
+        return (void*)NULL;
     }
 
     // only initialized once
@@ -158,7 +153,7 @@ void execute_thread(Replica * r) {
 
     if (!instance_stack) {
         info(stderr, "cannot allocate space for STACK\n");
-        return;
+        return (void*)NULL;
     }
 
     int32_t * problemInstance = new int32_t[r->group_size];
@@ -213,4 +208,5 @@ void execute_thread(Replica * r) {
     }
     delete [] problemInstance;
     delete [] timeout;
+    return (void*) nullptr;
 }

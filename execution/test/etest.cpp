@@ -119,7 +119,7 @@ TEST_CASE("Instance execution", "exec") {
         ev_timer_start(loop, &timeout_watcher.timer);
 
         pthread_t thread;
-        int pid = pthread_create(&thread, NULL, execute_thread_t, (void *)r);
+        int pid = pthread_create(&thread, NULL, execute_thread, (void *)r);
         REQUIRE( pid >= 0 );
 
         ev_run(loop, 0);
@@ -149,10 +149,4 @@ static void shutdown_timeout_cb(EV_P_ ev_timer * w_, int r) {
     replica->Shutdown = true;
     ev_timer_stop(loop, &(w->timer));
     ev_break(loop, EVBREAK_ALL);
-}
-
-void * execute_thread_t(void * arg){
-    Replica * r = (Replica *)arg;
-    execute_thread(r);
-    return (void*)NULL;
 }

@@ -18,6 +18,12 @@ set(SOURCE_FILES
         ../../consensus/src/replica.cpp
         ../../execution/include/exec.h
         ../../execution/src/exec.cpp
+        ../../utils/include/msg_queue.h
+        ../../utils/src/msg_queue.cpp
+        ../../utils/include/go_thread.h
+        ../../utils/src/go_thread.cpp
+        ../../utils/include/utils.h
+        ../../utils/src/utils.cpp
         etest.h
         etest.cpp
   )

@@ -10,3 +10,15 @@ void nano_sleep(uint64_t ns){
     nanosleep(&ts, 0);
 }
 
+bool isInitialBallot(int32_t ballot) {
+    return (ballot >> 4) == 0;
+}
+
+bool equal(std::array<int32_t, GROUP_SZIE> & deps1,
+           std::array<int32_t, GROUP_SZIE> & deps2) {
+    for (int i = 0; i < deps1.size(); i++) {
+        if (deps1[i] != deps2[i])
+            return false;
+    }
+    return true;
+}

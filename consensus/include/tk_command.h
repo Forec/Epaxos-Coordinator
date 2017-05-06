@@ -9,7 +9,7 @@
 #include <string>
 
 struct tk_command{
-    uint8_t opcode;
+    OP opcode;
     std::string key;
     char* val;
 };

@@ -139,13 +139,8 @@ execute_command(tk_command * c, Tkdatabase_t * st) {
     return res;
 }
 
-<<<<<<< efa7a06682810a70e5cd1b824912dfec8eff0293
-void execute_thread(Replica * r) {
-=======
 void * execute_thread(void * arg) {
-
-    replica_server_param_t * r = (replica_server_param_t *)arg;
->>>>>>> add main loop and phase 1, cannot test temporarily
+    Replica * r = (Replica *)arg;
 
     if (!r) {
         info(stderr, "initialize replica first!\n");
@@ -213,4 +208,5 @@ void * execute_thread(void * arg) {
     }
     delete [] problemInstance;
     delete [] timeout;
+    return (void*) nullptr;
 }

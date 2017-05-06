@@ -57,9 +57,9 @@ bool Replica::init() {
     crtInstance.resize((unsigned long)group_size, 0);
     executeUpTo.resize((unsigned long)group_size, 0);
     for(unsigned int i = 0; i < group_size; i++){
-        InstanceMatrix[i] = (tk_instance **)malloc(2 * 1024 * 1024 * sizeof(tk_instance *));
-        memset(InstanceMatrix[i], 0, 2 * 1024 * 1024 * sizeof(tk_instance *));
-        conflicts[i] = unordered_map<std::string, int32_t>();
+        InstanceMatrix[i] = (tk_instance **)malloc(1024 * 1024 * sizeof(tk_instance *));
+        memset(InstanceMatrix[i], 0, 1024 * 1024 * sizeof(tk_instance *));
+        conflicts.push_back(std::unordered_map<std::string, int32_t>());
     }
     if(Restore){
         //TODO: recovery from log file;

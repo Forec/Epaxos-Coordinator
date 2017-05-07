@@ -29,6 +29,6 @@ bool execute_instance(Replica * r, int replica, int instance);
 
 char * execute_command(tk_command * c, Tkdatabase * st);
 
-void * execute_thread(void * arg);
+void execute_thread(Replica * r);
 
 #endif //TKDATABASE_EXEC_H

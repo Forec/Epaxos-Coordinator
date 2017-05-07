@@ -257,8 +257,8 @@ void test_socket_module() {
     int sock = listenOn(9001);
     alert( sock >= 0 );
     int connected = 0;
-    std::thread t1(communication_thread, 1);
-    std::thread t2(communication_thread, 2);
+    std::thread t1(communication_thread, 0);
+    std::thread t2(communication_thread, 1);
     std::vector<std::thread *> pts;
     while (connected < 2) {
         int nsock = acceptAt(sock);
@@ -282,18 +282,16 @@ void communication_thread(int idx) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     int sock = dialTo("127.0.0.1", 9001);
     alert( sock >= 0 );
-    std::string sendMsg = "hello" + std::to_string(idx);
-    char buf[11];
-    strcpy(buf, sendMsg.c_str());
-    alert( sendData(sock, buf, sendMsg.size()) == sendMsg.size() );
+    int64_t sendNum = idx == 0 ? 0xAAAAAAAAAAAAAAAA : 0x0101010101010101;
+    alert( sendData(sock, (char *)&sendNum, 8) == 8 );
     destroyConnection(sock);
 }
 
 void listen_thread(int sock) {
     alert( sock >= 0 );
-    char buf[11] = {0};
-    alert( 0 == readUntil(sock, buf, 6) );
-    bool isValid = !strcmp(buf, "hello1") || !strcmp(buf, "hello2");
+    int64_t received;
+    alert( 0 == readUntil(sock, (char *)&received, 8) );
+    bool isValid = received == 0xAAAAAAAAAAAAAAAA || received == 0x0101010101010101;
     alert( isValid );
     destroyConnection(sock);
 }

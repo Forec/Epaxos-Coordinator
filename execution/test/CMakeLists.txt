@@ -20,8 +20,8 @@ set(SOURCE_FILES
         ../../execution/src/exec.cpp
         ../../utils/include/msg_queue.h
         ../../utils/src/msg_queue.cpp
-        ../../utils/include/go_thread.h
-        ../../utils/src/go_thread.cpp
+        ../../utils/include/communication.h
+        ../../utils/src/communication.cpp
         ../../utils/include/utils.h
         ../../utils/src/utils.cpp
         etest.h

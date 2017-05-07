@@ -12,7 +12,7 @@
 #define GROUP_SZIE 3
 #define CHECKPOINT_CYCLE 1024
 
-#define PORT 1111
+#define PORT 9001
 
 #define MAX_BATCH 1000
 #define ADAPT_TIME_SEC 10
@@ -59,5 +59,7 @@ enum TYPE {
     RECOVER_INSTANCE,
     INSTANCE_ID
 };
+
+#define RDMA_CONNECTION int
 
 #endif //TKDATABASE_CONFIG_H

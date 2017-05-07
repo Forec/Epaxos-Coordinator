@@ -1,8 +1,4 @@
-//
-// Created by jingle on 17-4-12.
-//
 #include "../include/replica.h"
-#include "../../utils/include/go_thread.h"
 #include "../../execution/include/exec.h"
 #include <time.h>
 
@@ -36,8 +32,8 @@ bool Replica::verify() {
     }
     if (PeerAddrList.size() == 0) {
         for (int i = 0; i < group_size; i++) {
-            std::string addr = "localhost:" + std::to_string(PORT + i);
-            PeerAddrList.push_back(addr);
+            PeerAddrList.push_back("localhost");
+            PeerPortList.push_back(PORT + i);
         }
     }
     return true;
@@ -49,20 +45,21 @@ bool Replica::init() {
         printf("init failed, more detail to see the log!\n");
         return false;
     }
-
     if(path.empty()){
         path = "/tmp/test" + std::to_string(Id);
     }
     InstanceMatrix = (tk_instance ***) malloc(group_size * sizeof(tk_instance **));
     crtInstance.resize((unsigned long)group_size, 0);
     executeUpTo.resize((unsigned long)group_size, 0);
+    mq = new MsgQueue(1024 * 1024 ,8);
+    pro_mq = new MsgQueue(1024 * 1024 ,8);
     for(unsigned int i = 0; i < group_size; i++){
         InstanceMatrix[i] = (tk_instance **)malloc(1024 * 1024 * sizeof(tk_instance *));
         memset(InstanceMatrix[i], 0, 1024 * 1024 * sizeof(tk_instance *));
         conflicts.push_back(std::unordered_map<std::string, int32_t>());
     }
     if(Restore){
-        //TODO: recovery from log file;
+        //TODO: recovery from log file; (original lost)
     }
 
     return true;
@@ -72,12 +69,14 @@ bool Replica::run() {
 
     init();
 
-    connectToPeers();
+    std::vector<std::thread *> threads;
+
+    connectToPeers(threads);
     info(stdout, "Waiting for client connections\n");
-    go(waitForClientConnections, this);
+    threads.push_back(new std::thread(waitForClientConnections, this));
 
     if (Exec) {
-        go(execute_thread, this);
+        threads.push_back(new std::thread(execute_thread, this));
     }
 
     if (Id == 0) {
@@ -87,25 +86,25 @@ bool Replica::run() {
         updatePreferredPeerOrder(quorum);
     }
 
-    go(slowClock, this);
+    threads.push_back(new std::thread(slowClock, this));
 
     if (MAX_BATCH > 100)
-        go(fastClock, this);
+        threads.push_back(new std::thread(fastClock, this));
 
     if (Beacon)
-        go(stopAdapting, this);
+        threads.push_back(new std::thread(stopAdapting, this));
 
     int i;
-    MsgQueue_t * pro_mq_s = pro_mq;
+    MsgQueue * pro_mq_s = pro_mq;
     while (!Shutdown) {
-        if (pro_mq_s != NULL && hasNextMsg(pro_mq_s)) {
-            void *msgp = getNextMsg(pro_mq_s);
+        if (pro_mq_s != NULL && pro_mq_s->hasNext()) {
+            void *msgp = pro_mq_s->get();
             handlePropose((Propose *) msgp);
             pro_mq_s = NULL;
         }
-        if (pro_mq_s != NULL && !hasNextMsg(mq))
+        if (pro_mq_s != NULL && !mq->hasNext())
             continue;    // use a loop instead of select between two msgQueues
-        void * msgp = getNextMsg(mq);
+        void * msgp = mq->get();
         TYPE msgType = *(TYPE *) msgp;
         switch (msgType) {
             case FAST_CLOCK:
@@ -170,12 +169,19 @@ bool Replica::run() {
         }
     }
 
-    //TODO:  1. event loop;    -- To process the message from servers each other, get msgs from a channel;
+    //DONE:  1. event loop;    -- To process the message from servers each other, get msgs from a channel;
     //DONE:  2. excution Loop; -- periodically to apply cmds. build the KV;
-    //TODO:  3. propose Loop;  -- client raise a proposal, when server receives a cmd, process it, and put it in a Propose channel;
-    //TODO:  4. Timeout Loop;  -- check timeout,
-    //TODO:  5. network start; -- connect peer and peer, and process the message.
+    //DONE:  3. propose Loop;  -- client raise a proposal, when server receives a cmd, process it, and put it in a Propose channel;
+    //DONE:  4. Timeout Loop;  -- check timeout,
+    //DONE:  5. network start; -- connect peer and peer, and process the message.
+    //TODO:  6. network communication
 
+
+    for (i = 0; i < threads.size(); i++) {
+        if (threads[i]->joinable())
+            threads[i]->detach();
+        delete threads[i];
+    }
     return true;
 }
 
@@ -184,49 +190,52 @@ bool Replica::run() {
  *                                     Threads                                         *
  **************************************************************************************/
 
-void * waitForClientConnections(void * arg) {
-    Replica * r = (Replica *) arg;
+void waitForClientConnections(Replica * r) {
     ClientConnect * notice = new ClientConnect();
+    std::vector<std::thread *> clientListeners;
     while (!r->Shutdown) {
-        // TODO
+        // TODO - DONE
         // accept requests from clients
         // RDMA_CONNECTION conn = r->Listener->accept();
         // _ClientParam * cpr = new _ClientParam(r, conn);
         // go(clientListener, cpr);
-        putIntoMsgQueue(r->mq, &notice);
+
+        // TEST
+        int sock = acceptAt(r->Listener);
+        clientListeners.push_back(new std::thread(clientListener, r, sock));
+        r->mq->put(&notice);
     }
     delete notice;
 }
 
-void * clientListener(void * arg) {
-    _ClientParam * cpr = (_ClientParam *) arg;
-    Replica * r = cpr->_r;
-    // RDMA_CONENCTION conn = cpr->conn;
-    // RDMA_READER reader = NewReader(conn);
-    // RDMA_WRITER writer = NewWriter(conn);
+void clientListener(Replica * r, RDMA_CONNECTION conn) {
     uint8_t msgType;
     Read read;
     ProposeAndRead pandr;
     Propose * prop;
+    char buf[4];
 
     while (!r->Shutdown) {
+        // TODO - DONE
         // msgType = reader->ReadByte();
         // if ERROR: return;
+        // TEST
+        readUntil(conn, buf, 1);
+        msgType = *(uint8_t *) buf;
 
         switch ((TYPE)(msgType)) {
             case PROPOSE: // All commands are proposed from PROPOSE.
                 prop = new Propose();
-//          if ( ERROR == prop->Unmarshal(reader))
-//              return;
-                putIntoMsgQueue(r->mq, prop);
+                if ( !prop->Unmarshal(conn) )
+                    return;
+                r->mq->put(&prop);
                 break;
             case READ:  // useless
-//          if (ERROR == read.Unmarshal(reader))
+//          if (ERROR == read.Unmarshal(conn))
 //              return;
-//          TODO: handling read request
                 break;
             case PROPOSE_AND_READ:  // useless
-//          if (ERROR == pandr.Unmarshal(reader))
+//          if (ERROR == pandr.Unmarshal(conn))
 //              return;
                 break;
             default:
@@ -236,18 +245,22 @@ void * clientListener(void * arg) {
     }
 }
 
-void * waitForPeerConnections(void * arg) {
-    _PeerParam * param = (_PeerParam *) arg;
-    Replica * r = param->_r;
-    bool * done = param->done;
+void waitForPeerConnections(Replica * r, bool * done) {
     char b[4];
 
+    // TODO - DONE
     // r->Listener = RDMA_Listen("tcp", r->peerAddrList[Id]);
+    // TEST
+    r->Listener = listenOn(PORT);
     for (int i = r->Id + 1; i < r->group_size; i++) {
+        // TODO - DONE
         // RDMA_CONNECTION conn = r->Listener.Accept();
         // RDMA_ReadFull(conn, b);
+        // TEST
+        RDMA_CONNECTION conn = acceptAt(r->Listener);
+        readUntil(conn, b, 4);
         int id = *(int *)b;
-        // r->Peers[id] = conn;
+        r->Peers[id] = conn;
         // r->PeerReaders[id] = NewReader(conn)
         // r->PeerWriters[id] = NewWriter(conn)
         r->Alive[id] = true;
@@ -255,72 +268,68 @@ void * waitForPeerConnections(void * arg) {
     *done = true;
 }
 
-void * replicaListener(void * arg) {
-    _ListenerParam * lsp = (_ListenerParam *) arg;
-    Replica * r = lsp->r;
-    int32_t rid = lsp->rid;
-    // RDMA_READER * reader = lsp->reader;
-    delete lsp;
+void replicaListener(Replica * r, int32_t rid, RDMA_CONNECTION conn) {
     uint8_t msgType;
     Beacon_msg gbeacon;
     Beacon_msg_reply gbeaconReply;
     Beacon_msg * beacon;
 
+    char buf[8];
     while (!r->Shutdown) {
-
+        // TODO - DONE
         // msgType = reader->ReadByte();
         // if ERROR: return;
+        // TEST
+        readUntil(conn, buf, 1);
+        msgType = *(uint8_t *) buf;
 
         switch ((TYPE)(msgType)) {
             case BEACON:
-    //          if ( ERROR == gbeacon.Unmarshal(reader))
-    //              return;
+                if ( !gbeacon.Unmarshal(conn) )
+                    return;
                 beacon = new Beacon_msg(rid, gbeacon.timestamp);
-                putIntoMsgQueue(r->mq, beacon);
+                r->mq->put(&beacon);
                 break;
             case BEACON_REPLY:
-    //          if (ERROR == gbeaconReply.Unmarshal(reader))
-    //              return;
-                // TODO: UPDATE STUFF
+                if ( !gbeaconReply.Unmarshal(conn) )
+                    return;
                 r->Ewma[rid] = 0.99*r->Ewma[rid] + 0.01*(double)(CPUTicks() - gbeaconReply.timestamp);
                 break;
             default:
-                // TODO
+                // TODO - DONE
                 // find matched msg Type
                 // if find: unmarshal new msg
                 // else: LOG("Unknown msg type");
                 // putIntoMsgQueue(r->mq, msg);
+                // TEST
+                msgDispatcher(r, rid, conn, (TYPE)msgType);
                 break;
         }
     }
 }
 
-void * slowClock(void * arg) {
-    Replica * r = (Replica *) arg;
+void slowClock(Replica * r) {
     Clock * timeout = new Clock(SLOW_CLOCK);
     while (!r->Shutdown) {
-        nano_sleep(150 * 1000000); // 150 ms
-        putIntoMsgQueue(r->mq, &timeout);
+        std::this_thread::sleep_for(std::chrono::nanoseconds(150 * 100000)); // 150 ms
+        r->mq->put(&timeout);
     }
     delete timeout;
 }
 
-void * fastClock(void * arg) {
-    Replica * r = (Replica *) arg;
+void fastClock(Replica * r) {
     Clock * timeout = new Clock(FAST_CLOCK);
     while (!r->Shutdown) {
-        nano_sleep(5 * 1000000); // 5 ms
-        putIntoMsgQueue(r->mq, &timeout);
+        std::this_thread::sleep_for(std::chrono::nanoseconds(5 * 1000000)); // 5 ms
+        r->mq->put(&timeout);
     }
     delete timeout;
 }
 
-void * stopAdapting(void * arg) {
-    uint64_t sleepTimePerSec = 1000 * 1000 * 1000;
-    nano_sleep(sleepTimePerSec * ADAPT_TIME_SEC);
-    Replica * r = (Replica *) arg;
+void stopAdapting(Replica * r) {
+    std::this_thread::sleep_for(std::chrono::seconds(ADAPT_TIME_SEC));
     r->Beacon = false;
-    nano_sleep(1000 * 1000 * 1000);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     for (int i = 0; i < r->group_size - 1; i++) {
         int min = i;
@@ -339,7 +348,7 @@ void * stopAdapting(void * arg) {
  *                                     PHASE 1                                          *
 ****************************************************************************************/
 void Replica::handlePropose(Propose * propose) {
-    long batchSize = availableMsgCount(pro_mq) + 1;
+    long batchSize = pro_mq->count() + 1;
 
     if (batchSize <= 0)
         return;
@@ -362,7 +371,7 @@ void Replica::handlePropose(Propose * propose) {
     // allocate a new block of space for cmds/proposals for using cache
     // since the original messages may be separated in many distinct blocks
     for (int i = 1; i < batchSize; i++) {
-        propose = *(Propose **)getNextMsg(pro_mq);
+        propose = *(Propose **)pro_mq->get();
         cmds[i] = propose->Command;
         proposals[i] = *propose;
         free(propose);
@@ -488,18 +497,28 @@ void Replica::handlePreAccept(PreAccept * preAccept) {
         !isInitialBallot(preAccept->Ballot)) {
         PreAcceptReply * preacply= new PreAcceptReply(preAccept->Replica, preAccept->Instance, true,
                                                       preAccept->Ballot, seq, deps, committedUpTo);
-        // TODO: replyPreAccept(preAccept->LeaderId, preacply);
+        // TODO - DONE
+        // replyPreAccept(preAccept->LeaderId, preacply);
+        // TEST
+        replyPreAccept(preAccept->LeaderId, preacply);
     } else {
         PreAcceptOk * pok = new PreAcceptOk(preAccept->Instance);
-        // TODO: sendMsg(preAccept->LeaderId, pok);
+        // TODO - DONE
+        // sendMsg(preAccept->LeaderId, pok);
+        // TEST
+        pok->Marshal(preAccept->LeaderId);
     }
-    // TODO
+    // TODO - DONE
     // LOG("I have replied to the PreAccept\n");
+    // TEST
+    fprintf(stdout, "I have replied to the PreAccept\n");
 }
 
 void Replica::handlePreAcceptReply(PreAcceptReply * pareply) {
-    // TODO
+    // TODO - DONE
     // LOG("Handling PreAccept Reply");
+    // TEST
+    fprintf(stdout, "Handling PreAccept Reply\n");
     tk_instance * inst = InstanceMatrix[pareply->Replica][pareply->Instance];
 
     if (inst == nullptr || inst->status == PREACCEPTED) {
@@ -510,12 +529,12 @@ void Replica::handlePreAcceptReply(PreAcceptReply * pareply) {
     if (inst->ballot != pareply->Ballot)
         return;
     if (!pareply->Ok) {
-        // TODO: there is probably another active leader
+        // TODO: there is probably another active leader (original lost)
         inst->lb->nacks++;
         if (pareply->Ballot > inst->lb->maxRecvBallot)
             inst->lb->maxRecvBallot = pareply->Ballot;
         if (inst->lb->nacks >= group_size / 2) {
-            // TODO
+            // TODO (original lost)
         }
         return;
     }
@@ -543,17 +562,21 @@ void Replica::handlePreAcceptReply(PreAcceptReply * pareply) {
         inst->lb->allEqual && allCommitted &&
         isInitialBallot(inst->ballot)) {
         happy++;
-        // TODO
+        // TODO - DONE
         // LOG("Fast path for instance %d.%d\n", pareply->Replica, pareply->Instance);
+        // TEST
+        fprintf(stdout, "Fast Path For Instance %d.%d\n", pareply->Replica, pareply->Instance);
         InstanceMatrix[pareply->Replica][pareply->Instance]->status = COMMITTED;
         updateCommitted(pareply->Replica);
         if (!inst->lb->clientProposals.empty() && !Dreply) {
             // give clients the all clear
             for (int i = 0; i < inst->lb->clientProposals.size(); i++) {
-                ProposeReplyTS * prts = new ProposeReplyTS(true, inst->lb->clientProposals[i].CommandId,
+                ProposeReplyTS * prts = new ProposeReplyTS(true, inst->lb->clientProposals[i].CommandId, 0,
                                                            nullptr, inst->lb->clientProposals[i].Timestamp);
-                // TODO
-                // replyProposeTS(prts, inst->lb->clientProposals[i].Reply); // here Reply is the handle of RDMA
+                // TODO - DONE
+                // replyProposeTS(prts, inst->lb->clientProposals[i].Reply);
+                // here Reply is the handle of RDMA
+                prts->Marshal(inst->lb->clientProposals[i].Conn);
             }
         }
 
@@ -569,7 +592,7 @@ void Replica::handlePreAcceptReply(PreAcceptReply * pareply) {
         bcastAccept(pareply->Replica, pareply->Instance, inst->ballot,
                     int32_t(inst->cmds.size()), inst->seq, inst->deps);
     }
-    // TODO: take the slow path if messages are slow to arrive
+    // TODO: take the slow path if messages are slow to arrive (original lost)
 }
 
 void Replica::handlePreAcceptOK(PreAcceptOk * preacok) {
@@ -602,17 +625,17 @@ void Replica::handlePreAcceptOK(PreAcceptOk * preacok) {
         inst->lb->allEqual && allCommitted &&
         isInitialBallot(inst->ballot)) {
         happy++;
-        // TODO
-        // LOG("Fast path for instance %d.%d\n", pareply->Replica, pareply->Instance);
         InstanceMatrix[Id][preacok->Instance]->status = COMMITTED;
         updateCommitted(Id);
         if (!inst->lb->clientProposals.empty() && !Dreply) {
             // give clients the all clear
             for (int i = 0; i < inst->lb->clientProposals.size(); i++) {
-                ProposeReplyTS * prts = new ProposeReplyTS(true, inst->lb->clientProposals[i].CommandId,
+                ProposeReplyTS * prts = new ProposeReplyTS(true, inst->lb->clientProposals[i].CommandId, 0,
                                                            nullptr, inst->lb->clientProposals[i].Timestamp);
-                // TODO
-                // replyProposeTS(prts, inst->lb->clientProposals[i].Reply); // here Reply is the handle of RDMA
+                // TODO - DONE
+                // replyProposeTS(prts, inst->lb->clientProposals[i].Reply);
+                // here Reply is the handle of RDMA
+                prts->Marshal(inst->lb->clientProposals[i].Conn);
             }
         }
 
@@ -628,7 +651,7 @@ void Replica::handlePreAcceptOK(PreAcceptOk * preacok) {
         bcastAccept(Id, preacok->Instance, inst->ballot,
                     int32_t(inst->cmds.size()), inst->seq, inst->deps);
     }
-    // TODO: take the slow path if messages are slow to arrive
+    // TODO: take the slow path if messages are slow to arrive (original lost)
 }
 
 /***************************************************************************************
@@ -682,12 +705,12 @@ void Replica::handleAcceptReply(AcceptReply * acreply) {
         return;
     }
     if (!acreply->Ok) {
-        // TODO: there is probably another active leader
+        // TODO: there is probably another active leader (original lost)
         inst->lb->nacks++;
         if (acreply->Ballot > inst->lb->maxRecvBallot)
             inst->lb->maxRecvBallot = acreply->Ballot;
         if (inst->lb->nacks >= group_size / 2) {
-            // TODO
+            // TODO (original lost)
         }
         return;
     }
@@ -699,10 +722,13 @@ void Replica::handleAcceptReply(AcceptReply * acreply) {
         if (!inst->lb->clientProposals.empty() && !Dreply) {
             // give clients the all clear
             for (int i = 0; i < inst->lb->clientProposals.size(); i++) {
-                ProposeReplyTS * prts = new ProposeReplyTS(true, inst->lb->clientProposals[i].CommandId,
+                ProposeReplyTS * prts = new ProposeReplyTS(true, inst->lb->clientProposals[i].CommandId, 0,
                                                            nullptr, inst->lb->clientProposals[i].Timestamp);
-                // TODO
-                // replyProposeTS(prts, inst->lb->clientProposals[i].Reply); // here Reply is the handle of RDMA
+                // TODO - DONE
+                // replyProposeTS(prts, inst->lb->clientProposals[i].Reply);
+                // here Reply is the handle of RDMA
+                // TEST
+                prts->Marshal(inst->lb->clientProposals[i].Conn);
             }
         }
         // TODO: record into stable storage
@@ -730,7 +756,7 @@ void Replica::handleCommit(Commit * commit) {
             //try in a different instance
             for (Propose p: inst->lb->clientProposals) {
                 Propose * pp = new Propose(p);
-                putIntoMsgQueue(pro_mq, &pp);
+                pro_mq->put(&pp);
                 /* TODO: verify whether this implementation is right, here the original
                   implementation is r.ProposeChan <- p                               */
             }
@@ -770,7 +796,7 @@ void Replica::handleCommitShort(CommitShort * commit) {
             // try command in a different instance
             for (Propose p: inst->lb->clientProposals) {
                 Propose * pp = new Propose(p);
-                putIntoMsgQueue(pro_mq, &pp);
+                pro_mq->put(&pp);
                 /* TODO: verify whether this implementation is right, here the original
                   implementation is r.ProposeChan <- p                               */
             }
@@ -940,37 +966,47 @@ int32_t Replica::makeBallotLargerThan(int32_t ballot) {
  *                               Inter-Replica communication                                 *
  ********************************************************************************************/
 
-void Replica::connectToPeers() {
+void Replica::connectToPeers(std::vector<std::thread *> & threads) {
     char b[4];
     bool done = false;
-    _PeerParam * prm = new _PeerParam();
-    prm->_r = this; prm->done = &done;
-    go(waitForPeerConnections, prm);
+    std::thread wfpr(waitForPeerConnections, this, &done);
 
     //connect to peers
     for (int i = 0; i < Id; i++) {
         bool finish = false;
         while (!finish) {
-            // TODO
+            // TODO - DONE
             // RDMA_CONNECTION conn == Dial(PeerAddrList[i]);
             // if (conn != ERROR) {
             //     Peers[i] = conn;
             //     finish = true;
             // } else
             //     nano_sleep(1000 * 1000 * 1000);
+            // TEST
+            RDMA_CONNECTION conn = dialTo(PeerAddrList[i], PeerPortList[i]);
+            if (conn < 0) {
+                nano_sleep(1000 * 1000 * 1000);
+            } else {
+                Peers[i] = conn;
+                finish = true;
+            }
         }
         LEPutUint32(b, Id);
-        // TODO
+        // TODO - DONE
         // if (RDMA_Write(Peers[i], b) == ERROR) {
         //    LOG("Write Id error!");
         //    continue;
         // }
+        // TEST
+        if (sendData(Peers[i], b, 4) != 0) {
+            fprintf(stderr, "Write Id error!\n");
+            continue;
+        }
         Alive[i] = true;
         // PeerReaders[i] = NewReader(Peers[i])
         // PeerWriters[i] = NewWriter(Peers[i])
-    }
-    while (!done);
-//    TODO
+    } while (!done);
+//    TODO - DONE
 //    LOG("Replica id: %d. Done connecting to peers\n", Id);
 //    for (int32_t rid = 0; rid < group_size; rid++) {
 //        if (rid == Id)
@@ -978,6 +1014,14 @@ void Replica::connectToPeers() {
 //        _ListenerParam * lpr = new _LIstenerParam(this, rid, reader);
 //        go(replicaListener, lpr);
 //    }
+    // TEST
+    fprintf(stdout, "Replica Id: %d. Done connecting to peers\n", Id);
+    for (int32_t rid = 0; rid < group_size; rid++) {
+        if (rid == Id)
+            continue;
+        threads.push_back(new std::thread(replicaListener, this, rid, Peers[rid]));
+        threads.back()->detach();
+    }
 }
 
 void Replica::bcastPreAccept(int32_t replica, int32_t instance, uint32_t ballot,
@@ -993,8 +1037,11 @@ void Replica::bcastPreAccept(int32_t replica, int32_t instance, uint32_t ballot,
     for (int q = 0; q < group_size - 1; q++) {
         if (!Alive[PreferredPeerOrder[q]])
             continue;
-        // TODO
-        // sendPreAccept(PreferredPeerOrder[q], &pa); // if this method fails, log failure
+        // TODO - DONE
+        // sendPreAccept(PreferredPeerOrder[q], &pa);
+        // if this method fails, log failure
+        // TEST
+        pa.Marshal(PreferredPeerOrder[q]);
         sent++;
         if (sent >= n)
             break;
@@ -1012,12 +1059,16 @@ void Replica::bcastCommit(int32_t replica, int32_t instance, std::vector<tk_comm
         if (!Alive[PreferredPeerOrder[q]])
             continue;
         if (Thrifty && sent > group_size / 2) {
-            // TODO
+            // TODO - DONE
             // sendCommit(PreferredPeerOrder[q], &cm);
             // if this or the next method fails, log failure
+            // TEST
+            cm.Marshal(PreferredPeerOrder[q]);
         } else {
-            // TODO
+            // TODO - DONE
             // sendCommitShort(PreferredPeerOrder[q], &cms);
+            // TEST
+            cms.Marshal(PreferredPeerOrder[q]);
             sent++;
         }
     }
@@ -1035,8 +1086,10 @@ void Replica::bcastAccept(int32_t replica, int32_t instance, int32_t ballot, int
     for (int q = 0; q < group_size - 1; q++) {
         if (!Alive[PreferredPeerOrder[q]])
             continue;
-        // TODO
+        // TODO - DONE
         // sendAccept(PreferredPeerOrder[q], &ea);
+        // TEST
+        ea.Marshal(PreferredPeerOrder[q]);
         sent++;
         if (sent >= n)
             break;
@@ -1052,13 +1105,18 @@ void Replica::bcastPrepare(int32_t replica, int32_t instance, int32_t ballot) {
     while (sent < n) {
         q = (q + 1) % int32_t(group_size);
         if (q == Id) {
-            // TODO
+            // TODO - DONE
             // LOG("Not enough replicas alive");
+            // TEST
+            fprintf(stderr, "Not Enough Replicas Alive!\n");
             break;
         }
         if (!Alive[q])
             continue;
+        // TODO - DONE
         // sendPrepare(q, &pr);
+        // TEST
+        pr.Marshal(Peers[q]);
         sent++;
     }
 }
@@ -1073,8 +1131,10 @@ void Replica::bcastTryPreAccept(int32_t replica, int32_t instance, int32_t ballo
             continue;
         if (!Alive[q])
             continue;
-        // TODO
+        // TODO - DONE
         // sendTryPreAccept(q, &tpa);
+        // TEST
+        tpa.Marshal(Peers[q]);
     }
 }
 
@@ -1144,12 +1204,12 @@ void Replica::handlePrepareReply(PrepareReply * preply) {
 
     if (inst == nullptr || inst->lb == nullptr || !inst->lb->preparing) {
         // we've moved on -- these are delayed replies, so just ignore
-        // TODO: should replies for non-current ballots be ignored?
+        // TODO: should replies for non-current ballots be ignored? (original lost)
         return;
     }
 
     if (!preply->Ok) {
-        // TODO: there is probably another active leader, back off and retry later
+        // TODO: there is probably another active leader, back off and retry later (original lost)
         inst->lb->nacks++;
         return;
     }
@@ -1163,7 +1223,7 @@ void Replica::handlePrepareReply(PrepareReply * preply) {
                                              preply->Seq, preply->Deps, nullptr);
         InstanceMatrix[preply->Replica][preply->Instance] = newInstance;
         bcastCommit(preply->Replica, preply->Instance, inst->cmds, preply->Seq, preply->Deps);
-        //TODO: check if we should send notifications to clients
+        //TODO: check if we should send notifications to clients (original lost)
         return;
     }
 
@@ -1336,12 +1396,12 @@ void Replica::handleTryPreAcceptReply(TryPreAcceptReply * tpar) {
     } else {
         inst->lb->nacks++;
         if (tpar->Ballot > inst->ballot) {
-            // TODO: retry with higher ballot
+            // TODO: retry with higher ballot (original lost)
             return;
         }
         inst->lb->tpaOks++;
         if (tpar->ConflictReplica == tpar->Replica && tpar->ConflictInstance == tpar->Instance) {
-            // TODO: re-run prepare
+            // TODO: re-run prepare (original lost)
             inst->lb->tryingToPreAccept = false;
             return;
         }
@@ -1439,35 +1499,43 @@ bool Replica::findPreAcceptConflicts(std::vector<tk_command> &cmds, int32_t repl
  ******************************************************************************************/
 
 void Replica::replyPrepare(int32_t LeaderId, PrepareReply * preply) {
-    // TODO
+    // TODO - DONE
+    preply->Marshal(Peers[LeaderId]);
 }
 
 void Replica::replyPreAccept(int32_t LeaderId, PreAcceptReply * preacply) {
-    // TODO
+    // TODO - DONE
+    preacply->Marshal(Peers[LeaderId]);
 }
 
 void Replica::replyAccept(int32_t LeaderId, AcceptReply * acr) {
-    // TODO
+    // TODO - DONE
+    acr->Marshal(Peers[LeaderId]);
 }
 
 void Replica::replyTryPreAccept(int32_t LeaderId, TryPreAcceptReply * ntpap) {
-    // TODO
+    // TODO - DONE
+    ntpap->Marshal(Peers[LeaderId]);
 }
 
 void Replica::sendBeacon(int32_t peerId) {
-    // TODO
+    // TODO - DONE
     // RDMA_Handler w = peerWriters[peerId];
     Beacon_msg * beacon = new Beacon_msg(Id, CPUTicks());
     // beacon.Marshal(w);
     // w.Flush();
+    // TEST
+    beacon->Marshal(Peers[peerId]);
 }
 
 void Replica::replyBeacon(Beacon_msg * beacon) {
-    // TODO
+    // TODO - DONE
     // RDMA_Handler w = peerWriters[beacon->Rid];
     Beacon_msg_reply * rb = new Beacon_msg_reply(beacon->timestamp);
     // rb.Marshal(w);
     // w.Flush();
+    // TEST
+    rb->Marshal(Peers[beacon->Rid]);
 }
 
 /*******************************************************************************************
@@ -1503,4 +1571,54 @@ void LEPutUint32(char * buf, int32_t v) {
     buf[1] = (char)(v >> 8);
     buf[2] = (char)(v >> 16);
     buf[3] = (char)(v >> 24);
+}
+
+void msgDispatcher(Replica * r, int32_t rid, RDMA_CONNECTION conn, TYPE msgType) {
+    if (msgType == PREACCEPT) {
+        PreAccept *pre_accept = new PreAccept();
+        pre_accept->Unmarshal(conn);
+        r->mq->put(&pre_accept);
+    } else if (msgType == PREACCEPT_OK) {
+        PreAcceptOk *pre_accept_ok = new PreAcceptOk();
+        pre_accept_ok->Unmarshal(conn);
+        r->mq->put(&pre_accept_ok);
+    } else if (msgType == PREACCEPT_REPLY) {
+        PreAcceptReply *pre_accept_reply = new PreAcceptReply();
+        pre_accept_reply->Unmarshal(conn);
+        r->mq->put(&pre_accept_reply);
+    } else if (msgType == PREPARE) {
+        Prepare *prepare = new Prepare();
+        prepare->Unmarshal(conn);
+        r->mq->put(&prepare);
+    } else if (msgType == PREPARE_REPLY) {
+        PrepareReply *prepare_reply = new PrepareReply();
+        prepare_reply->Unmarshal(conn);
+        r->mq->put(&prepare_reply);
+    } else if (msgType == ACCEPT) {
+        Accept *accept = new Accept();
+        accept->Unmarshal(conn);
+        r->mq->put(&accept);
+    } else if (msgType == ACCEPT_REPLY) {
+        AcceptReply *accept_reply = new AcceptReply();
+        accept_reply->Unmarshal(conn);
+        r->mq->put(&accept_reply);
+    } else if (msgType == COMMIT) {
+        Commit *commit = new Commit();
+        commit->Unmarshal(conn);
+        r->mq->put(&commit);
+    } else if (msgType == COMMIT_SHORT) {
+        CommitShort *commit_short = new CommitShort();
+        commit_short->Unmarshal(conn);
+        r->mq->put(&commit_short);
+    } else if (msgType == TRY_PREACCEPT) {
+        TryPreAccept *try_pre_accept = new TryPreAccept();
+        try_pre_accept->Unmarshal(conn);
+        r->mq->put(&try_pre_accept);
+    } else if (msgType == TRY_PREACCEPT_REPLY) {
+        TryPreAcceptReply *try_pre_accept_reply = new TryPreAcceptReply();
+        try_pre_accept_reply->Unmarshal(conn);
+        r->mq->put(&try_pre_accept_reply);
+    } else {
+        fprintf(stderr, "Receive Unknown MsgType: %d\n", msgType);
+    }
 }

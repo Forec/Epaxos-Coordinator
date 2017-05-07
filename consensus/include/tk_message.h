@@ -6,6 +6,7 @@
 #define TKDATABASE_TK_MESSAGE_H
 
 #include "../../config/config.h"
+#include "../../utils/include/communication.h"
 #include <vector>
 #include <array>
 #include "tk_command.h"
@@ -22,6 +23,21 @@ struct Prepare {
     Prepare(int32_t _leaderId, int32_t _replica, int32_t _instance, int32_t _ballot) :
         LeaderId(_leaderId), Replica(_replica), Instance(_instance), Ballot(_ballot){
         Type = PREPARE;
+    }
+    bool Unmarshal(int sock) {
+        readUntil(sock, (char *) & LeaderId, 4);
+        readUntil(sock, (char *) & Replica, 4);
+        readUntil(sock, (char *) & Instance, 4);
+        readUntil(sock, (char *) & Ballot, 4);
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *) & msgType, 1);
+        sendData(sock, (char *) & LeaderId, 4);
+        sendData(sock, (char *) & Replica, 4);
+        sendData(sock, (char *) & Instance, 4);
+        sendData(sock, (char *) & Ballot, 4);
     }
 };
 
@@ -48,6 +64,52 @@ struct PrepareReply {
     Ballot(_ballot), Seq(_seq), Status(_status), Command(_command), Deps(_deps) {
         Type = PREPARE_REPLY;
     }
+    bool Unmarshal(int sock) {
+        uint8_t tmp;
+        readUntil(sock, (char *)&tmp, 1);
+        Ok = (bool)tmp;
+        readUntil(sock, (char *)&tmp, 1);
+        Status = (STATUS)tmp;
+        readUntil(sock, (char *) &AcceptorId, 4);
+        readUntil(sock, (char *) &Replica, 4);
+        readUntil(sock, (char *) &Instance, 4);
+        readUntil(sock, (char *) &Ballot, 4);
+        readUntil(sock, (char *) &Seq, 4);
+        uint32_t tmp32;
+        readUntil(sock, (char *) &tmp32, 4);
+        Command.resize(tmp32, tk_command());
+        for (int i = 0; i < tmp32; i++) {
+            if (!Command[i].Unmarshal(sock))
+                return false;
+        }
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            readUntil(sock, (char *) &tmp32, 4);
+            Deps[i] = tmp32;
+        }
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *) &msgType, 1);
+        msgType = (uint8_t )Ok;
+        sendData(sock, (char *) &msgType, 1);
+        msgType = (uint8_t )Status;
+        sendData(sock, (char *) &msgType, 1);
+        sendData(sock, (char *) &AcceptorId, 4);
+        sendData(sock, (char *) &Replica, 4);
+        sendData(sock, (char *) &Instance, 4);
+        sendData(sock, (char *) &Ballot, 4);
+        sendData(sock, (char *) &Seq, 4);
+        int32_t tmp32 = (int32_t)Command.size();
+        sendData(sock, (char *) &tmp32, 4);
+        for (int i = 0; i < Command.size(); i++) {
+            Command[i].Marshal(sock);
+        }
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            tmp32 = Deps[i];
+            sendData(sock, (char *) &tmp32, 4);
+        }
+    }
 };
 
 struct PreAccept {
@@ -56,7 +118,7 @@ struct PreAccept {
     int32_t Replica;
     int32_t Instance;
     int32_t Ballot;
-    int32_t  Seq;
+    int32_t Seq;
     std::vector<tk_command> Command;
     std::array<int32_t, GROUP_SZIE> Deps;
     PreAccept() {
@@ -69,6 +131,42 @@ struct PreAccept {
         Seq(_seq), Command(_command), Deps(_deps){
         Type = PREACCEPT;
     }
+    bool Unmarshal(int sock) {
+        readUntil(sock, (char *)&LeaderId, 4);
+        readUntil(sock, (char *)&Replica, 4);
+        readUntil(sock, (char *)&Instance, 4);
+        readUntil(sock, (char *)&Ballot, 4);
+        readUntil(sock, (char *)&Seq, 4);
+        int32_t commandSize;
+        readUntil(sock, (char *)&commandSize, 4);
+        Command.resize((unsigned long)commandSize, tk_command());
+        for (int i = 0; i < commandSize; i++) {
+            Command[i].Unmarshal(sock);
+        }
+        int32_t tmp;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            readUntil(sock, (char *)&tmp, 4);
+            Deps[i] = tmp;
+        }
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        sendData(sock, (char *)&LeaderId, 4);
+        sendData(sock, (char *)&Replica, 4);
+        sendData(sock, (char *)&Instance, 4);
+        sendData(sock, (char *)&Ballot, 4);
+        sendData(sock, (char *)&Seq, 4);
+        int32_t commandSize = (int32_t) Command.size();
+        sendData(sock, (char *)&commandSize, 4);
+        for (int i = 0; i < commandSize; i++)
+            Command[i].Marshal(sock);
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            int32_t tmp = Deps[i];
+            sendData(sock, (char *)&tmp, 4);
+        }
+    }
 };
 
 struct PreAcceptReply {
@@ -76,8 +174,8 @@ struct PreAcceptReply {
     TYPE Type;
     int32_t Replica;
     int32_t Instance;
-    int32_t  Ballot;
-    int32_t  Seq;
+    int32_t Ballot;
+    int32_t Seq;
     std::array<int32_t, GROUP_SZIE> Deps;
     std::array<int32_t, GROUP_SZIE> CommittedDeps;
     PreAcceptReply() {
@@ -90,6 +188,44 @@ struct PreAcceptReply {
         Seq(_seq), Deps(_deps), CommittedDeps(_cmDeps) {
         Type = PREACCEPT_REPLY;
     }
+    bool Unmarshal(int sock) {
+        uint8_t tmp;
+        readUntil(sock, (char *)&tmp, 1);
+        Ok = tmp;
+        readUntil(sock, (char *)&Replica, 4);
+        readUntil(sock, (char *)&Instance, 4);
+        readUntil(sock, (char *)&Ballot, 4);
+        readUntil(sock, (char *)&Seq, 4);
+        int32_t tmp32;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            readUntil(sock, (char *) &tmp32, 4);
+            Deps[i] = tmp32;
+        }
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            readUntil(sock, (char *) &tmp32, 4);
+            CommittedDeps[i] = tmp32;
+        }
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t tmp = (uint8_t )Type;
+        sendData(sock, (char *)&tmp, 1);
+        tmp = (uint8_t )Ok;
+        sendData(sock, (char *)&tmp, 1);
+        sendData(sock, (char *)&Replica, 4);
+        sendData(sock, (char *)&Instance, 4);
+        sendData(sock, (char *)&Ballot, 4);
+        sendData(sock, (char *)&Seq, 4);
+        int32_t tmp32;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            tmp32 = Deps[i];
+            sendData(sock, (char *)&tmp32, 4);
+        }
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            tmp32 = CommittedDeps[i];
+            sendData(sock, (char *)&tmp32, 4);
+        }
+    }
 };
 
 struct PreAcceptOk {
@@ -100,6 +236,14 @@ struct PreAcceptOk {
     }
     PreAcceptOk(int32_t _instance) : Instance(_instance) {
         Type = PREACCEPT_OK;
+    }
+    bool Unmarshal(int sock) {
+        return readUntil(sock, (char *) &Instance, 4) == 0;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        sendData(sock, (char *)&Instance, 4);
     }
 };
 
@@ -122,6 +266,35 @@ struct Accept {
         Ballot(_ballot), Count(_count), Seq(_seq), Deps(_deps) {
         Type = ACCEPT;
     }
+    bool Unmarshal(int sock) {
+        readUntil(sock, (char *)&LeaderId, 4);
+        readUntil(sock, (char *)&Replica, 4);
+        readUntil(sock, (char *)&Instance, 4);
+        readUntil(sock, (char *)&Ballot, 4);
+        readUntil(sock, (char *)&Count, 4);
+        readUntil(sock, (char *)&Seq, 4);
+        int32_t tmp32;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            readUntil(sock, (char *)&tmp32, 4);
+            Deps[i] = tmp32;
+        }
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        sendData(sock, (char *)&LeaderId, 4);
+        sendData(sock, (char *)&Replica, 4);
+        sendData(sock, (char *)&Instance, 4);
+        sendData(sock, (char *)&Ballot, 4);
+        sendData(sock, (char *)&Count, 4);
+        sendData(sock, (char *)&Seq, 4);
+        int32_t tmp32;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            tmp32 = Deps[i];
+            sendData(sock, (char *)&tmp32, 4);
+        }
+    }
 };
 
 struct AcceptReply {
@@ -136,6 +309,23 @@ struct AcceptReply {
     AcceptReply(int32_t _replica, int32_t _instance, int32_t _ballot, bool _ok) :
         Replica(_replica), Instance(_instance), Ballot(_ballot), Ok(_ok) {
         Type = ACCEPT_REPLY;
+    }
+    bool Unmarshal(int sock) {
+        uint8_t tmp;
+        readUntil(sock, (char *) &tmp, 1);
+        Ok = (bool)tmp;
+        readUntil(sock, (char *) &Replica, 4);
+        readUntil(sock, (char *) &Instance, 4);
+        readUntil(sock, (char *) &Ballot, 4);
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *) &msgType, 1);
+        msgType = (uint8_t )Ok;
+        sendData(sock, (char *) &msgType, 1);
+        sendData(sock, (char *) &Replica, 4);
+        sendData(sock, (char *) &Instance, 4);
+        sendData(sock, (char *) &Ballot, 4);
     }
 };
 
@@ -156,6 +346,41 @@ struct Commit {
         Seq(_seq), Command(_cmds), Deps(_deps) {
         Type = COMMIT;
     }
+    bool Unmarshal(int sock) {
+        readUntil(sock, (char *)&LeaderId, 4);
+        readUntil(sock, (char *)&Replica, 4);
+        readUntil(sock, (char *)&Instance, 4);
+        readUntil(sock, (char *)&Seq, 4);
+        int32_t commandSize;
+        readUntil(sock, (char *)&commandSize, 4);
+        Command.resize((unsigned long)commandSize, tk_command());
+        for (int i = 0; i < commandSize; i++) {
+            Command[i].Unmarshal(sock);
+        }
+        int32_t tmp32;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            readUntil(sock, (char *)&tmp32, 4);
+            Deps[i] = tmp32;
+        }
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        sendData(sock, (char *)&LeaderId, 4);
+        sendData(sock, (char *)&Replica, 4);
+        sendData(sock, (char *)&Instance, 4);
+        sendData(sock, (char *)&Seq, 4);
+        int32_t commandSize = (int32_t) Command.size();
+        sendData(sock, (char *)&commandSize, 4);
+        for (int i = 0; i < commandSize; i++)
+            Command[i].Marshal(sock);
+        int32_t tmp32;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            tmp32 = Deps[i];
+            sendData(sock, (char *)&tmp32, 4);
+        }
+    }
 };
 
 struct CommitShort {
@@ -174,6 +399,33 @@ struct CommitShort {
         LeaderId(_leaderId), Replica(_replica), Instance(_instance), Count(_count),
         Seq(_seq), Deps(_deps) {
         Type = COMMIT_SHORT;
+    }
+    bool Unmarshal(int sock) {
+        readUntil(sock, (char *)&LeaderId, 4);
+        readUntil(sock, (char *)&Replica, 4);
+        readUntil(sock, (char *)&Instance, 4);
+        readUntil(sock, (char *)&Count, 4);
+        readUntil(sock, (char *)&Seq, 4);
+        int32_t tmp32;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            readUntil(sock, (char *)&tmp32, 4);
+            Deps[i] = tmp32;
+        }
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        sendData(sock, (char *)&LeaderId, 4);
+        sendData(sock, (char *)&Replica, 4);
+        sendData(sock, (char *)&Instance, 4);
+        sendData(sock, (char *)&Count, 4);
+        sendData(sock, (char *)&Seq, 4);
+        int32_t tmp32;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            tmp32 = Deps[i];
+            sendData(sock, (char *)&tmp32, 4);
+        }
     }
 };
 
@@ -194,6 +446,42 @@ struct TryPreAccept {
         LeaderId(_leaderId), Replica(_replica), Instance(_instance), Ballot(_ballot),
         Seq(_seq), Command(_cmds), Deps(_deps) {
         Type = TRY_PREACCEPT;
+    }
+    bool Unmarshal(int sock) {
+        readUntil(sock, (char *)&LeaderId, 4);
+        readUntil(sock, (char *)&Replica, 4);
+        readUntil(sock, (char *)&Instance, 4);
+        readUntil(sock, (char *)&Ballot, 4);
+        readUntil(sock, (char *)&Seq, 4);
+        int32_t commandSize;
+        readUntil(sock, (char *)&commandSize, 4);
+        Command.resize((unsigned long)commandSize, tk_command());
+        for (int i = 0; i < commandSize; i++) {
+            Command[i].Unmarshal(sock);
+        }
+        int32_t tmp;
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            readUntil(sock, (char *)&tmp, 4);
+            Deps[i] = tmp;
+        }
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        sendData(sock, (char *)&LeaderId, 4);
+        sendData(sock, (char *)&Replica, 4);
+        sendData(sock, (char *)&Instance, 4);
+        sendData(sock, (char *)&Ballot, 4);
+        sendData(sock, (char *)&Seq, 4);
+        int32_t commandSize = (int32_t) Command.size();
+        sendData(sock, (char *)&commandSize, 4);
+        for (int i = 0; i < commandSize; i++)
+            Command[i].Marshal(sock);
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            int32_t tmp = Deps[i];
+            sendData(sock, (char *)&tmp, 4);
+        }
     }
 };
 
@@ -217,6 +505,31 @@ struct TryPreAcceptReply {
         Type = TRY_PREACCEPT_REPLY;
         Ok = _ok;
     }
+    bool Unmarshal(int sock) {
+        uint8_t tmp;
+        readUntil(sock, (char *)&tmp, 1);
+        Ok = (bool)tmp;
+        readUntil(sock, (char *)&AcceptorId, 4);
+        readUntil(sock, (char *)&Replica, 4);
+        readUntil(sock, (char *)&Instance, 4);
+        readUntil(sock, (char *)&Ballot, 4);
+        readUntil(sock, (char *)&ConflictReplica, 4);
+        readUntil(sock, (char *)&ConflictInstance, 4);
+        readUntil(sock, (char *)&ConflictStatus, 4);
+    }
+    void Marshal(int sock) {
+        uint8_t tmp = (uint8_t) Type;
+        sendData(sock, (char *)&tmp, 1);
+        tmp = (uint8_t) Ok;
+        sendData(sock, (char *)&tmp, 1);
+        sendData(sock, (char *)&AcceptorId, 4);
+        sendData(sock, (char *)&Replica, 4);
+        sendData(sock, (char *)&Instance, 4);
+        sendData(sock, (char *)&Ballot, 4);
+        sendData(sock, (char *)&ConflictReplica, 4);
+        sendData(sock, (char *)&ConflictInstance, 4);
+        sendData(sock, (char *)&ConflictStatus, 4);
+    }
 };
 
 struct Propose {
@@ -224,13 +537,36 @@ struct Propose {
     int32_t CommandId;
     int64_t Timestamp;
     tk_command Command;
-    // TODO: RDMA REPLY HANDLE
+    // TODO - DONE
+    RDMA_CONNECTION Conn;
     Propose() {
         Type = PROPOSE;
     }
-    Propose(int32_t _commandId, int64_t _timestamp, tk_command & _cmd) :
-        CommandId(_commandId), Timestamp(_timestamp), Command(_cmd) {
+    Propose(int32_t _commandId, int64_t _timestamp, tk_command & _cmd, RDMA_CONNECTION _conn) :
+        CommandId(_commandId), Timestamp(_timestamp), Command(_cmd), Conn(_conn) {
         Type = PROPOSE;
+    }
+    bool Unmarshal(int sock) {
+        char buf[8];
+        if (readUntil(sock, buf, 4) < 0)
+            return false;
+        CommandId = *(int32_t *) buf;
+        if (readUntil(sock, buf, 8) < 0)
+            return false;
+        Timestamp = *(int64_t *) buf;
+        if (readUntil(sock, buf, 4) < 0)
+            return false;
+        Conn = *(RDMA_CONNECTION *) buf;
+        return Command.Unmarshal(sock);
+    }
+    void Marshal(int sock) {
+        char buf[21];
+        buf[0] = (char) Type;
+        memcpy(buf + 1, &CommandId, 4);
+        memcpy(buf + 5, &Timestamp, 8);
+        memcpy(buf + 13, &Conn, 4);
+        sendData(sock, buf, 17);
+        Command.Marshal(sock);
     }
 };
 
@@ -250,14 +586,37 @@ struct ProposeReplyTS {
     TYPE Type;
     bool OK;
     int32_t CommandId;
+    int32_t ValueSize;
     char * Value;
     int64_t Timestamp;
     ProposeReplyTS() {
         Type = PROPOSE_REPLY_TS;
     }
-    ProposeReplyTS(bool _ok, int32_t _cmId, char * _v, int64_t _ts):
-        OK(_ok), CommandId(_cmId), Value(_v), Timestamp(_ts) {
+    ProposeReplyTS(bool _ok, int32_t _cmId, int32_t _vs, char * _v, int64_t _ts):
+        OK(_ok), CommandId(_cmId), ValueSize(_vs), Value(_v), Timestamp(_ts) {
         Type = PROPOSE_REPLY_TS;
+    }
+    bool Unmarshal(int sock) {
+        uint8_t tmp;
+        readUntil(sock, (char *) &tmp, 1);
+        OK = (bool) tmp;
+        readUntil(sock, (char *) &CommandId, 4);
+        readUntil(sock, (char *) &ValueSize, 4);
+        readUntil(sock, (char *) &Timestamp, 8);
+        if (Value)
+            delete [] Value;
+        Value = new char[ValueSize + 1];
+        return readUntil(sock, Value, ValueSize) == 0;
+    }
+    void Marshal(int sock) {
+        uint8_t tmp = (uint8_t) Type;
+        sendData(sock, (char *)&tmp, 1);
+        tmp = (uint8_t) OK;
+        sendData(sock, (char *)&tmp, 1);
+        sendData(sock, (char *)&CommandId, 4);
+        sendData(sock, (char *)&ValueSize, 4);
+        sendData(sock, (char *)&Timestamp, 8);
+        sendData(sock, Value, ValueSize);
     }
 };
 
@@ -318,6 +677,23 @@ struct Beacon_msg {
     Beacon_msg(int _rid, uint64_t _ts) : Rid(_rid), timestamp(_ts){
         Type = BEACON;
     }
+    bool Unmarshal(int sock) {
+        char buf[8];
+        if (readUntil(sock, buf, 4) < 0)
+            return false;
+        Rid = *(int *) buf;
+        if (readUntil(sock, buf, 8) < 0)
+            return false;
+        timestamp = *(uint64_t *) buf;
+        return true;
+    }
+    void Marshal(int sock) {
+        char buf[16];
+        buf[0] = (char) Type;
+        memcpy(buf + 1, &Rid, 4);
+        memcpy(buf + 5, &timestamp, 8);
+        sendData(sock, buf, 13);
+    }
 };
 
 struct Beacon_msg_reply {
@@ -328,6 +704,19 @@ struct Beacon_msg_reply {
     }
     Beacon_msg_reply(uint64_t _ts) : timestamp(_ts){
         Type = BEACON_REPLY;
+    }
+    bool Unmarshal(int sock) {
+        char buf[8];
+        if (readUntil(sock, buf, 8) < 0)
+            return false;
+        timestamp = *(uint64_t *) buf;
+        return true;
+    }
+    void Marshal(int sock) {
+        char buf[10];
+        buf[0] = (char) Type;
+        memcpy(buf + 1, &timestamp, 8);
+        sendData(sock, buf, 9);
     }
 };
 

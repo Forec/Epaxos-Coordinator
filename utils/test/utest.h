@@ -13,44 +13,39 @@
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
-#include <string>
+#include <thread>
+//#include <string>
 #include <array>
 #include <vector>
-#include "../include/utils.h"
+//#include "../include/utils.h"
 #include "../include/msg_queue.h"
-#include "../include/go_thread.h"
-#include "../include/communication.h"
+//#include "../include/go_thread.h"
+//#include "../include/communication.h"
 
-struct TestStruct {
+struct Test_Struct {
     int id;
     int count;
     int buf_len;
     char * buf;
 };
 
-typedef struct TestStruct Test_Struct_t;
-
 #define TEST_SIZE 200
 #define MSG_SIZE 8
 
 struct mq_timer {
     ev_timer timer;
-    MsgQueue_t * mq;
-    Test_Struct_t * p;
+    MsgQueue * mq;
+    Test_Struct * p;
 };
-
-typedef struct mq_timer mq_timer_t;
 
 struct param {
-    MsgQueue_t * mq;
-    Test_Struct_t * test_structs;
+    MsgQueue * mq;
+    Test_Struct * test_structs;
 };
 
-typedef struct param param_t;
-
 static void readMsgQueue_cb(EV_P_ ev_timer *w, int r);
-void * readMsgQueue_thread(void * arg);
-void * putMsgQueue_thread(void * arg);
+void readMsgQueue_thread(MsgQueue * mq, Test_Struct * src);
+void putMsgQueue_thread(MsgQueue * mq, Test_Struct * src);
 void * communication_thread(void * arg);
 void * listen_thread(void * arg);
 

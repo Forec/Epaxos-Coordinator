@@ -122,16 +122,15 @@ execute_instance(Replica * r, int replica, int instance)  {
 }
 
 char *
-execute_command(tk_command * c, Tkdatabase_t * st) {
+execute_command(tk_command * c, Tkdatabase * st) {
     char * res = nullptr;
     switch (c->opcode) {
         case PUT:
-            if (1 == putData_into_db(st, c->key, c->val))
+            if (st->put(c->key, c->val, c->valSize))
                 res = c->val;
             break;
         case GET:
-            getdata_from_db(st, c->key, &res);
-            c->val = res;
+            c->val = st->fetch(c->key, c->valSize);
             break;
         default:
             return nullptr;

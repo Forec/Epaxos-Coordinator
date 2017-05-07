@@ -4,10 +4,10 @@ project (etest)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-        ../../include/Tkdatabase.h
-        ../../src/Tkdatabase.cpp
-        ../../include/Tkdatanode.h
-        ../../src/Tkdatanode.cpp
+        ../../database/include/Tkdatabase.h
+        ../../database/src/Tkdatabase.cpp
+        ../../database/include/Tkdatanode.h
+        ../../database/src/Tkdatanode.cpp
         ../../consensus/include/tk_consensus.h
         ../../consensus/include/tk_config.h
         ../../consensus/include/tk_log.h

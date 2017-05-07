@@ -3,19 +3,11 @@ project(TkDatabase)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-include_directories(
-        include
-        consensus/include
-        c/generated
-        execution/include
-        serialization/include
-        coor_log/include)
-
 set(SOURCE_FILES
-        include/Tkdatabase.h
-        src/Tkdatabase.cpp
-        include/Tkdatanode.h
-        src/Tkdatanode.cpp
+        database/include/Tkdatabase.h
+        database/src/Tkdatabase.cpp
+        database/include/Tkdatanode.h
+        database/src/Tkdatanode.cpp
         utils/include/msg_queue.h
         utils/src/msg_queue.cpp
         consensus/include/tk_consensus.h

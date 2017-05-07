@@ -24,10 +24,8 @@ TEST_CASE("Instance execution", "exec") {
     r->path = "";
     REQUIRE( r->init() );
     r->Dreply = true;
-    Tkdatabase_t * db = new Tkdatabase_t();
+    Tkdatabase * db = new Tkdatabase();
     REQUIRE(nullptr != db );
-    db->Tkdb = unordered_map<string, datanode_t*>();
-    init_tkdatabase(db);
     r->statemachine = db;
 
     string path1 = "/usr", path2 = "/home";

@@ -5,22 +5,18 @@
 #ifndef __UTEST_H_
 #define __UTEST_H_
 
-#define CATCH_CONFIG_MAIN
-
-#include <catch.hpp>
 #include <ev.h>
 #include <pthread.h>
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
 #include <thread>
-//#include <string>
+#include <string>
 #include <array>
 #include <vector>
-//#include "../include/utils.h"
+#include <chrono>
 #include "../include/msg_queue.h"
-//#include "../include/go_thread.h"
-//#include "../include/communication.h"
+#include "../include/communication.h"
 
 struct Test_Struct {
     int id;
@@ -34,6 +30,9 @@ struct Test_Struct {
         buf_len = another.buf_len;
         buf = new char[buf_len + 1];
         mempcpy(buf, another.buf, buf_len);
+    }
+    ~Test_Struct() {
+        delete [] buf;
     }
 };
 
@@ -54,7 +53,16 @@ struct param {
 static void readMsgQueue_cb(EV_P_ ev_timer *w, int r);
 void readMsgQueue_thread(MsgQueue * mq, Test_Struct * src);
 void putMsgQueue_thread(MsgQueue * mq, Test_Struct * src);
-void * communication_thread(void * arg);
-void * listen_thread(void * arg);
+void communication_thread(int idx);
+void listen_thread(int sock);
+
+extern std::atomic<uint32_t> passed;
+extern std::atomic<uint32_t> failed;
+void alert(bool conf) {
+    if (conf)
+        passed++;
+    else
+        failed++;
+};
 
 #endif

@@ -24,6 +24,9 @@ private:
 
 public:
     semaphore(uint64_t _c = 0) : count_(_c) {};
+    semaphore(const semaphore & another) {
+        count_ = another.count_;
+    }
     void notify() {
         std::unique_lock<decltype(mutex_)> lock(mutex_);
         ++count_;
@@ -52,8 +55,8 @@ public:
 
 class MsgQueue {
 private:
-    std::atomic<uint64_t> used;
-    std::atomic<uint64_t> size;
+    uint64_t used;
+    uint64_t size;
     uint64_t cap;
     uint64_t cnt;
     uint64_t msgSize;
@@ -63,6 +66,7 @@ private:
     char * buf;
 public:
     MsgQueue(uint64_t _cap, uint64_t _msgSize);
+    MsgQueue(const MsgQueue & another);
     ~MsgQueue();
     uint64_t count();
     bool hasNext();

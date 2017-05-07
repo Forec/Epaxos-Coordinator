@@ -89,8 +89,8 @@ TEST_CASE("message queue", "mq") {
             pts[i]->join();
 
         REQUIRE( 0 == mq->count() );
-        delete mq;
-        delete [] test_structs;
+//        delete mq;
+//        delete [] test_structs;
     }
 
 

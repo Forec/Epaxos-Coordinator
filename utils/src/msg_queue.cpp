@@ -15,6 +15,18 @@ MsgQueue::MsgQueue(uint64_t _cap, uint64_t _msgSize) {
     full = new semaphore(0);
 }
 
+MsgQueue::MsgQueue(const MsgQueue &another) {
+    used = another.used;
+    cap = another.cap;
+    cnt = another.cnt;
+    size = another.size;
+    msgSize = another.msgSize;
+    buf = new char[cap];
+    mempcpy(buf, another.buf, cap);
+    empty = new semaphore(*another.empty);
+    full = new semaphore(*another.full);
+}
+
 MsgQueue::~MsgQueue() {
     if (empty)
         delete empty;

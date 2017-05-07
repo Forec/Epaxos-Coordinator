@@ -27,6 +27,14 @@ struct Test_Struct {
     int count;
     int buf_len;
     char * buf;
+    Test_Struct(){};
+    Test_Struct(const Test_Struct & another) {
+        id = another.id;
+        count = another.count;
+        buf_len = another.buf_len;
+        buf = new char[buf_len + 1];
+        mempcpy(buf, another.buf, buf_len);
+    }
 };
 
 #define TEST_SIZE 200

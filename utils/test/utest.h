@@ -13,7 +13,13 @@
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
+#include <string>
+#include <array>
+#include <vector>
+#include "../include/utils.h"
 #include "../include/msg_queue.h"
+#include "../include/go_thread.h"
+#include "../include/communication.h"
 
 struct TestStruct {
     int id;
@@ -45,5 +51,7 @@ typedef struct param param_t;
 static void readMsgQueue_cb(EV_P_ ev_timer *w, int r);
 void * readMsgQueue_thread(void * arg);
 void * putMsgQueue_thread(void * arg);
+void * communication_thread(void * arg);
+void * listen_thread(void * arg);
 
 #endif

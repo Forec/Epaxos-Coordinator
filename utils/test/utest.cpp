@@ -120,65 +120,83 @@ TEST_CASE("message queue", "mq") {
     }
 
 
-    SECTION("race condition on multiple writes") {
-        param_t *ptr = (param_t *) malloc(sizeof(param_t));
-        ptr->mq = mq;
-        ptr->test_structs = test_structs;
-
-        pthread_t thread[TEST_SIZE];
-        int i, pid[TEST_SIZE];
-        for (i = 0; i < TEST_SIZE; ++i) {
-            pid[i] = pthread_create(&thread[i], NULL, putMsgQueue_thread, (void *) ptr);
-            REQUIRE(pid[i] >= 0);
-        }
-
-        for (i = 0; i < (TEST_SIZE + 1) * TEST_SIZE; ++i) {
-            Test_Struct_t *p = *(Test_Struct_t **) getNextMsg(mq);
-            char *tmp = (char *) malloc(sizeof(char) * p->buf_len);
-            int j;
-            for (j = 0; j < p->buf_len - 1; ++j)
-                tmp[j] = (char)('a' + p->id);
-            tmp[p->buf_len - 1] = '\0';
-            REQUIRE(NULL != p->buf);
-            REQUIRE(!strcmp(tmp, p->buf));
-        }
-
-        for (i = 0; i < TEST_SIZE; ++i)
-            pthread_join(thread[i], NULL);
-
-        REQUIRE(0 == availableMsgCount(mq));
-    }
-
-
-    SECTION("race condition on read and write") {
-
-        param_t * ptr = (param_t *) malloc (sizeof(param_t));
-        ptr->mq = mq;
-        ptr->test_structs = test_structs;
-
-        int i;
-        pthread_t thread_write[TEST_SIZE];
-        int pid_write[TEST_SIZE];
-        for (i = 0; i < TEST_SIZE; ++i) {
-            pid_write[i] = pthread_create(&thread_write[i], NULL, putMsgQueue_thread, (void *) ptr);
-            REQUIRE(pid_write[i] >= 0);
-        }
-
-        pthread_t thread_read[TEST_SIZE * (TEST_SIZE + 1) / 2];
-        int pid_read[TEST_SIZE * (TEST_SIZE + 1) / 2];
-        for (i = 0; i < TEST_SIZE * (TEST_SIZE + 1) / 2; ++i) {
-            pid_read[i] = pthread_create(&thread_read[i], NULL, readMsgQueue_thread, (void *) ptr);
-            REQUIRE(pid_read[i] >= 0);
-        }
-
-        for (i = 0; i < TEST_SIZE; ++i)
-            pthread_join(thread_write[i], NULL);
-        for (i = 0; i < TEST_SIZE * (TEST_SIZE + 1) / 2; ++i)
-            pthread_join(thread_read[i], NULL);
-
-        REQUIRE(0 == availableMsgCount(mq));
-    }
+//    SECTION("race condition on multiple writes") {
+//        param_t *ptr = (param_t *) malloc(sizeof(param_t));
+//        ptr->mq = mq;
+//        ptr->test_structs = test_structs;
+//
+//        pthread_t thread[TEST_SIZE];
+//        int i, pid[TEST_SIZE];
+//        for (i = 0; i < TEST_SIZE; ++i) {
+//            pid[i] = pthread_create(&thread[i], NULL, putMsgQueue_thread, (void *) ptr);
+//            REQUIRE(pid[i] >= 0);
+//        }
+//
+//        for (i = 0; i < (TEST_SIZE + 1) * TEST_SIZE; ++i) {
+//            Test_Struct_t *p = *(Test_Struct_t **) getNextMsg(mq);
+//            char *tmp = (char *) malloc(sizeof(char) * p->buf_len);
+//            int j;
+//            for (j = 0; j < p->buf_len - 1; ++j)
+//                tmp[j] = (char)('a' + p->id);
+//            tmp[p->buf_len - 1] = '\0';
+//            REQUIRE(NULL != p->buf);
+//            REQUIRE(!strcmp(tmp, p->buf));
+//        }
+//
+//        for (i = 0; i < TEST_SIZE; ++i)
+//            pthread_join(thread[i], NULL);
+//
+//        REQUIRE(0 == availableMsgCount(mq));
+//    }
+//
+//
+//    SECTION("race condition on read and write") {
+//
+//        param_t * ptr = (param_t *) malloc (sizeof(param_t));
+//        ptr->mq = mq;
+//        ptr->test_structs = test_structs;
+//
+//        int i;
+//        pthread_t thread_write[TEST_SIZE];
+//        int pid_write[TEST_SIZE];
+//        for (i = 0; i < TEST_SIZE; ++i) {
+//            pid_write[i] = pthread_create(&thread_write[i], NULL, putMsgQueue_thread, (void *) ptr);
+//            REQUIRE(pid_write[i] >= 0);
+//        }
+//
+//        pthread_t thread_read[TEST_SIZE * (TEST_SIZE + 1) / 2];
+//        int pid_read[TEST_SIZE * (TEST_SIZE + 1) / 2];
+//        for (i = 0; i < TEST_SIZE * (TEST_SIZE + 1) / 2; ++i) {
+//            pid_read[i] = pthread_create(&thread_read[i], NULL, readMsgQueue_thread, (void *) ptr);
+//            REQUIRE(pid_read[i] >= 0);
+//        }
+//
+//        for (i = 0; i < TEST_SIZE; ++i)
+//            pthread_join(thread_write[i], NULL);
+//        for (i = 0; i < TEST_SIZE * (TEST_SIZE + 1) / 2; ++i)
+//            pthread_join(thread_read[i], NULL);
+//
+//        REQUIRE(0 == availableMsgCount(mq));
+//    }
 }
+
+//TEST_CASE("socket communication module", "sock") {
+//    int sock = listenOn(9001);
+//    REQUIRE( sock >= 0 );
+//    int connected = 0;
+//    int param = 1;
+//    go(communication_thread, &param);
+//    param = 2;
+//    go(communication_thread, &param);
+//    while (connected < 2) {
+//        int nsock = acceptAt(sock);
+//        REQUIRE( nsock >= 0 );
+//        go(listen_thread, &nsock);
+//        connected++;
+//    }
+//    REQUIRE( connected == 2 );
+//    destroyConnection(sock);
+//}
 
 static void readMsgQueue_cb(EV_P_ ev_timer * w_, int r) {
     mq_timer_t * w = (mq_timer_t *) w_;
@@ -234,4 +252,27 @@ void * putMsgQueue_thread(void * arg) {
         putIntoMsgQueue(mq, p);
     }
     return (void*)NULL;
+}
+
+void * communication_thread(void * arg) {
+    int idx = *(int *) arg;
+    nano_sleep(1000 * 1000 * 1000);
+    int sock = dialTo("127.0.0.1", 9001);
+    REQUIRE( sock >= 0 );
+    std::string sendMsg = "hello" + std::to_string(idx);
+    char buf[11];
+    strcpy(buf, sendMsg.c_str());
+    REQUIRE( sendData(sock, buf, sendMsg.size()) == sendMsg.size() );
+    destroyConnection(sock);
+    return (void *)NULL;
+}
+
+void * listen_thread(void * arg) {
+    int sock = *(int *) arg;
+    REQUIRE( sock >= 0 );
+    char buf[11] = {0};
+    REQUIRE( 0 == readUntil(sock, buf, 6) );
+    bool isValid = !strcmp(buf, "hello1") || !strcmp(buf, "hello2");
+    REQUIRE( isValid );
+    destroyConnection(sock);
 }

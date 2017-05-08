@@ -12,7 +12,7 @@
 struct tk_command{
     OP opcode;
     std::string key;
-    uint32_t valSize;
+    int32_t valSize;
     char * val;
     tk_command() {
         opcode = GET;

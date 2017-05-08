@@ -842,7 +842,7 @@ struct GetLeaderArgs {
     bool Unmarshal(int sock) {
         return true;
     }
-    Marshal(int sock) {
+    void Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
         sendData(sock, (char *)&msgType, 1);
     }
@@ -860,7 +860,7 @@ struct GetLeaderReply {
     bool Unmarshal(int sock) {
         return readUntil(sock, (char *)&LeaderId, 4) == 0;
     }
-    Marshal(int sock) {
+    void Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
         sendData(sock, (char *)&msgType, 1);
         sendData(sock, (char *)&LeaderId, 4);
@@ -875,7 +875,7 @@ struct GetReplicaListArgs {
     bool Unmarshal(int sock) {
         return true;
     }
-    Marshal(int sock) {
+    void Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
         sendData(sock, (char *)&msgType, 1);
     }
@@ -922,7 +922,7 @@ struct GetReplicaListReply {
         }
         return true;
     }
-    Marshal(int sock) {
+    void Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
         sendData(sock, (char *)&msgType, 1);
         msgType = (uint8_t) Ready;
@@ -977,7 +977,7 @@ struct BeTheLeaderReply {
 
 struct GENERAL {
     TYPE Type;
-    GENERAL(TYPE _t): Type(_Type) {
+    GENERAL(TYPE _t): Type(_t) {
     }
     bool Unmarshal(int sock) {
         uint8_t msgType;

@@ -7,20 +7,6 @@
 #include <stdio.h>
 #include <gflags/gflags.h> // libgflags-dev    LBIS += lgflags
 
-static bool ValidatePort(const char* flagname, int32_t value) {
-    if (value > 0 && value < 32768)
-        return true;
-    printf("Invalid value for --%s: %d\n", flagname, (int)value);
-    return false;
-}
-
-static bool ValidateN(const char* flagname, int32_t value) {
-    if (value >= 3 && value <= 13 && value % 2 == 1)
-        return true;
-    printf("Invalid value for --%s: %d\n", flagname, (int)value);
-    return false;
-}
-
 DEFINE_int32(port, 7087, "Port # to listen on. Defaults to 7087");
 DEFINE_validator(port, &ValidatePort);
 DEFINE_int32(N, GROUP_SZIE, "Number of replicas. Defaults to 3");

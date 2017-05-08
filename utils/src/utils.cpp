@@ -22,3 +22,17 @@ bool equal(std::array<int32_t, GROUP_SZIE> & deps1,
     }
     return true;
 }
+
+bool ValidatePort(const char* flagname, int32_t value) {
+    if (value > 0 && value < 32768)
+        return true;
+    printf("Invalid value for --%s: %d\n", flagname, (int)value);
+    return false;
+}
+
+bool ValidateN(const char* flagname, int32_t value) {
+    if (value >= 3 && value <= 13 && value % 2 == 1)
+        return true;
+    printf("Invalid value for --%s: %d\n", flagname, (int)value);
+    return false;
+}

@@ -29,6 +29,7 @@ struct Replica {
     bool Beacon;
     bool Restore;
     int group_size;
+    int ListeningPort;
     uint64_t checkpoint_cycle;
 
     std::vector<bool> Alive;
@@ -37,7 +38,7 @@ struct Replica {
     std::vector<int32_t> crtInstance;
     std::array<int32_t, GROUP_SZIE> committedUpTo;
     std::vector<int32_t> executeUpTo;
-    std::vector<int16_t> PeerPortList;
+    std::vector<int32_t> PeerPortList;
     std::vector<std::string> PeerAddrList;
     std::vector<std::unordered_map<std::string, int32_t>> conflicts;
     std::unordered_map<std::string, int32_t> maxSeqPerKey;
@@ -58,7 +59,9 @@ struct Replica {
      RDMA_CONNECTION Listener;
      std::vector<RDMA_CONNECTION> Peers;
 
-    Replica() {};
+    Replica();
+    Replica(int32_t _rId, std::vector<std::string> & _addrList, std::vector<int> & _portList,
+            bool _thrifty, bool _exec, bool _dreply, bool _beacon, bool _durable);
     bool verify();
     bool init();
     bool run();

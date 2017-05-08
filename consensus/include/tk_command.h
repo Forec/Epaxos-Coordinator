@@ -11,6 +11,7 @@
 struct tk_command{
     OP opcode;
     std::string key;
+    int32_t valSize;
     char* val;
 };
 

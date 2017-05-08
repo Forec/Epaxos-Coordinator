@@ -27,7 +27,7 @@ bool find_SCC(Replica * r, tk_instance * v);
 
 bool execute_instance(Replica * r, int replica, int instance);
 
-char * execute_command(tk_command * c, Tkdatabase_t * st);
+char * execute_command(tk_command * c, Tkdatabase * st);
 
 void * execute_thread(void * arg);
 

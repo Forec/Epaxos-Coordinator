@@ -9,7 +9,7 @@
 #include "tk_message.h"
 #include "tk_elog.h"
 #include "../../config/config.h"
-#include "../../include/Tkdatabase.h"
+#include "../../database/include/Tkdatabase.h"
 #include "../../utils/include/msg_queue.h"
 #include "../../utils/include/utils.h"
 #include <vector>
@@ -40,7 +40,7 @@ struct Replica {
     std::unordered_map<std::string, int32_t> maxSeqPerKey;
 
     std::string path;
-    Tkdatabase_t* statemachine;
+    Tkdatabase* statemachine;
     FILE *log_fp;
     tk_instance *** InstanceMatrix;
 

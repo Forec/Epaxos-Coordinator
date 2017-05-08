@@ -36,7 +36,7 @@ bool Replica::verify() {
     }
     if (PeerAddrList.size() == 0) {
         for (int i = 0; i < group_size; i++) {
-            std::string addr = "localhost:" + to_string(PORT + i);
+            std::string addr = "localhost:" + std::to_string(PORT + i);
             PeerAddrList.push_back(addr);
         }
     }
@@ -51,7 +51,7 @@ bool Replica::init() {
     }
 
     if(path.empty()){
-        path = "/tmp/test" + to_string(Id);
+        path = "/tmp/test" + std::to_string(Id);
     }
     InstanceMatrix = (tk_instance ***) malloc(group_size * sizeof(tk_instance **));
     crtInstance.resize((unsigned long)group_size, 0);

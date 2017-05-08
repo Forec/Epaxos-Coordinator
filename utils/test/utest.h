@@ -5,45 +5,64 @@
 #ifndef __UTEST_H_
 #define __UTEST_H_
 
-#define CATCH_CONFIG_MAIN
-
-#include <catch.hpp>
 #include <ev.h>
 #include <pthread.h>
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
+#include <thread>
+#include <string>
+#include <array>
+#include <vector>
+#include <chrono>
 #include "../include/msg_queue.h"
+#include "../include/communication.h"
 
-struct TestStruct {
+struct Test_Struct {
     int id;
     int count;
     int buf_len;
     char * buf;
+    Test_Struct(){};
+    Test_Struct(const Test_Struct & another) {
+        id = another.id;
+        count = another.count;
+        buf_len = another.buf_len;
+        buf = new char[buf_len + 1];
+        mempcpy(buf, another.buf, buf_len);
+    }
+    ~Test_Struct() {
+        delete [] buf;
+    }
 };
-
-typedef struct TestStruct Test_Struct_t;
 
 #define TEST_SIZE 200
 #define MSG_SIZE 8
 
 struct mq_timer {
     ev_timer timer;
-    MsgQueue_t * mq;
-    Test_Struct_t * p;
+    MsgQueue * mq;
+    Test_Struct * p;
 };
-
-typedef struct mq_timer mq_timer_t;
 
 struct param {
-    MsgQueue_t * mq;
-    Test_Struct_t * test_structs;
+    MsgQueue * mq;
+    Test_Struct * test_structs;
 };
 
-typedef struct param param_t;
-
 static void readMsgQueue_cb(EV_P_ ev_timer *w, int r);
-void * readMsgQueue_thread(void * arg);
-void * putMsgQueue_thread(void * arg);
+void readMsgQueue_thread(MsgQueue * mq, Test_Struct * src);
+void putMsgQueue_thread(MsgQueue * mq, Test_Struct * src);
+void communication_thread(int idx);
+void listen_thread(int sock);
+
+extern std::atomic<uint32_t> passed;
+extern std::atomic<uint32_t> failed;
+void alert(bool conf) {
+    if (conf)
+        passed++;
+    else
+        failed++;
+};
 
 #endif

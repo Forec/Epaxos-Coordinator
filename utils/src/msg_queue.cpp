@@ -3,72 +3,70 @@
 //
 
 #include "../include/msg_queue.h"
-#include <stdio.h>
 
-MsgQueue_t * initMsgQueue(unsigned long _cap, unsigned int _msgSize) {
-    MsgQueue_t * mq = (MsgQueue_t *)malloc(sizeof(MsgQueue_t));
-    mq->used = 0;
-    mq->cap = _cap * _msgSize;
-    mq->cnt = _cap;
-    mq->size = 0;
-    mq->msgSize = _msgSize;
-    mq->buf = (char *)malloc(mq->cap);
-    pthread_mutex_init(&mq->mutex, NULL);
-    sem_init(&mq->empty, mq->cnt, mq->cnt);
-    sem_init(&mq->full, mq->cnt, 0);
-    return mq;
+MsgQueue::MsgQueue(uint64_t _cap, uint64_t _msgSize) {
+    used = 0;
+    cap = _cap * _msgSize;
+    cnt = _cap;
+    size = 0;
+    msgSize = _msgSize;
+    buf = new char[cap];
+    empty = new semaphore(cnt);
+    full = new semaphore(0);
 }
 
-void destroyMsgQueue(MsgQueue_t * mq) {
-    pthread_mutex_destroy(&mq->mutex);
-    sem_destroy(&mq->empty);
-    sem_destroy(&mq->full);
-    free(mq->buf);
-    free(mq);
+MsgQueue::MsgQueue(const MsgQueue &another) {
+    used = another.used;
+    cap = another.cap;
+    cnt = another.cnt;
+    size = another.size;
+    msgSize = another.msgSize;
+    buf = new char[cap];
+    mempcpy(buf, another.buf, cap);
+    empty = new semaphore(*another.empty);
+    full = new semaphore(*another.full);
 }
 
-long availableMsgCount(MsgQueue_t * mq) {
-    if (!mq)
-        return -1;
-    int pending;
-    sem_getvalue(&mq->full, &pending);
-    return pending;
+MsgQueue::~MsgQueue() {
+    if (empty)
+        delete empty;
+    if (full)
+        delete full;
+    if (buf)
+        delete [] buf;
 }
 
-int hasNextMsg(MsgQueue_t * mq) {
-    if (!mq) {
-        return -1;
-    }
-    return availableMsgCount(mq) > 0;
+uint64_t MsgQueue::count() {
+    return full->getCount();
 }
 
-void* getNextMsg(MsgQueue_t *mq) {
-    if (!mq)
-        return NULL;
+bool MsgQueue::hasNext() {
+    return count() > 0;
+}
+
+void* MsgQueue::get() {
     void * p;
-    sem_wait(&mq->full);
-    pthread_mutex_lock(&mq->mutex);
-    p = (void *)(mq->buf + mq->used);
-    mq->used += mq->msgSize;
-    if (mq->used >= mq->cap) {
-        mq->used = 0;
+    full->wait();
+    mutex.lock();
+    p = (void *)(buf + used);
+    used += msgSize;
+    if (used >= cap) {
+        used = 0;
     }
-    pthread_mutex_unlock(&mq->mutex);
-    sem_post(&mq->empty);
+    mutex.unlock();
+    empty->notify();
     return p;
 }
 
-void putIntoMsgQueue(MsgQueue_t * mq, void * src) {
-    if (!mq)
-        return;
-    sem_wait(&mq->empty);
-    pthread_mutex_lock(&mq->mutex);
-    if (mq->size == mq->cap) {
-        mq->size = 0;
+void MsgQueue::put(void * src) {
+    empty->wait();
+    mutex.lock();
+    if (size == cap) {
+        size = 0;
     }
-    unsigned long pos = mq->size;
-    mq->size += mq->msgSize;
-    pthread_mutex_unlock(&mq->mutex);
-    memcpy(mq->buf + pos, src, mq->msgSize);
-    sem_post(&mq->full);
+    uint64_t pos = size;
+    size += msgSize;
+    mutex.unlock();
+    memcpy(buf + pos, src, msgSize);
+    full->notify();
 }

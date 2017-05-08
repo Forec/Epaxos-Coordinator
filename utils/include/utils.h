@@ -8,6 +8,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <array>
+#include <vector>
 #include "../../config/config.h"
 
 void nano_sleep(uint64_t ns);

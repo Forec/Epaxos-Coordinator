@@ -74,7 +74,7 @@ TEST_CASE("Instance execution", "exec") {
 
     SECTION("tarjan can execute instances in correct order") {
         instance_stack_size = 100;
-        instance_stack = (tk_instance **) malloc(instance_stack_size * sizeof(tk_instance *));
+        instance_stack = new tk_instance * [instance_stack_size];
         REQUIRE(nullptr != instance_stack );
         REQUIRE( execute_instance(r, 0, 2) );
         REQUIRE( r->InstanceMatrix[1][1]->status == EXECUTED );
@@ -82,16 +82,17 @@ TEST_CASE("Instance execution", "exec") {
         REQUIRE( r->InstanceMatrix[0][1]->status == EXECUTED );
         REQUIRE( r->InstanceMatrix[1][2]->status != EXECUTED );
         REQUIRE( r->InstanceMatrix[0][2]->status == EXECUTED );
+        delete [] instance_stack;
     }
 
     SECTION("tarjan needs to wait uncommitted instances") {
         instance_stack_size = 100;
-        instance_stack = (tk_instance **) malloc(instance_stack_size * sizeof(tk_instance *));
+        instance_stack = new tk_instance * [instance_stack_size];
         r->InstanceMatrix[2][1]->status = NONE;
         REQUIRE( r->InstanceMatrix[2][1]->status != COMMITTED );
         REQUIRE( r->InstanceMatrix[2][1]->status != EXECUTED );
 
-        my_timer_t timeout_watcher;
+        my_timer timeout_watcher;
         struct ev_loop *loop = ev_loop_new(EVFLAG_AUTO);
         timeout_watcher.instance = r->InstanceMatrix[2][1];
         ev_timer_init(&timeout_watcher.timer, commit_timeout_cb, 0.01, 0.);
@@ -104,24 +105,23 @@ TEST_CASE("Instance execution", "exec") {
         REQUIRE( r->InstanceMatrix[0][1]->status == EXECUTED );
         REQUIRE( r->InstanceMatrix[1][2]->status != EXECUTED );
         REQUIRE( r->InstanceMatrix[0][2]->status == EXECUTED );
+
+        delete [] instance_stack;
     }
 
     SECTION("execution thread should execute all instances") {
         r->Shutdown = false;
         REQUIRE( !r->Shutdown );
 
-        my_timer_t timeout_watcher;
+        my_timer timeout_watcher;
         struct ev_loop *loop = ev_loop_new(EVFLAG_AUTO);
         timeout_watcher.replica = r;
         ev_timer_init(&timeout_watcher.timer, shutdown_timeout_cb, 0.1, 0.);
         ev_timer_start(loop, &timeout_watcher.timer);
 
-        pthread_t thread;
-        int pid = pthread_create(&thread, NULL, execute_thread, (void *)r);
-        REQUIRE( pid >= 0 );
-
+        std::thread tr(execute_thread, r);
         ev_run(loop, 0);
-        pthread_join(thread, NULL);
+        tr.join();
 
         REQUIRE( r->InstanceMatrix[1][1]->status == EXECUTED );
         REQUIRE( r->InstanceMatrix[2][1]->status == EXECUTED );
@@ -132,7 +132,7 @@ TEST_CASE("Instance execution", "exec") {
 }
 
 static void commit_timeout_cb(EV_P_ ev_timer * w_, int r) {
-    my_timer_t * w = (my_timer_t *) w_;
+    my_timer * w = (my_timer *) w_;
     tk_instance * instance = w->instance;
     REQUIRE( instance->status != COMMITTED );
     instance->status = COMMITTED;
@@ -141,7 +141,7 @@ static void commit_timeout_cb(EV_P_ ev_timer * w_, int r) {
 };
 
 static void shutdown_timeout_cb(EV_P_ ev_timer * w_, int r) {
-    my_timer_t * w = (my_timer_t *) w_;
+    my_timer * w = (my_timer *) w_;
     Replica * replica = w->replica;
     REQUIRE( !replica->Shutdown );
     replica->Shutdown = true;

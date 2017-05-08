@@ -138,12 +138,11 @@ execute_command(tk_command * c, Tkdatabase * st) {
     return res;
 }
 
-void * execute_thread(void * arg) {
-    Replica * r = (Replica *)arg;
+void execute_thread(Replica * r) {
 
     if (!r) {
         info(stderr, "initialize replica first!\n");
-        return (void*)NULL;
+        return;
     }
 
     // only initialized once
@@ -152,7 +151,7 @@ void * execute_thread(void * arg) {
 
     if (!instance_stack) {
         info(stderr, "cannot allocate space for STACK\n");
-        return (void*)NULL;
+        return;
     }
 
     int32_t * problemInstance = new int32_t[r->group_size];
@@ -207,5 +206,5 @@ void * execute_thread(void * arg) {
     }
     delete [] problemInstance;
     delete [] timeout;
-    return (void*) nullptr;
+    return;
 }

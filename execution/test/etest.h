@@ -9,9 +9,10 @@
 
 #include <ev.h>
 #include <catch.hpp>
-#include <pthread.h>
 #include "../../consensus/include/replica.h"
 #include "../include/exec.h"
+#include <thread>
+#include <chrono>
 #include <vector>
 #include <string>
 
@@ -22,8 +23,6 @@ struct my_timer {
         Replica * replica;
     };
 };
-
-typedef struct my_timer my_timer_t;
 
 static void commit_timeout_cb(EV_P_ ev_timer *w, int r);
 static void shutdown_timeout_cb(EV_P_ ev_timer *w, int r);

@@ -12,14 +12,15 @@
 #include "../../database/include/Tkdatabase.h"
 #include "../../utils/include/msg_queue.h"
 #include "../../utils/include/utils.h"
+#include "../../utils/include/communication.h"
 #include <vector>
 #include <string>
+#include <thread>
+#include <chrono>
 #include <unordered_map>
 
 struct Replica {
     int32_t Id;
-    std::vector<std::string> PeerAddrList;
-    // TODO: std::vector<RDMA Handle> Peers
     bool Durable;
     bool Shutdown;
     bool Exec;
@@ -36,6 +37,8 @@ struct Replica {
     std::vector<int32_t> crtInstance;
     std::array<int32_t, GROUP_SZIE> committedUpTo;
     std::vector<int32_t> executeUpTo;
+    std::vector<int16_t> PeerPortList;
+    std::vector<std::string> PeerAddrList;
     std::vector<std::unordered_map<std::string, int32_t>> conflicts;
     std::unordered_map<std::string, int32_t> maxSeqPerKey;
 
@@ -44,16 +47,16 @@ struct Replica {
     FILE *log_fp;
     tk_instance *** InstanceMatrix;
 
-    MsgQueue_t * mq;
-    MsgQueue_t * pro_mq;
+    MsgQueue * mq;
+    MsgQueue * pro_mq;
 
     int32_t maxSeq;
     int32_t latestCPReplica;
     int32_t latestCPInstance;
 
     // TODO
-    // RDMA_HANDLER Listener;
-    // RDMA_CONENCTION Peers;
+     RDMA_CONNECTION Listener;
+     std::vector<RDMA_CONNECTION> Peers;
 
     Replica() {};
     bool verify();
@@ -104,7 +107,7 @@ struct Replica {
     int32_t makeBallotLargerThan(int32_t ballot);
 
     // inter replica communications
-    void connectToPeers();
+    void connectToPeers(std::vector<std::thread *> & threads);
     void bcastPreAccept(int32_t replica, int32_t instance, uint32_t ballot,
                         std::vector<tk_command> &cmds, int32_t seq,
                         std::array<int32_t, GROUP_SZIE> & deps);
@@ -127,42 +130,20 @@ struct Replica {
 };
 
 // threads
-struct _PeerParam {
-    Replica * _r;
-    bool * done;
-};
-
-struct _ClientParam {
-    Replica * _r;
-    // RDMA_CONNECTION conn;
-    // _ClientParam(Replica * _r, RDMA_CONNECTION _conn) :
-    //    r(_r), conn(_conn) {
-    // };
-};
-
-struct _ListenerParam {
-    Replica * r;
-    int32_t rid;
-    // RDMA_READER reader;
-    _ListenerParam(){};
-    // _ListenerParam(Replica * _r, int32_t _rid, RDMA_READER _reader) :
-    //    r(_r), rid(_rid), reader(_reader) {
-    // };
-};
-
-void * waitForClientConnections(void * arg);
-void * clientListener(void * arg);
-void * waitForPeerConnections(void * arg);
-void * replicaListener(void * arg);
-void * stopAdapting(void * arg);
-void * slowClock(void * arg);
-void * fastClock(void * arg);
+void waitForClientConnections(Replica * r);
+void clientListener(Replica * r, RDMA_CONNECTION conn);
+void waitForPeerConnections(Replica * r, bool * done);
+void replicaListener(Replica *r, int32_t rid, RDMA_CONNECTION conn);
+void stopAdapting(Replica * r);
+void slowClock(Replica * r);
+void fastClock(Replica * r);
 
 // helper functions
 void updateDeferred(int32_t dr, int32_t di, int32_t r, int32_t i);
 bool deferredByInstance(int32_t q, int32_t i, int32_t * dq, int32_t *di);
 uint64_t CPUTicks();
 void LEPutUint32(char * buf, int32_t v);
+void msgDispatcher(Replica * r, int32_t rid, RDMA_CONNECTION conn, TYPE msgType);
 
 extern int conflict, weird, slow, happy;
 extern int cpcounter;

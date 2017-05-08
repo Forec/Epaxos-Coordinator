@@ -727,4 +727,270 @@ struct ClientConnect {
     }
 };
 
+struct RegisterArgs {
+    TYPE Type;
+    std::string Addr;
+    int Port;
+    RegisterArgs() {
+        Type = REGISTER_ARGS;
+    }
+    RegisterArgs(std::string addr, int port) :
+        Addr(addr), Port(port){
+        Type = REGISTER_ARGS;
+    }
+    bool Unmarshal(int sock) {
+        int32_t tmp32;
+        if (readUntil(sock, (char *) & tmp32, 4) != 0)
+            return false;
+        char * buf = new char[tmp32];
+        if (readUntil(sock, buf, tmp32) != 0)
+            return false;
+        Addr = std::string(buf);
+        if (readUntil(sock, (char *) & Port, 4) != 0)
+            return false;
+        delete buf;
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *) &msgType, 1);
+        int32_t size = Addr.length() + 1;
+        sendData(sock, (char *) &size, 4);
+        char * buf = new char[size];
+        buf[size] = '\0';
+        strcpy(buf, Addr.c_str());
+        sendData(sock, buf, size);
+        sendData(sock, (char *)&Port, 4);
+    }
+};
+
+struct RegisterReply {
+    TYPE Type;
+    int ReplicaId;
+    std::vector<std::string> AddrList;
+    std::vector<int> PortList;
+    bool Ready;
+    RegisterReply() {
+        Type = REGISTER_REPLY;
+    }
+    RegisterReply(int _r, bool _ready, std::vector<std::string> & addrList, std::vector<int> &portList):
+        ReplicaId(_r), Ready(_ready), AddrList(addrList), PortList(portList) {
+        Type = REGISTER_REPLY;
+    }
+    bool Unmarshal(int sock) {
+        uint8_t tmp;
+        if (readUntil(sock, (char *) & tmp, 1) != 0)
+            return false;
+        Ready = (bool) tmp;
+        int32_t tmp32;
+        if (readUntil(sock, (char *) & tmp32, 4) != 0)
+            return false;
+        ReplicaId = tmp32;
+        char buf[64];
+        if (readUntil(sock, (char *) & tmp32, 4) != 0)
+            return false;
+        int32_t size = tmp32;
+        AddrList.clear();
+        for (int i = 0; i < size; i++) {
+            if (readUntil(sock, (char *) & tmp32, 4) != 0)
+                return false;
+            if (readUntil(sock, buf, tmp32) != 0)
+                return false;
+            buf[tmp32 - 1] = '\0';
+            AddrList.push_back(std::string(buf));
+        }
+        if (readUntil(sock, (char *)&size, 4) != 0)
+            return false;
+        PortList.clear();
+        for (int i = 0; i < size; i++) {
+            if (readUntil(sock, (char *) & tmp32, 4) != 0)
+                return false;
+            PortList.push_back(tmp32);
+        }
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *) &msgType, 1);
+        msgType = (uint8_t) Ready;
+        sendData(sock, (char *) &msgType, 1);
+        sendData(sock, (char *) &ReplicaId, 4);
+        int32_t size = AddrList.size();
+        sendData(sock, (char *) &size, 4);
+        char buf[64];
+        for (int i = 0; i < AddrList.size(); i++) {
+            size = AddrList[i].length() + 1;
+            sendData(sock, (char *) &size, 4);
+            buf[size - 1] = '\0';
+            strcpy(buf, AddrList[i].c_str());
+            sendData(sock, buf, size);
+        }
+        size = PortList.size();
+        sendData(sock, (char *) &size, 4);
+        for (int i = 0; i < PortList.size(); i++) {
+            size = PortList[i];
+            sendData(sock, (char *) &size, 4);
+        }
+    }
+};
+
+struct GetLeaderArgs {
+    TYPE Type;
+    GetLeaderArgs() {
+        Type = GET_LEADER_ARGS;
+    }
+    bool Unmarshal(int sock) {
+        return true;
+    }
+    Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+    }
+};
+
+struct GetLeaderReply {
+    TYPE Type;
+    int32_t LeaderId;
+    GetLeaderReply() {
+        Type = GET_LEADER_REPLY;
+    }
+    GetLeaderReply(int32_t _l) : LeaderId(_l) {
+        Type = GET_LEADER_REPLY;
+    }
+    bool Unmarshal(int sock) {
+        return readUntil(sock, (char *)&LeaderId, 4) == 0;
+    }
+    Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        sendData(sock, (char *)&LeaderId, 4);
+    }
+};
+
+struct GetReplicaListArgs {
+    TYPE Type;
+    GetReplicaListArgs() {
+        Type = GET_REPLICA_LIST_ARGS;
+    }
+    bool Unmarshal(int sock) {
+        return true;
+    }
+    Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+    }
+};
+
+struct GetReplicaListReply {
+    TYPE Type;
+    bool Ready;
+    std::vector<std::string> ReplicaAddrList;
+    std::vector<int> ReplicaPortList;
+    GetReplicaListReply() {
+        Type = GET_REPLICA_LIST_REPLY;
+    }
+    GetReplicaListReply(bool _r, std::vector<std::string> &addr, std::vector<int> & port) :
+        Ready(_r), ReplicaAddrList(addr), ReplicaPortList(port){
+        Type = GET_REPLICA_LIST_REPLY;
+    }
+    bool Unmarshal(int sock) {
+        uint8_t tmp;
+        if (readUntil(sock, (char *) & tmp, 1) != 0)
+            return false;
+        Ready = (bool) tmp;
+        int32_t tmp32;
+        char buf[64];
+        if (readUntil(sock, (char *) & tmp32, 4) != 0)
+            return false;
+        int32_t size = tmp32;
+        ReplicaAddrList.clear();
+        for (int i = 0; i < size; i++) {
+            if (readUntil(sock, (char *) & tmp32, 4) != 0)
+                return false;
+            if (readUntil(sock, buf, tmp32) != 0)
+                return false;
+            buf[tmp32 - 1] = '\0';
+            ReplicaAddrList.push_back(std::string(buf));
+        }
+        if (readUntil(sock, (char *)&size, 4) != 0)
+            return false;
+        ReplicaPortList.clear();
+        for (int i = 0; i < size; i++) {
+            if (readUntil(sock, (char *) & tmp32, 4) != 0)
+                return false;
+            ReplicaPortList.push_back(tmp32);
+        }
+        return true;
+    }
+    Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        msgType = (uint8_t) Ready;
+        sendData(sock, (char *)&msgType, 1);
+        int32_t size = ReplicaAddrList.size();
+        sendData(sock, (char *) &size, 4);
+        char buf[64];
+        for (int i = 0; i < ReplicaAddrList.size(); i++) {
+            size = ReplicaAddrList[i].length() + 1;
+            sendData(sock, (char *) &size, 4);
+            buf[size - 1] = '\0';
+            strcpy(buf, ReplicaAddrList[i].c_str());
+            sendData(sock, buf, size);
+        }
+        size = ReplicaPortList.size();
+        sendData(sock, (char *) &size, 4);
+        for (int i = 0; i < ReplicaPortList.size(); i++) {
+            size = ReplicaPortList[i];
+            sendData(sock, (char *) &size, 4);
+        }
+    }
+};
+
+
+struct BeTheLeaderReply {
+    TYPE Type;
+    bool Ok;
+    BeTheLeaderReply() {
+        Type = BE_LEADER_REPLY;
+    }
+    BeTheLeaderReply(bool _ok) : Ok(_ok) {
+        Type = BE_LEADER_REPLY;
+    }
+    bool Unmarshal(int sock) {
+        uint8_t tmp;
+        if (readUntil(sock, (char *) & tmp, 1) != 0)
+            return false;
+        if ((TYPE)tmp != BE_LEADER_REPLY)
+            return false;
+        if (readUntil(sock, (char *) & tmp, 1) != 0)
+            return false;
+        Ok = (bool) tmp;
+        return true;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+        msgType = (uint8_t) Ok;
+        sendData(sock, (char *)&msgType, 1);
+    }
+};
+
+struct GENERAL {
+    TYPE Type;
+    GENERAL(TYPE _t): Type(_Type) {
+    }
+    bool Unmarshal(int sock) {
+        uint8_t msgType;
+        if (readUntil(sock, (char *)&msgType, 1) != 0)
+            return false;
+        if ((TYPE)msgType == Type)
+            return true;
+        return false;
+    }
+    void Marshal(int sock) {
+        uint8_t msgType = (uint8_t) Type;
+        sendData(sock, (char *)&msgType, 1);
+    }
+};
+
 #endif //TKDATABASE_TK_MESSAGE_H

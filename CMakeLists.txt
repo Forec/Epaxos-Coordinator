@@ -24,6 +24,6 @@ set(SOURCE_FILES
         config/config.h
         utils/src/go_thread.cpp
         utils/include/utils.h
-        utils/src/utils.cpp utils/include/communication.h utils/src/communication.cpp)
+        utils/src/utils.cpp utils/include/communication.h utils/src/communication.cpp master/src/master.cpp master/include/master.h)
 
 add_executable(TkDatabase ${SOURCE_FILES})

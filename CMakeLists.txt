@@ -8,8 +8,6 @@ set(SOURCE_FILES
         database/src/Tkdatabase.cpp
         database/include/Tkdatanode.h
         database/src/Tkdatanode.cpp
-        utils/include/msg_queue.h
-        utils/src/msg_queue.cpp
         consensus/include/tk_consensus.h
         consensus/include/tk_config.h
         consensus/include/tk_log.h
@@ -22,8 +20,14 @@ set(SOURCE_FILES
         execution/include/exec.h
         execution/src/exec.cpp
         config/config.h
-        utils/src/go_thread.cpp
+        utils/include/msg_queue.h
+        utils/src/msg_queue.cpp
         utils/include/utils.h
-        utils/src/utils.cpp utils/include/communication.h utils/src/communication.cpp master/src/master.cpp master/include/master.h)
+        utils/src/utils.cpp
+        utils/include/communication.h
+        utils/src/communication.cpp
+        master/include/master.h
+        master/src/master.cpp
+        )
 
 add_executable(TkDatabase ${SOURCE_FILES})

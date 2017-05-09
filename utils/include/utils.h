@@ -16,6 +16,7 @@ bool isInitialBallot(int32_t ballot);
 bool equal(std::array<int32_t, GROUP_SZIE> & deps1, std::array<int32_t, GROUP_SZIE> & deps2);
 bool ValidatePort(const char* flagname, int32_t value);
 bool ValidateN(const char* flagname, int32_t value);
+bool ValidatePercent(const char * flagname, int32_t value);
 
 
 #endif //TKDATABASE_UTILS_H_H

@@ -240,7 +240,7 @@ void clientListener(Replica * r, RDMA_CONNECTION conn) {
                 prop = new Propose();
                 if ( !prop->Unmarshal(conn) )
                     return;
-                r->mq->put(&prop);
+                r->pro_mq->put(&prop);
                 break;
             case READ:  // useless
 //          if (ERROR == read.Unmarshal(conn))

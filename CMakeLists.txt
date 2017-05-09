@@ -28,6 +28,6 @@ set(SOURCE_FILES
         utils/src/communication.cpp
         master/include/master.h
         master/src/master.cpp
-        server/include/server.h server/src/server.cpp)
+        server/include/server.h server/src/server.cpp client/include/client.h client/src/client.cpp)
 
 add_executable(TkDatabase ${SOURCE_FILES})

@@ -36,3 +36,10 @@ bool ValidateN(const char* flagname, int32_t value) {
     printf("Invalid value for --%s: %d\n", flagname, (int)value);
     return false;
 }
+
+bool ValidatePercent(const char* flagname, int32_t value) {
+    if (value >= 0 && value <= 100)
+        return true;
+    printf("Invalid value for --%s: %d\n", flagname, (int)value);
+    return false;
+}

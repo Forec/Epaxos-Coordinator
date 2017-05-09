@@ -25,9 +25,6 @@ set(SOURCE_FILES
         utils/include/utils.h
         utils/src/utils.cpp
         utils/include/communication.h
-        utils/src/communication.cpp
-        master/include/master.h
-        master/src/master.cpp
-        consensus/test/test_serialization.cpp)
+        utils/src/communication.cpp)
 
 add_executable(TkDatabase ${SOURCE_FILES})

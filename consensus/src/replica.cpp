@@ -18,6 +18,15 @@ Accept ea;
 Commit cm;
 CommitShort cms;
 
+Replica::Replica() {
+}
+
+Replica::Replica(int32_t _rId, std::vector<std::string> & _addrList, std::vector<int> & _portList,
+                 bool _thrifty, bool _exec, bool _dreply, bool _beacon, bool _durable) :
+    Id(_rId), PeerAddrList(_addrList), PeerPortList(_portList), Thrifty(_thrifty),
+    Exec(_exec), Dreply(_dreply), Beacon(_beacon), Durable(_durable) {
+}
+
 bool Replica::verify() {
     if(group_size == 0) {
         group_size = GROUP_SZIE;
@@ -27,6 +36,9 @@ bool Replica::verify() {
         return false;
     }
 
+    if (ListeningPort == 0) {
+        ListeningPort = PORT;
+    }
     if(checkpoint_cycle == 0) {
         checkpoint_cycle = CHECKPOINT_CYCLE;
     }
@@ -228,7 +240,7 @@ void clientListener(Replica * r, RDMA_CONNECTION conn) {
                 prop = new Propose();
                 if ( !prop->Unmarshal(conn) )
                     return;
-                r->mq->put(&prop);
+                r->pro_mq->put(&prop);
                 break;
             case READ:  // useless
 //          if (ERROR == read.Unmarshal(conn))
@@ -251,7 +263,7 @@ void waitForPeerConnections(Replica * r, bool * done) {
     // TODO - DONE
     // r->Listener = RDMA_Listen("tcp", r->peerAddrList[Id]);
     // TEST
-    r->Listener = listenOn(PORT);
+    r->Listener = listenOn(r->ListeningPort);
     for (int i = r->Id + 1; i < r->group_size; i++) {
         // TODO - DONE
         // RDMA_CONNECTION conn = r->Listener.Accept();

@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include "tk_config.h"
 #include "tk_consensus.h"
-#include "debug.h"
+#include "../../utils/include/debug.h"
 #include "tk_elog.h"
 #define NOOP 0
 #define CSM 1

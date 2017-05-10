@@ -32,12 +32,12 @@ bool Replica::verify() {
         group_size = GROUP_SZIE;
     }
     if(group_size % 2 == 0) {
-        error_exit(0, log_fp, "Group size must be odd !");
+        fprintf(stderr, "Group size must be odd!\n");
         return false;
     }
 
-    if (ListeningPort == 0) {
-        ListeningPort = PORT;
+    if (ListeningPort < 0) {
+        ListeningPort = SERVER_PORT;
     }
     if(checkpoint_cycle == 0) {
         checkpoint_cycle = CHECKPOINT_CYCLE;
@@ -45,7 +45,7 @@ bool Replica::verify() {
     if (PeerAddrList.size() == 0) {
         for (int i = 0; i < group_size; i++) {
             PeerAddrList.push_back("localhost");
-            PeerPortList.push_back(PORT + i);
+            PeerPortList.push_back(SERVER_PORT + i);
         }
     }
     return true;
@@ -60,15 +60,22 @@ bool Replica::init() {
     if(path.empty()){
         path = "/tmp/test" + std::to_string(Id);
     }
+    Shutdown = false;
+    Restore = false;
     InstanceMatrix = (tk_instance ***) malloc(group_size * sizeof(tk_instance **));
     crtInstance.resize((unsigned long)group_size, 0);
     executeUpTo.resize((unsigned long)group_size, 0);
     mq = new MsgQueue(1024 * 1024 ,8);
     pro_mq = new MsgQueue(1024 * 1024 ,8);
+    Peers.resize((unsigned long)group_size, -1);
+    Alive.resize((unsigned long)group_size, false);
+    PreferredPeerOrder.resize((unsigned long)group_size, 0);
+    Ewma.resize((unsigned long)group_size, 0.0);
     for(unsigned int i = 0; i < group_size; i++){
         InstanceMatrix[i] = (tk_instance **)malloc(1024 * 1024 * sizeof(tk_instance *));
         memset(InstanceMatrix[i], 0, 1024 * 1024 * sizeof(tk_instance *));
         conflicts.push_back(std::unordered_map<std::string, int32_t>());
+        PreferredPeerOrder[i] = int32_t(Id + 1 + i) % group_size;
     }
     if(Restore){
         //TODO: recovery from log file; (original lost)
@@ -84,11 +91,14 @@ bool Replica::run() {
     std::vector<std::thread *> threads;
 
     connectToPeers(threads);
-    info(stdout, "Waiting for client connections\n");
+
     threads.push_back(new std::thread(waitForClientConnections, this));
+
+    fprintf(stdout, "Wait for client connections: DONE!\n");
 
     if (Exec) {
         threads.push_back(new std::thread(execute_thread, this));
+        fprintf(stdout, "Start execution loop: DONE!\n");
     }
 
     if (Id == 0) {
@@ -96,30 +106,43 @@ bool Replica::run() {
         for (int i = 0; i <= group_size/2; i++)
             quorum[i] = i;
         updatePreferredPeerOrder(quorum);
+        fprintf(stdout, "Update preferred order: DONE!\n");
     }
 
-    threads.push_back(new std::thread(slowClock, this));
+    threads.push_back(new std::thread(fastClock, this));
+    fprintf(stdout, "Start fast clock: DONE!\n");
 
-    if (MAX_BATCH > 100)
-        threads.push_back(new std::thread(fastClock, this));
-
-    if (Beacon)
+    if (Beacon) {
+        threads.push_back(new std::thread(slowClock, this));
+        fprintf(stdout, "Start slow clock: DONE!\n");
         threads.push_back(new std::thread(stopAdapting, this));
+        fprintf(stdout, "Stop adapting: DONE!\n");
+    }
 
     int i;
     MsgQueue * pro_mq_s = pro_mq;
+
+    fprintf(stdout, "Start message dispatcher: DONE!\n");
+
     while (!Shutdown) {
         if (pro_mq_s != NULL && pro_mq_s->hasNext()) {
+            fprintf(stdout, "try to get msg from pro_mq\n");
             void *msgp = pro_mq_s->get();
+            fprintf(stdout, "get msgp!!!!\n");
             handlePropose((Propose *) msgp);
+            fprintf(stdout, "handle over msgp!!!!\n");
             pro_mq_s = NULL;
         }
+        fprintf(stdout, "mq->hasNext() : %d\n", mq->hasNext());
         if (pro_mq_s != NULL && !mq->hasNext())
             continue;    // use a loop instead of select between two msgQueues
+
         void * msgp = mq->get();
         TYPE msgType = *(TYPE *) msgp;
+        fprintf(stdout, "msgType =%d\n", msgType);
         switch (msgType) {
             case FAST_CLOCK:
+                fprintf(stdout, "receive fast clock!\n");
                 pro_mq_s = pro_mq;
                 break;
             case PREPARE:
@@ -214,8 +237,13 @@ void waitForClientConnections(Replica * r) {
 
         // TEST
         int sock = acceptAt(r->Listener);
+        fprintf(stdout, "Connect from client on sock %d\n", sock);
         clientListeners.push_back(new std::thread(clientListener, r, sock));
         r->mq->put(&notice);
+    }
+    for (std::thread * cl: clientListeners) {
+        cl->detach();
+        delete cl;
     }
     delete notice;
 }
@@ -225,15 +253,13 @@ void clientListener(Replica * r, RDMA_CONNECTION conn) {
     Read read;
     ProposeAndRead pandr;
     Propose * prop;
-    char buf[4];
 
     while (!r->Shutdown) {
         // TODO - DONE
         // msgType = reader->ReadByte();
         // if ERROR: return;
         // TEST
-        readUntil(conn, buf, 1);
-        msgType = *(uint8_t *) buf;
+        readUntil(conn, (char *)&msgType, 1);
 
         switch ((TYPE)(msgType)) {
             case PROPOSE: // All commands are proposed from PROPOSE.
@@ -258,20 +284,30 @@ void clientListener(Replica * r, RDMA_CONNECTION conn) {
 }
 
 void waitForPeerConnections(Replica * r, bool * done) {
-    char b[4];
-
     // TODO - DONE
     // r->Listener = RDMA_Listen("tcp", r->peerAddrList[Id]);
     // TEST
-    r->Listener = listenOn(r->ListeningPort);
+    do {
+        r->Listener = listenOn(r->ListeningPort);
+        if (r->Listener < 0) {
+            fprintf(stderr, "Cannot listen on 0.0.0.0:%d\n", r->ListeningPort);
+            std::this_thread::sleep_for(std::chrono::seconds(3));
+        }
+    } while (r->Listener < 0);
+
     for (int i = r->Id + 1; i < r->group_size; i++) {
         // TODO - DONE
         // RDMA_CONNECTION conn = r->Listener.Accept();
         // RDMA_ReadFull(conn, b);
         // TEST
         RDMA_CONNECTION conn = acceptAt(r->Listener);
-        readUntil(conn, b, 4);
-        int id = *(int *)b;
+        if (conn < 0) {
+            fprintf(stderr, "Error when accept connect request from other replicas\n");
+            continue;
+        }
+        int32_t id;
+        readUntil(conn, (char *) &id, 4);
+        fprintf(stdout, "Connect with replica %d: DONE!\n", id);
         r->Peers[id] = conn;
         // r->PeerReaders[id] = NewReader(conn)
         // r->PeerWriters[id] = NewWriter(conn)
@@ -286,14 +322,14 @@ void replicaListener(Replica * r, int32_t rid, RDMA_CONNECTION conn) {
     Beacon_msg_reply gbeaconReply;
     Beacon_msg * beacon;
 
-    char buf[8];
     while (!r->Shutdown) {
         // TODO - DONE
         // msgType = reader->ReadByte();
         // if ERROR: return;
         // TEST
-        readUntil(conn, buf, 1);
-        msgType = *(uint8_t *) buf;
+        readUntil(conn, (char *)&msgType, 1);
+        fprintf(stdout, "receive msgType :%d\n", msgType);
+        fflush(stdout);
 
         switch ((TYPE)(msgType)) {
             case BEACON:
@@ -323,7 +359,7 @@ void replicaListener(Replica * r, int32_t rid, RDMA_CONNECTION conn) {
 void slowClock(Replica * r) {
     Clock * timeout = new Clock(SLOW_CLOCK);
     while (!r->Shutdown) {
-        std::this_thread::sleep_for(std::chrono::nanoseconds(150 * 100000)); // 150 ms
+        std::this_thread::sleep_for(std::chrono::milliseconds(150)); // 150 ms
         r->mq->put(&timeout);
     }
     delete timeout;
@@ -332,7 +368,7 @@ void slowClock(Replica * r) {
 void fastClock(Replica * r) {
     Clock * timeout = new Clock(FAST_CLOCK);
     while (!r->Shutdown) {
-        std::this_thread::sleep_for(std::chrono::nanoseconds(5 * 1000000)); // 5 ms
+        std::this_thread::sleep_for(std::chrono::milliseconds(5)); // 5 ms
         r->mq->put(&timeout);
     }
     delete timeout;
@@ -378,7 +414,7 @@ void Replica::handlePropose(Propose * propose) {
     std::vector<Propose> proposals((unsigned long)batchSize, Propose());
     cmds[0] = propose->Command;
     proposals[0] = *propose;
-    free(propose);
+    delete propose;
     // the original messages can be freed since they are already copied
     // allocate a new block of space for cmds/proposals for using cache
     // since the original messages may be separated in many distinct blocks
@@ -386,8 +422,10 @@ void Replica::handlePropose(Propose * propose) {
         propose = *(Propose **)pro_mq->get();
         cmds[i] = propose->Command;
         proposals[i] = *propose;
-        free(propose);
+        delete propose;
     }
+
+    fprintf(stdout, "Ready to start phase1\n");
     startPhase1(Id, instNo, 0, proposals, cmds, batchSize);
 }
 
@@ -402,6 +440,7 @@ void Replica::startPhase1(int32_t replica, int32_t instance, int32_t ballot,
     }
 
     updateAttributes(cmds, seq, deps, Id, instance);
+    fprintf(stdout, "Finish update attributes!\n");
 
     std::vector<int32_t> _cmDeps(5, -1);
     lb_t * lb = new lb_t(proposals, 0, 0, true, 0, 0, 0, deps, _cmDeps, nullptr, false, false, emptyVec_bool, 0);
@@ -409,6 +448,7 @@ void Replica::startPhase1(int32_t replica, int32_t instance, int32_t ballot,
     InstanceMatrix[Id][instance] = newInstance;
 
     updateConflicts(cmds, Id, instance, seq);
+    fprintf(stdout, "Finish update conflicts!\n");
 
     if (seq >= maxSeq) {
         maxSeq = seq + 1;
@@ -979,9 +1019,10 @@ int32_t Replica::makeBallotLargerThan(int32_t ballot) {
  ********************************************************************************************/
 
 void Replica::connectToPeers(std::vector<std::thread *> & threads) {
-    char b[4];
+
     bool done = false;
     std::thread wfpr(waitForPeerConnections, this, &done);
+    wfpr.detach();
 
     //connect to peers
     for (int i = 0; i < Id; i++) {
@@ -995,29 +1036,33 @@ void Replica::connectToPeers(std::vector<std::thread *> & threads) {
             // } else
             //     nano_sleep(1000 * 1000 * 1000);
             // TEST
-            RDMA_CONNECTION conn = dialTo(PeerAddrList[i], PeerPortList[i]);
+            RDMA_CONNECTION conn = dialTo(PeerAddrList[i], (uint16_t)PeerPortList[i]);
             if (conn < 0) {
-                nano_sleep(1000 * 1000 * 1000);
+                fprintf(stderr, "Cannot dial to replica %d(%s:%d)\n", i, PeerAddrList[i].c_str(), PeerPortList[i]);
+                std::this_thread::sleep_for(std::chrono::seconds(1));
             } else {
                 Peers[i] = conn;
                 finish = true;
             }
         }
-        LEPutUint32(b, Id);
         // TODO - DONE
         // if (RDMA_Write(Peers[i], b) == ERROR) {
         //    LOG("Write Id error!");
         //    continue;
         // }
         // TEST
-        if (sendData(Peers[i], b, 4) != 0) {
+        int32_t tmp = Id;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if (sendData(Peers[i], (char *) &tmp, 4) != 4) {
             fprintf(stderr, "Write Id error!\n");
             continue;
         }
         Alive[i] = true;
         // PeerReaders[i] = NewReader(Peers[i])
         // PeerWriters[i] = NewWriter(Peers[i])
-    } while (!done);
+    }
+
+    while (!done);
 //    TODO - DONE
 //    LOG("Replica id: %d. Done connecting to peers\n", Id);
 //    for (int32_t rid = 0; rid < group_size; rid++) {
@@ -1027,12 +1072,13 @@ void Replica::connectToPeers(std::vector<std::thread *> & threads) {
 //        go(replicaListener, lpr);
 //    }
     // TEST
-    fprintf(stdout, "Replica Id: %d. Done connecting to peers\n", Id);
+    fprintf(stdout, "Replica %d, connect to peers: DONE!\n", Id);
     for (int32_t rid = 0; rid < group_size; rid++) {
         if (rid == Id)
             continue;
         threads.push_back(new std::thread(replicaListener, this, rid, Peers[rid]));
         threads.back()->detach();
+        fprintf(stdout, "Create listener for replica %d: DONE!\n", rid);
     }
 }
 

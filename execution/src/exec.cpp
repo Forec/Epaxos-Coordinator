@@ -26,7 +26,7 @@ strong_connect(Replica * r,
 
     if (instance_stack_size == top){
         if (!realloc(STACK, (instance_stack_size << 1) * sizeof(tk_instance *))){
-            info(stderr, "cannot realloc space for instance stack in tarjan.\n");
+            fprintf(stderr, "cannot realloc space for instance stack in tarjan.\n");
             return false;
         };
         instance_stack_size <<= 1;
@@ -141,7 +141,7 @@ execute_command(tk_command * c, Tkdatabase * st) {
 void execute_thread(Replica * r) {
 
     if (!r) {
-        info(stderr, "initialize replica first!\n");
+        fprintf(stderr, "initialize replica first!\n");
         return;
     }
 
@@ -150,7 +150,7 @@ void execute_thread(Replica * r) {
     instance_stack = (tk_instance **) malloc(instance_stack_size * sizeof(tk_instance *));
 
     if (!instance_stack) {
-        info(stderr, "cannot allocate space for STACK\n");
+        fprintf(stderr, "cannot allocate space for STACK\n");
         return;
     }
 

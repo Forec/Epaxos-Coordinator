@@ -7,7 +7,7 @@
 #include <bits/unordered_map.h>
 
 DEFINE_string(maddr, "127.0.0.1", "Master address, default to localhost.");
-DEFINE_int32(mport, 7087, "Master port, default to 7087.");
+DEFINE_int32(mport, MASTER_PORT, ("Master port, default to " + std::to_string(MASTER_PORT) + ".").c_str());
 DEFINE_int32(requests, 5000, "Total number of requests, default to 5000.");
 DEFINE_int32(w, 100, "Percentagee of updates(writes), default to 100.");
 DEFINE_int32(r, 1, "Split the total number of requests into this many rounds, and do rounds "
@@ -139,6 +139,7 @@ int main(int argc, char * argv[]) {
             strcpy(buf, _v.c_str());
             args.Command.val = buf;
             args.Command.valSize = (int32_t)_v.size() + 1;
+            fprintf(stdout, "Ready to send proposal %d to replica %d\n", id, rarray[i]);
             args.Marshal(servers[rarray[i]]);
             id++;
         }

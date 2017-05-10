@@ -12,7 +12,8 @@
 #define GROUP_SZIE 3
 #define CHECKPOINT_CYCLE 1024
 
-#define PORT 9001
+#define SERVER_PORT 9001
+#define MASTER_PORT 7087
 
 #define MAX_BATCH 1000
 #define ADAPT_TIME_SEC 10

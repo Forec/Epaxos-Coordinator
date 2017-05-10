@@ -11,7 +11,7 @@ set(SOURCE_FILES
         consensus/include/tk_consensus.h
         consensus/include/tk_config.h
         consensus/include/tk_log.h
-        consensus/include/debug.h
+        utils/include/debug.h
         consensus/include/tk_elog.h
         consensus/include/tk_command.h
         consensus/include/tk_message.h
@@ -25,6 +25,12 @@ set(SOURCE_FILES
         utils/include/utils.h
         utils/src/utils.cpp
         utils/include/communication.h
-        utils/src/communication.cpp)
+        utils/src/communication.cpp
+        master/include/master.h
+        master/src/master.cpp
+        server/include/server.h
+        server/src/server.cpp
+        client/include/client.h
+        client/src/client.cpp)
 
 add_executable(TkDatabase ${SOURCE_FILES})

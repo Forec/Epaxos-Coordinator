@@ -925,7 +925,7 @@ struct GetReplicaListReply {
         }
         return true;
     }
-    void Marshal(int sock) {
+    bool Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
         sendData(sock, (char *)&msgType, 1);
         msgType = (uint8_t) Ready;
@@ -946,6 +946,7 @@ struct GetReplicaListReply {
             size = ReplicaPortList[i];
             sendData(sock, (char *) &size, 4);
         }
+        return true;
     }
 };
 
@@ -966,11 +967,13 @@ struct BeTheLeaderReply {
         Ok = (bool) tmp;
         return true;
     }
-    void Marshal(int sock) {
+    bool Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
-        sendData(sock, (char *)&msgType, 1);
+        if (sendData(sock, (char *)&msgType, 1) != 1)
+            return false;
         msgType = (uint8_t) Ok;
-        sendData(sock, (char *)&msgType, 1);
+        if (sendData(sock, (char *)&msgType, 1) != 1)
+            return false;
     }
 };
 
@@ -986,9 +989,9 @@ struct GENERAL {
             return true;
         return false;
     }
-    void Marshal(int sock) {
+    bool Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
-        sendData(sock, (char *)&msgType, 1);
+        return sendData(sock, (char *)&msgType, 1) == 1;
     }
 };
 

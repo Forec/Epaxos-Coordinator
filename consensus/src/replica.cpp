@@ -60,9 +60,11 @@ bool Replica::init() {
     if(path.empty()){
         path = "/tmp/test" + std::to_string(Id);
     }
+    maxSeq = 0;
+    maxSeqPerKey.clear();
     Shutdown = false;
     Restore = false;
-    InstanceMatrix = (tk_instance ***) malloc(group_size * sizeof(tk_instance **));
+    InstanceMatrix = new tk_instance**[group_size];
     crtInstance.resize((unsigned long)group_size, 0);
     executeUpTo.resize((unsigned long)group_size, 0);
     mq = new MsgQueue(1024 * 1024 ,8);
@@ -71,8 +73,9 @@ bool Replica::init() {
     Alive.resize((unsigned long)group_size, false);
     PreferredPeerOrder.resize((unsigned long)group_size, 0);
     Ewma.resize((unsigned long)group_size, 0.0);
+    crtInstance.resize((unsigned long)group_size, 0);
     for(unsigned int i = 0; i < group_size; i++){
-        InstanceMatrix[i] = (tk_instance **)malloc(1024 * 1024 * sizeof(tk_instance *));
+        InstanceMatrix[i] = new tk_instance *[1024 * 1024];
         memset(InstanceMatrix[i], 0, 1024 * 1024 * sizeof(tk_instance *));
         conflicts.push_back(std::unordered_map<std::string, int32_t>());
         PreferredPeerOrder[i] = int32_t(Id + 1 + i) % group_size;
@@ -94,7 +97,7 @@ bool Replica::run() {
 
     threads.push_back(new std::thread(waitForClientConnections, this));
 
-    fprintf(stdout, "Wait for client connections: DONE!\n");
+    fprintf(stdout, "Wait for client connections .................................. DONE!\n");
 
     if (Exec) {
         threads.push_back(new std::thread(execute_thread, this));
@@ -106,85 +109,97 @@ bool Replica::run() {
         for (int i = 0; i <= group_size/2; i++)
             quorum[i] = i;
         updatePreferredPeerOrder(quorum);
-        fprintf(stdout, "Update preferred order: DONE!\n");
+        fprintf(stdout, "Update preferred order ....................................... DONE!\n");
     }
 
     threads.push_back(new std::thread(fastClock, this));
-    fprintf(stdout, "Start fast clock: DONE!\n");
+    fprintf(stdout, "Start fast clock ............................................. DONE!\n");
 
     if (Beacon) {
         threads.push_back(new std::thread(slowClock, this));
-        fprintf(stdout, "Start slow clock: DONE!\n");
+        fprintf(stdout, "Start slow clock ............................................. DONE!\n");
         threads.push_back(new std::thread(stopAdapting, this));
-        fprintf(stdout, "Stop adapting: DONE!\n");
+        fprintf(stdout, "Stop adapting ................................................ DONE!\n");
     }
 
     int i;
     MsgQueue * pro_mq_s = pro_mq;
 
-    fprintf(stdout, "Start message dispatcher: DONE!\n");
+    fprintf(stdout, "Start message dispatcher ..................................... DONE!\n");
 
     while (!Shutdown) {
         if (pro_mq_s != NULL && pro_mq_s->hasNext()) {
-            fprintf(stdout, "try to get msg from pro_mq\n");
-            void *msgp = pro_mq_s->get();
-            fprintf(stdout, "get msgp!!!!\n");
-            handlePropose((Propose *) msgp);
-            fprintf(stdout, "handle over msgp!!!!\n");
+            Propose * msgp = *(Propose **)pro_mq_s->get();
+//            fprintf(stdout, "GET propose!\n");
+            handlePropose(msgp);
             pro_mq_s = NULL;
         }
-        fprintf(stdout, "mq->hasNext() : %d\n", mq->hasNext());
+
         if (pro_mq_s != NULL && !mq->hasNext())
             continue;    // use a loop instead of select between two msgQueues
 
         void * msgp = mq->get();
-        TYPE msgType = *(TYPE *) msgp;
-        fprintf(stdout, "msgType =%d\n", msgType);
+        TYPE msgType = **(TYPE **) msgp;
+//        if (msgType != FAST_CLOCK) {
+//            fprintf(stdout, "parse msgType %d\n", msgType);
+//        }
         switch (msgType) {
             case FAST_CLOCK:
-                fprintf(stdout, "receive fast clock!\n");
                 pro_mq_s = pro_mq;
                 break;
             case PREPARE:
                 // TODO: LOG
-                handlePrepare((Prepare *) msgp);
+//                fprintf(stdout, "going to handle prepare\n");
+                handlePrepare(*(Prepare **) msgp);
                 break;
             case PREACCEPT:
                 // TODO: LOG
-                handlePreAccept((PreAccept *) msgp);
+//                fprintf(stdout, "going to handle preaccept\n");
+                handlePreAccept(*(PreAccept **) msgp);
                 break;
             case ACCEPT:
-                // ... So does the following cases
-                handleAccept((Accept *) msgp);
+                // TODO: ... So does the following cases
+//                fprintf(stdout, "going to handle accept\n");
+                handleAccept(*(Accept **) msgp);
                 break;
             case COMMIT:
-                handleCommit((Commit *) msgp);
+//                fprintf(stdout, "going to handle commit\n");
+                handleCommit(*(Commit **) msgp);
                 break;
             case COMMIT_SHORT:
-                handleCommitShort((CommitShort *) msgp);
+//                fprintf(stdout, "going to handle commit short\n");
+                handleCommitShort(*(CommitShort **) msgp);
                 break;
             case PREPARE_REPLY:
-                handlePrepareReply((PrepareReply *) msgp);
+//                fprintf(stdout, "going to handle prepare reply\n");
+                handlePrepareReply(*(PrepareReply **) msgp);
                 break;
             case PREACCEPT_REPLY:
-                handlePreAcceptReply((PreAcceptReply *) msgp);
+//                fprintf(stdout, "going to handle preaccept reply\n");
+                handlePreAcceptReply(*(PreAcceptReply **) msgp);
                 break;
             case PREACCEPT_OK:
-                handlePreAcceptOK((PreAcceptOk *) msgp);
+//                fprintf(stdout, "going to handle preaccept ok\n");
+                handlePreAcceptOK(*(PreAcceptOk **) msgp);
                 break;
             case ACCEPT_REPLY:
-                handleAcceptReply((AcceptReply *) msgp);
+//                fprintf(stdout, "going to handle accept reply\n");
+                handleAcceptReply(*(AcceptReply **) msgp);
                 break;
             case TRY_PREACCEPT:
-                handleTryPreAccept((TryPreAccept *) msgp);
+//                fprintf(stdout, "going to handle try preaccept\n");
+                handleTryPreAccept(*(TryPreAccept **) msgp);
                 break;
             case TRY_PREACCEPT_REPLY:
-                handleTryPreAcceptReply((TryPreAcceptReply *) msgp);
+//                fprintf(stdout, "going to handle try preaccept reply\n");
+                handleTryPreAcceptReply(*(TryPreAcceptReply **) msgp);
                 break;
             case BEACON:
-                replyBeacon((Beacon_msg *) msgp);
+//                fprintf(stdout, "going to handle beacon\n");
+                replyBeacon(*(Beacon_msg **) msgp);
                 break;
             case SLOW_CLOCK:
+//                fprintf(stdout, "going to handle slow clock\n");
                 if (Beacon) {
                     for (i = 0; i < group_size; i++) {
                         if (i == Id)
@@ -194,10 +209,12 @@ bool Replica::run() {
                 }
                 break;
             case CLIENT_CONNECT:
+//                fprintf(stdout, "going to handle client connect\n");
                 weird = conflict = slow = happy = 0;
                 break;
             case RECOVER_INSTANCE:
-                startRecoveryForInstance(((InstanceId *) msgp)->replica, ((InstanceId *) msgp)->instance);
+//                fprintf(stdout, "going to handle recovery instance\n");
+                startRecoveryForInstance((*(InstanceId **) msgp)->replica, (*(InstanceId **) msgp)->instance);
                 break;
             default:
                 break;
@@ -237,7 +254,6 @@ void waitForClientConnections(Replica * r) {
 
         // TEST
         int sock = acceptAt(r->Listener);
-        fprintf(stdout, "Connect from client on sock %d\n", sock);
         clientListeners.push_back(new std::thread(clientListener, r, sock));
         r->mq->put(&notice);
     }
@@ -261,11 +277,12 @@ void clientListener(Replica * r, RDMA_CONNECTION conn) {
         // TEST
         readUntil(conn, (char *)&msgType, 1);
 
-        switch ((TYPE)(msgType)) {
+        switch ((TYPE)msgType) {
             case PROPOSE: // All commands are proposed from PROPOSE.
                 prop = new Propose();
                 if ( !prop->Unmarshal(conn) )
                     return;
+                prop->Conn = conn;
                 r->pro_mq->put(&prop);
                 break;
             case READ:  // useless
@@ -307,7 +324,7 @@ void waitForPeerConnections(Replica * r, bool * done) {
         }
         int32_t id;
         readUntil(conn, (char *) &id, 4);
-        fprintf(stdout, "Connect with replica %d: DONE!\n", id);
+        fprintf(stdout, "Connect with replica %d ....................................... DONE!\n", id);
         r->Peers[id] = conn;
         // r->PeerReaders[id] = NewReader(conn)
         // r->PeerWriters[id] = NewWriter(conn)
@@ -328,8 +345,6 @@ void replicaListener(Replica * r, int32_t rid, RDMA_CONNECTION conn) {
         // if ERROR: return;
         // TEST
         readUntil(conn, (char *)&msgType, 1);
-        fprintf(stdout, "receive msgType :%d\n", msgType);
-        fflush(stdout);
 
         switch ((TYPE)(msgType)) {
             case BEACON:
@@ -425,7 +440,6 @@ void Replica::handlePropose(Propose * propose) {
         delete propose;
     }
 
-    fprintf(stdout, "Ready to start phase1\n");
     startPhase1(Id, instNo, 0, proposals, cmds, batchSize);
 }
 
@@ -440,15 +454,13 @@ void Replica::startPhase1(int32_t replica, int32_t instance, int32_t ballot,
     }
 
     updateAttributes(cmds, seq, deps, Id, instance);
-    fprintf(stdout, "Finish update attributes!\n");
 
-    std::vector<int32_t> _cmDeps(5, -1);
+    std::vector<int32_t> _cmDeps(GROUP_SZIE, -1);
     lb_t * lb = new lb_t(proposals, 0, 0, true, 0, 0, 0, deps, _cmDeps, nullptr, false, false, emptyVec_bool, 0);
     tk_instance * newInstance = new tk_instance(cmds, ballot, PREACCEPTED, seq, deps, lb);
     InstanceMatrix[Id][instance] = newInstance;
 
     updateConflicts(cmds, Id, instance, seq);
-    fprintf(stdout, "Finish update conflicts!\n");
 
     if (seq >= maxSeq) {
         maxSeq = seq + 1;
@@ -477,6 +489,7 @@ void Replica::startPhase1(int32_t replica, int32_t instance, int32_t ballot,
 }
 
 void Replica::handlePreAccept(PreAccept * preAccept) {
+//    preAccept->print();
     tk_instance * inst = InstanceMatrix[preAccept->LeaderId][preAccept->Instance];
 
     if (preAccept->Seq >= maxSeq)
@@ -553,33 +566,35 @@ void Replica::handlePreAccept(PreAccept * preAccept) {
         // replyPreAccept(preAccept->LeaderId, preacply);
         // TEST
         replyPreAccept(preAccept->LeaderId, preacply);
+//        fprintf(stdout, "I have replied to the PreAccept(%d.%d) by PreAcceptReply\n", preAccept->LeaderId, preAccept->Instance);
     } else {
         PreAcceptOk * pok = new PreAcceptOk(preAccept->Instance);
         // TODO - DONE
         // sendMsg(preAccept->LeaderId, pok);
         // TEST
-        pok->Marshal(preAccept->LeaderId);
+        pok->Marshal(Peers[preAccept->LeaderId]);
+//        fprintf(stdout, "I have replied to the PreAccept(%d.%d) by PreAcceptOK\n", preAccept->LeaderId, preAccept->Instance);
     }
     // TODO - DONE
     // LOG("I have replied to the PreAccept\n");
     // TEST
-    fprintf(stdout, "I have replied to the PreAccept\n");
+    // fprintf(stdout, "I have replied to the PreAccept\n");
 }
 
 void Replica::handlePreAcceptReply(PreAcceptReply * pareply) {
     // TODO - DONE
     // LOG("Handling PreAccept Reply");
     // TEST
-    fprintf(stdout, "Handling PreAccept Reply\n");
     tk_instance * inst = InstanceMatrix[pareply->Replica][pareply->Instance];
 
-    if (inst == nullptr || inst->status == PREACCEPTED) {
+    if (inst == nullptr || inst->status != PREACCEPTED) {
         // we have moved on, this is a delayed reply
         return;
     }
 
     if (inst->ballot != pareply->Ballot)
         return;
+
     if (!pareply->Ok) {
         // TODO: there is probably another active leader (original lost)
         inst->lb->nacks++;
@@ -610,14 +625,14 @@ void Replica::handlePreAcceptReply(PreAcceptReply * pareply) {
     }
 
     // can we commit on the fast path?
-    if (inst->lb->preAcceptOKs >= group_size / 2 &&
+    if (inst->lb->preAcceptOKs >= group_size * 3 / 4 &&
         inst->lb->allEqual && allCommitted &&
         isInitialBallot(inst->ballot)) {
         happy++;
         // TODO - DONE
         // LOG("Fast path for instance %d.%d\n", pareply->Replica, pareply->Instance);
         // TEST
-        fprintf(stdout, "Fast Path For Instance %d.%d\n", pareply->Replica, pareply->Instance);
+        // fprintf(stdout, "Fast Path For Instance %d.%d\n", pareply->Replica, pareply->Instance);
         InstanceMatrix[pareply->Replica][pareply->Instance]->status = COMMITTED;
         updateCommitted(pareply->Replica);
         if (!inst->lb->clientProposals.empty() && !Dreply) {
@@ -652,7 +667,7 @@ void Replica::handlePreAcceptOK(PreAcceptOk * preacok) {
     // LOG("Handling PreAccept OK\n");
     tk_instance * inst = InstanceMatrix[Id][preacok->Instance];
 
-    if (inst == nullptr || inst->status == PREACCEPTED) {
+    if (inst == nullptr || inst->status != PREACCEPTED) {
         // we have moved on, this is a delayed reply
         return;
     }
@@ -673,12 +688,13 @@ void Replica::handlePreAcceptOK(PreAcceptOk * preacok) {
     }
 
     // can we commit on the fast path?
-    if (inst->lb->preAcceptOKs >= group_size / 2 &&
+    if (inst->lb->preAcceptOKs >= group_size * 3 / 4 &&
         inst->lb->allEqual && allCommitted &&
         isInitialBallot(inst->ballot)) {
         happy++;
         InstanceMatrix[Id][preacok->Instance]->status = COMMITTED;
         updateCommitted(Id);
+
         if (!inst->lb->clientProposals.empty() && !Dreply) {
             // give clients the all clear
             for (int i = 0; i < inst->lb->clientProposals.size(); i++) {
@@ -695,7 +711,7 @@ void Replica::handlePreAcceptOK(PreAcceptOk * preacok) {
         // recordInstanceMetadata(inst);
         // sync();   // is this necessary here?
         bcastCommit(Id, preacok->Instance, inst->cmds, inst->seq, inst->deps);
-    } else if (inst->lb->preAcceptOKs >= group_size / 2) {
+    } else if (inst->lb->preAcceptOKs >= group_size * 3 / 4) {
         if (!allCommitted)
             weird++;
         slow++;
@@ -1072,13 +1088,13 @@ void Replica::connectToPeers(std::vector<std::thread *> & threads) {
 //        go(replicaListener, lpr);
 //    }
     // TEST
-    fprintf(stdout, "Replica %d, connect to peers: DONE!\n", Id);
+    fprintf(stdout, "Replica %d, connect to peers .................................. DONE!\n", Id);
     for (int32_t rid = 0; rid < group_size; rid++) {
         if (rid == Id)
             continue;
         threads.push_back(new std::thread(replicaListener, this, rid, Peers[rid]));
         threads.back()->detach();
-        fprintf(stdout, "Create listener for replica %d: DONE!\n", rid);
+        fprintf(stdout, "Create listener for replica %d ................................ DONE!\n", rid);
     }
 }
 
@@ -1089,8 +1105,10 @@ void Replica::bcastPreAccept(int32_t replica, int32_t instance, uint32_t ballot,
     pa.Instance = instance; pa.Command = cmds; pa.Seq = seq; pa.Deps = deps;
     int n = group_size - 1, sent = 0;
     if (Thrifty) {
-         n = group_size / 2;
+         n = group_size * 3 / 4 + 1; // original group_size / 2;
     }
+
+//    pa.print();
 
     for (int q = 0; q < group_size - 1; q++) {
         if (!Alive[PreferredPeerOrder[q]])
@@ -1099,7 +1117,8 @@ void Replica::bcastPreAccept(int32_t replica, int32_t instance, uint32_t ballot,
         // sendPreAccept(PreferredPeerOrder[q], &pa);
         // if this method fails, log failure
         // TEST
-        pa.Marshal(PreferredPeerOrder[q]);
+        // fprintf(stdout, "Send to replica %d\n", PreferredPeerOrder[q]);
+        pa.Marshal(Peers[PreferredPeerOrder[q]]);
         sent++;
         if (sent >= n)
             break;
@@ -1116,17 +1135,17 @@ void Replica::bcastCommit(int32_t replica, int32_t instance, std::vector<tk_comm
     for (int q = 0; q < group_size - 1; q++) {
         if (!Alive[PreferredPeerOrder[q]])
             continue;
-        if (Thrifty && sent > group_size / 2) {
+        if (Thrifty && sent > group_size * 3 / 4) {
             // TODO - DONE
             // sendCommit(PreferredPeerOrder[q], &cm);
             // if this or the next method fails, log failure
             // TEST
-            cm.Marshal(PreferredPeerOrder[q]);
+            cm.Marshal(Peers[PreferredPeerOrder[q]]);
         } else {
             // TODO - DONE
             // sendCommitShort(PreferredPeerOrder[q], &cms);
             // TEST
-            cms.Marshal(PreferredPeerOrder[q]);
+            cms.Marshal(Peers[PreferredPeerOrder[q]]);
             sent++;
         }
     }
@@ -1147,7 +1166,7 @@ void Replica::bcastAccept(int32_t replica, int32_t instance, int32_t ballot, int
         // TODO - DONE
         // sendAccept(PreferredPeerOrder[q], &ea);
         // TEST
-        ea.Marshal(PreferredPeerOrder[q]);
+        ea.Marshal(Peers[PreferredPeerOrder[q]]);
         sent++;
         if (sent >= n)
             break;
@@ -1633,41 +1652,59 @@ void LEPutUint32(char * buf, int32_t v) {
 
 void msgDispatcher(Replica * r, int32_t rid, RDMA_CONNECTION conn, TYPE msgType) {
     if (msgType == PREACCEPT) {
+//        fprintf(stdout, "I am ready to unmarshal preaccept from replica %d\n", rid);
         PreAccept *pre_accept = new PreAccept();
         pre_accept->Unmarshal(conn);
         r->mq->put(&pre_accept);
+//        fprintf(stdout, "I have put preaccept from replica %d into mq\n", rid);
     } else if (msgType == PREACCEPT_OK) {
+//        fprintf(stdout, "I am ready to unmarshal preaccept OK from replica %d\n", rid);
         PreAcceptOk *pre_accept_ok = new PreAcceptOk();
         pre_accept_ok->Unmarshal(conn);
         r->mq->put(&pre_accept_ok);
+//        fprintf(stdout, "I have put preaccept OK from replica %d into mq\n", rid);
     } else if (msgType == PREACCEPT_REPLY) {
-        PreAcceptReply *pre_accept_reply = new PreAcceptReply();
+//        fprintf(stdout, "I am ready to unmarshal preaccept Reply from replica %d\n", rid);
+        PreAcceptReply * pre_accept_reply = new PreAcceptReply();
         pre_accept_reply->Unmarshal(conn);
         r->mq->put(&pre_accept_reply);
+//        fprintf(stdout, "I have put preaccept Reply from replica %d into mq\n", rid);
     } else if (msgType == PREPARE) {
+//        fprintf(stdout, "I am ready to unmarshal prepare from replica %d\n", rid);
         Prepare *prepare = new Prepare();
         prepare->Unmarshal(conn);
         r->mq->put(&prepare);
+//        fprintf(stdout, "I have put prepare from replica %d into mq\n", rid);
     } else if (msgType == PREPARE_REPLY) {
+//        fprintf(stdout, "I am ready to unmarshal prepare reply from replica %d\n", rid);
         PrepareReply *prepare_reply = new PrepareReply();
         prepare_reply->Unmarshal(conn);
         r->mq->put(&prepare_reply);
+//        fprintf(stdout, "I have put prepare reply from replica %d into mq\n", rid);
     } else if (msgType == ACCEPT) {
+//        fprintf(stdout, "I am ready to unmarshal accept from replica %d\n", rid);
         Accept *accept = new Accept();
         accept->Unmarshal(conn);
         r->mq->put(&accept);
+//        fprintf(stdout, "I have put accept from replica %d into mq\n", rid);
     } else if (msgType == ACCEPT_REPLY) {
+//        fprintf(stdout, "I am ready to unmarshal accept reply from replica %d\n", rid);
         AcceptReply *accept_reply = new AcceptReply();
         accept_reply->Unmarshal(conn);
         r->mq->put(&accept_reply);
+//        fprintf(stdout, "I have put accept reply from replica %d into mq\n", rid);
     } else if (msgType == COMMIT) {
+//        fprintf(stdout, "I am ready to unmarshal Commit from replica %d\n", rid);
         Commit *commit = new Commit();
         commit->Unmarshal(conn);
         r->mq->put(&commit);
+//        fprintf(stdout, "I have put Commit from replica %d into mq\n", rid);
     } else if (msgType == COMMIT_SHORT) {
+//        fprintf(stdout, "I am ready to unmarshal Commit Short from replica %d\n", rid);
         CommitShort *commit_short = new CommitShort();
         commit_short->Unmarshal(conn);
         r->mq->put(&commit_short);
+//        fprintf(stdout, "I have put Commit Short from replica %d into mq\n", rid);
     } else if (msgType == TRY_PREACCEPT) {
         TryPreAccept *try_pre_accept = new TryPreAccept();
         try_pre_accept->Unmarshal(conn);

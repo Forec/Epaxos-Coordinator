@@ -78,6 +78,13 @@ strong_connect(Replica * r,
                 char * val = execute_command(&(w->cmds[idx]), r->statemachine);
 #ifndef DEBUG_EXEC
                 if (r->Dreply && w->lb && !w->lb->clientProposals.empty()) {
+                    ProposeReplyTS * prts = new ProposeReplyTS(true,
+                                                               w->lb->clientProposals[idx].CommandId,
+                                                               w->cmds[idx].valSize,
+                                                               val,
+                                                               w->lb->clientProposals[idx].Timestamp);
+                    prts->Marshal(w->lb->clientProposals[idx].Conn);
+                    fprintf(stdout, "Reply to client on sock %d in execution loop\n", w->lb->clientProposals[idx].Conn);
                     /*
                      * call API: replyProposal(w->lb->clientProposals[idx].id, ...args)
                      */
@@ -180,6 +187,8 @@ void execute_thread(Replica * r) {
                             /*
                              * start recovery phase for instanceMatrix[q][inst]
                              */
+                            InstanceId * toRecover = new InstanceId(q, inst);
+                            r->mq->put(&toRecover);
 #ifdef DEBUG_EXEC
                             printf("start recovery phase for replica %d, instance %d\n", q, inst);
                             r->InstanceMatrix[q][inst].status = COMMITTED;
@@ -202,7 +211,7 @@ void execute_thread(Replica * r) {
             }
         }
         if (!executed)
-            nano_sleep(SLEEP_TIME_NS);
+            std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME_NS));
     }
     delete [] problemInstance;
     delete [] timeout;

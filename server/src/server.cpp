@@ -49,7 +49,7 @@ int main (int argc, char * argv[]) {
     std::thread msp(handleMasterMessages, sock);
     s.r->run();
     msp.detach();
-    fprintf(stdout, "Server Shutdown: DONE!\n");
+    fprintf(stdout, "Server Shutdown .............................................. DONE!\n");
     return 0;
 }
 
@@ -85,7 +85,7 @@ void registerWithMaster(const std::string & addr, int port, Server & s) {
     s.Id = argr.ReplicaId;
     s.addrList = argr.AddrList;
     s.portList = argr.PortList;
-    fprintf(stdout, "Register on master: DONE!\n");
+    fprintf(stdout, "Register on master ........................................... DONE!\n");
     return;
 }
 
@@ -97,7 +97,7 @@ void handleMasterMessages(int sock) {
             fprintf(stderr, "Accept from master with wrong socket %d, retrying...\n", master);
         }
     } while (master < 0);
-    fprintf(stdout, "Keep contact with master: DONE!\n");
+    fprintf(stdout, "Keep contact with master ..................................... DONE!\n");
     std::this_thread::sleep_for(std::chrono::seconds(1));
     uint8_t msgType;
     GENERAL pr(PING_REPLY);

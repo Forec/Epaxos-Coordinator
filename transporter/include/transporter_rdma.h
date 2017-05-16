@@ -127,4 +127,49 @@ int server_send_msg(replica_rdma_t *replica_rdma, void *msg, int len, int server
 
 
 
+
+
+//new design of RDMA interface
+
+struct rdma_handler{
+    struct ibv_context *context;
+    struct ibv_pd *pd;
+    struct ibv_cq *send_cq;
+    struct ibv_cq *receive_cq;
+    struct ibv_qp *qp_of_this;
+    uint8_t replica_index;
+    exchange_params_t *local_qp_attr;
+    int ib_port_base;
+    void *buf;
+    size_t buf_size;
+    void *send_buf;
+    void *receive_buf;
+    size_t receive_buf_size;
+    size_t send_buf_size;
+    struct ibv_mr *mr;
+    char *addr;
+    int tcp_port;
+};
+typedef struct rdma_handler rdma_handler_t;
+
+//for client interface;
+
+rdma_handler_t *rdma_connect(const char *addr, int tcp_port);
+
+
+// server side to wait;
+
+rdma_handler_t *rdma_listen(const char *addr, int tcp_port);
+rdma_handler_t *rdma_accept(int tcp_port);
+
+// send and receive;
+int rdma_receive(rdma_handler_t* handler, void *buf, int32_t len);
+int rdma_send(rdma_handler_t* handler, void *buf, int32_t len);
+
+//for server.
+
+
+
+
+
 #endif //TKDATABASE_TRANSPORTER_RDMA_H

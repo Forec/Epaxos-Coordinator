@@ -8,8 +8,12 @@
 #include "../include/transporter_rdma.h"
 
 
+
+
 //#define DEPTH 100
 #define THREADS_NUM 2
+#define BUF_SIZE  2 * 8;
+
 
 uint64_t rdtsc()
 {
@@ -678,5 +682,347 @@ int connect_init(replica_rdma_t *replica_rdma){
 	rdma_connect_policy(replica_rdma);
 	return 1;
 }
+
+/*
+ *
+ *
+ *      NEW DESIGN FOR RDMA INTERFACE;
+ *
+ *
+ *
+ */
+
+
+int rdma_reg_mem(rdma_handler_t *handler){
+
+    size_t buf_size = handler->buf_size;
+    handler->mr = (struct ibv_mr *) malloc(sizeof(struct ibv_mr));
+    if(posix_memalign(&handler->buf, 4096, buf_size)){
+        fprintf(stderr, "posix_memalign failed\n");
+        return 0;
+    }
+    handler->send_buf = handler->buf;
+    handler->send_buf_size = buf_size / 2;
+    handler->receive_buf = handler->buf + buf_size / 2;
+    handler->receive_buf_size = buf_size / 2;
+    // register our userspace buffer with the HCA;
+    handler->mr = ibv_reg_mr(handler->pd, handler->buf, buf_size,
+                                     IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE);
+    if(handler->mr == NULL){
+        fprintf(stderr, "failed to register memory region\n");
+        return 0;
+    }
+    return 1;
+}
+
+void create_qp_for_connection(rdma_handler_t *handler){
+
+    handler->send_cq = (struct ibv_cq *)malloc(sizeof(struct ibv_cq));
+    handler->receive_cq = (struct ibv_cq *)malloc(sizeof(struct ibv_cq));
+    handler->qp_of_this = (struct ibv_qp *)malloc(sizeof(struct ibv_qp));
+    struct ibv_qp_init_attr qp_init_attr;
+
+    handler->send_cq = ibv_create_cq(handler->context, DEPTH, NULL, NULL, 0);
+    if(handler->send_cq == NULL){
+        printf("create cq failed!\n");
+    }
+    CHECK(!handler->send_cq, "Can't create send completion queue!");
+    handler->receive_cq = ibv_create_cq(handler->context, DEPTH, NULL, NULL, 0);
+    if(handler->receive_cq == NULL){
+        printf("create cq failed!\n");
+    }
+    CHECK(!handler->receive_cq, "Can't create receive completion queue!");
+    memset(&qp_init_attr, 0, sizeof(qp_init_attr));
+    qp_init_attr.send_cq = handler->send_cq;
+    qp_init_attr.recv_cq = handler->receive_cq;
+    qp_init_attr.qp_type = IBV_QPT_RC;
+    qp_init_attr.cap.max_send_wr = DEPTH;
+    qp_init_attr.cap.max_recv_wr = DEPTH;
+    qp_init_attr.cap.max_send_sge = 1;
+    qp_init_attr.cap.max_recv_sge = 1;
+    qp_init_attr.cap.max_inline_data = 0;
+    qp_init_attr.sq_sig_all = 0;
+    handler->qp_of_this = ibv_create_qp(handler->pd, &qp_init_attr);
+
+    CHECK(!handler->qp_of_this, "Can not create queue pair!");
+
+}
+
+void init_qp_for_connection(rdma_handler_t *handler){
+    struct ibv_qp_attr attr;
+
+    memset(&attr, 0, sizeof(attr));
+    //printf("bug here??\n");
+    attr.qp_state = IBV_QPS_INIT;
+    attr.pkey_index = 0;
+    attr.qp_access_flags=IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE;
+    attr.port_num = 1;
+        //printf("replica_rdma->ib_port_base: %d\n", replica_rdma->ib_port_base);
+    CHECK(ibv_modify_qp(handler->qp_of_this, &attr,
+                            IBV_QP_STATE|IBV_QP_PKEY_INDEX|IBV_QP_PORT|IBV_QP_ACCESS_FLAGS),"Cannot modify queue pair.");
+
+}
+
+void init_qp_attr_for_connection(rdma_handler_t *handler){
+    handler->local_qp_attr = (exchange_params_t *)malloc(sizeof(exchange_params_t));
+    handler->local_qp_attr->qpn = handler->qp_of_this->qp_num;
+    handler->local_qp_attr->lid = ibGetLID(handler->context, 1);
+    handler->local_qp_attr->psn = lrand48() & 0xffffffff;
+}
+
+
+void init_rdma_connection(rdma_handler_t *handler){
+
+    //replica_rdma->pd = ibv_alloc_pd(replica_rdma->context);
+    CHECK(!handler->pd, "Can't allocate protection domain.");
+    create_qp_for_connection(handler);
+    printf("create qp success !\n");
+    init_qp_for_connection(handler);
+    printf("init_qp success !\n");
+    init_qp_attr_for_connection(handler);
+    printf("init_qp_attr success !\n");
+
+}
+
+/*
+ *   CLIENT SIDE
+ *
+ */
+
+rdma_handler_t *rdma_connect(const char *addr, int tcp_port){
+
+    rdma_handler_t *handler = (rdma_handler_t *)malloc(sizeof(rdma_handler_t));
+
+    struct ibv_device *dev = NULL;
+    dev = ibFindDevice(NULL);
+    if(dev == NULL){
+        fprintf(stderr, "failed to find infiniband device \n");
+        return NULL;
+    }
+    printf("Using ib device '%s'.", dev->name);
+    handler->context = ibv_open_device(dev);
+    if(handler->context == NULL){
+        printf("failed to open infiniband device\n");
+        return NULL;
+    }
+    handler->pd = ibv_alloc_pd(handler->context);
+    if(handler->pd == NULL){
+        printf("failed to allocate infiniband protect domain\n");
+    }
+	handler->buf_size = BUF_SIZE;
+    if(!rdma_reg_mem(handler)){
+        printf("Register memory failed\n");
+        return NULL;
+    }
+    init_rdma_connection(handler);
+    exchange_params_t params = {handler->local_qp_attr->lid, handler->local_qp_attr->qpn, handler->local_qp_attr->psn};
+    params = client_exchange(addr, tcp_port, &params);
+    int j;
+    for (j = 0; j < DEPTH; j++){
+        ibPostReceive(handler->qp_of_this, handler->mr,
+                      handler->receive_buf, handler->receive_buf_size);
+    }
+
+    struct ibv_qp_attr qpa;
+    memset(&qpa, 0, sizeof(qpa));
+    qpa.qp_state = IBV_QPS_RTR;
+    qpa.path_mtu = IBV_MTU_4096;
+    qpa.dest_qp_num = params.qpn;
+    qpa.rq_psn = params.psn;
+    qpa.max_dest_rd_atomic = 1;
+    qpa.min_rnr_timer = 12;
+    qpa.ah_attr.is_global = 0;
+    qpa.ah_attr.dlid = params.lid;
+    qpa.ah_attr.sl = 0;
+    qpa.ah_attr.src_path_bits = 0;
+    qpa.ah_attr.port_num = 1;
+
+    if (ibv_modify_qp(handler->qp_of_this, &qpa, IBV_QP_STATE |
+                                                 IBV_QP_AV |
+                                                 IBV_QP_PATH_MTU |
+                                                 IBV_QP_DEST_QPN |
+                                                 IBV_QP_RQ_PSN |
+                                                 IBV_QP_MIN_RNR_TIMER |
+                                                 IBV_QP_MAX_DEST_RD_ATOMIC)) {
+        fprintf(stderr, "failed to modify qp state\n");
+        return  NULL;
+    }
+
+    // now move to RTS
+    qpa.qp_state = IBV_QPS_RTS;
+    qpa.timeout = 14;
+    qpa.retry_cnt = 7;
+    qpa.rnr_retry = 7;
+    qpa.sq_psn = params.psn;
+    qpa.max_rd_atomic = 1;
+    if (ibv_modify_qp(handler->qp_of_this, &qpa, IBV_QP_STATE |
+                                                 IBV_QP_TIMEOUT |
+                                                 IBV_QP_RETRY_CNT |
+                                                 IBV_QP_RNR_RETRY |
+                                                 IBV_QP_SQ_PSN |
+                                                 IBV_QP_MAX_QP_RD_ATOMIC)) {
+        fprintf(stderr, "failed to modify qp state\n");
+        return NULL;
+    }
+
+    return handler;
+}
+
+/*
+ *   SERVER SIDE
+ *
+ *
+ */
+
+
+/*
+ *
+ *  This Function is just like tcp accept, but do not need for(;;); it contains a while(1);
+ *
+ */
+
+rdma_handler_t * rdma_accept(int tcp_port){
+    rdma_handler_t *handler = (rdma_handler_t *)malloc(sizeof(rdma_handler_t));
+
+    struct ibv_device *dev = NULL;
+    dev = ibFindDevice(NULL);
+    if(dev == NULL){
+        fprintf(stderr, "failed to find infiniband device \n");
+        return NULL;
+    }
+    printf("Using ib device '%s'.\n", dev->name);
+    handler->context = ibv_open_device(dev);
+    if(handler->context == NULL){
+        printf("failed to open infiniband device\n");
+        return NULL;
+    }
+    handler->pd = ibv_alloc_pd(handler->context);
+	handler->buf_size = BUF_SIZE;
+    if(handler->pd == NULL){
+        printf("failed to allocate infiniband protect domain\n");
+    }
+    if(!rdma_reg_mem(handler)){
+        printf("Register memory failed\n");
+        return NULL;
+    }
+    init_rdma_connection(handler);
+    exchange_params_t params = {handler->local_qp_attr->lid, handler->local_qp_attr->qpn, handler->local_qp_attr->psn};
+    params = server_exchange(tcp_port,&params);
+    int j;
+    for (j = 0; j < DEPTH; j++){
+        ibPostReceive(handler->qp_of_this, handler->mr,
+                      handler->receive_buf, handler->receive_buf_size);
+    }
+
+    struct ibv_qp_attr qpa;
+    memset(&qpa, 0, sizeof(qpa));
+    qpa.qp_state = IBV_QPS_RTR;
+    qpa.path_mtu = IBV_MTU_4096;
+    qpa.dest_qp_num = params.qpn;
+    qpa.rq_psn = params.psn;
+    qpa.max_dest_rd_atomic = 1;
+    qpa.min_rnr_timer = 12;
+    qpa.ah_attr.is_global = 0;
+    qpa.ah_attr.dlid = params.lid;
+    qpa.ah_attr.sl = 0;
+    qpa.ah_attr.src_path_bits = 0;
+    qpa.ah_attr.port_num = 1;
+
+    if (ibv_modify_qp(handler->qp_of_this, &qpa, IBV_QP_STATE |
+                                                 IBV_QP_AV |
+                                                 IBV_QP_PATH_MTU |
+                                                 IBV_QP_DEST_QPN |
+                                                 IBV_QP_RQ_PSN |
+                                                 IBV_QP_MIN_RNR_TIMER |
+                                                 IBV_QP_MAX_DEST_RD_ATOMIC)) {
+        fprintf(stderr, "failed to modify qp state\n");
+        return  NULL;
+    }
+
+    // now move to RTS
+    qpa.qp_state = IBV_QPS_RTS;
+    qpa.timeout = 14;
+    qpa.retry_cnt = 7;
+    qpa.rnr_retry = 7;
+    qpa.sq_psn = params.psn;
+    qpa.max_rd_atomic = 1;
+    if (ibv_modify_qp(handler->qp_of_this, &qpa, IBV_QP_STATE |
+                                                 IBV_QP_TIMEOUT |
+                                                 IBV_QP_RETRY_CNT |
+                                                 IBV_QP_RNR_RETRY |
+                                                 IBV_QP_SQ_PSN |
+                                                 IBV_QP_MAX_QP_RD_ATOMIC)) {
+        fprintf(stderr, "failed to modify qp state\n");
+        return NULL;
+    }
+
+    return handler;
+}
+
+/*
+ *
+ *  send and receive;
+ *
+ */
+
+int rdma_receive(rdma_handler_t* handler, void *buf, int32_t len){
+
+    struct ibv_wc iwc;
+    while (ibv_poll_cq(handler->receive_cq, 1, &iwc) < 1);
+    if (iwc.status != IBV_WC_SUCCESS) {
+        fprintf(stderr, "ibv_poll_cq returned failure\n");
+        return 0;
+    }
+    //printf("receive: %s\n", (char *) replica_rdma1->receive_buf[idx]);
+    // after receive put a ibpostreceive again
+	//printf("receive_buf_size: %d, ")
+    //assert(handler->receive_buf_size != (size_t) len);
+    memcpy(buf, handler->receive_buf, handler->receive_buf_size);
+    ibPostReceive(handler->qp_of_this, handler->mr, handler->receive_buf, handler->receive_buf_size);
+    //		memcpy(txbuf, &counter, sizeof(counter));
+    //		ibPostSendAndWait(qp, mr, txbuf, sizeof(counter), txcq);
+
+
+}
+
+int rdma_send(rdma_handler_t* handler, void *buf, int32_t len){
+    if(len>handler->send_buf_size){
+        printf("msg is to long\n");
+        return 0;
+    }
+    else {
+        memcpy(handler->send_buf, buf, (size_t)len);
+        ibPostSendAndWait(handler->qp_of_this, handler->mr,
+                          handler->send_buf, handler->send_buf_size, handler->send_cq);
+    }
+    return 1;
+}
+
+
+
+/*
+ * rdma disconnect
+ */
+
+void destroy_rdma_connect(rdma_handler_t *handler){
+    ibv_dealloc_pd(handler->pd);
+    free(handler->local_qp_attr);
+
+    ibv_destroy_cq(handler->receive_cq);
+    ibv_destroy_cq(handler->send_cq);
+    ibv_destroy_qp(handler->qp_of_this);
+    //number = replica_rdma->buf_size;
+    free(handler->buf);
+    free(handler->send_buf);
+    free(handler->receive_buf);
+    ibv_dereg_mr(handler->mr);
+    free(handler->receive_cq);
+    free(handler->send_cq);
+    free(handler->qp_of_this);
+   // free(replica_rdma->buf);
+    free(handler->mr);
+    free(handler);
+}
+
 
 

@@ -23,8 +23,11 @@ set(SOURCE_FILES
         utils/include/msg_queue.h
         utils/src/msg_queue.cpp
         utils/include/utils.h
-        utils/src/utils.cpp
-        utils/include/communication.h
-        utils/src/communication.cpp)
+        utils/src/utils.cpp 
+        utils/include/communication.h 
+        utils/src/communication.cpp 
+        master/src/master.cpp 
+        master/include/master.h 
+        transporter/test/new_test.c)
 
 add_executable(TkDatabase ${SOURCE_FILES})

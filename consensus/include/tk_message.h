@@ -317,6 +317,7 @@ struct AcceptReply {
         readUntil(sock, (char *) &Replica, 4);
         readUntil(sock, (char *) &Instance, 4);
         readUntil(sock, (char *) &Ballot, 4);
+        return true;
     }
     void Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
@@ -516,6 +517,7 @@ struct TryPreAcceptReply {
         readUntil(sock, (char *)&ConflictReplica, 4);
         readUntil(sock, (char *)&ConflictInstance, 4);
         readUntil(sock, (char *)&ConflictStatus, 4);
+        return true;
     }
     void Marshal(int sock) {
         uint8_t tmp = (uint8_t) Type;
@@ -591,6 +593,7 @@ struct ProposeReplyTS {
     int64_t Timestamp;
     ProposeReplyTS() {
         Type = PROPOSE_REPLY_TS;
+        Value = nullptr;
     }
     ProposeReplyTS(bool _ok, int32_t _cmId, int32_t _vs, char * _v, int64_t _ts):
         OK(_ok), CommandId(_cmId), ValueSize(_vs), Value(_v), Timestamp(_ts) {
@@ -605,7 +608,7 @@ struct ProposeReplyTS {
         readUntil(sock, (char *) &Timestamp, 8);
         if (Value)
             delete [] Value;
-        Value = new char[ValueSize + 1];
+        Value = new char[ValueSize];
         return readUntil(sock, Value, ValueSize) == 0;
     }
     void Marshal(int sock) {
@@ -958,10 +961,6 @@ struct BeTheLeaderReply {
     }
     bool Unmarshal(int sock) {
         uint8_t tmp;
-        if (readUntil(sock, (char *) & tmp, 1) != 0)
-            return false;
-        if ((TYPE)tmp != BE_LEADER_REPLY)
-            return false;
         if (readUntil(sock, (char *) & tmp, 1) != 0)
             return false;
         Ok = (bool) tmp;

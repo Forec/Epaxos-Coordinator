@@ -20,12 +20,16 @@ struct tk_command{
         valSize = 0;
         val = nullptr;
     }
+    tk_command(OP _op, const std::string & _k, int32_t _vs, char * _v) :
+        opcode(_op), key(_k), valSize(_vs), val(_v) {};
     bool Unmarshal(int sock) {
         char buf[16] = {0};
-        readUntil(sock, buf, 1);
-        opcode = (OP)*(uint8_t *) buf;
-        readUntil(sock, buf, 4);
-        int keyLen = *(uint32_t *) buf;
+        buf[15] = 0;
+        uint8_t tmp;
+        int32_t keyLen;
+        readUntil(sock, (char *)&tmp, 1);
+        opcode = (OP)tmp;
+        readUntil(sock, (char *) &keyLen, 4);
         key.clear();
         while (keyLen > 0) {
             if (keyLen <= 15) {
@@ -37,27 +41,21 @@ struct tk_command{
             key += std::string(buf);
             keyLen = keyLen >= 15 ? keyLen - 15 : 0;
         }
-        readUntil(sock, buf, 4);
-        uint32_t valLen = *(uint32_t *) buf;
+        uint32_t valLen;
+        readUntil(sock, (char *) & valLen, 4);
         valSize = valLen;
         if (val)
             delete [] val;
-        val = new char[valLen];
-        int received = 0;
-        while (valLen > 0) {
-            if (valLen <= 16)
-                readUntil(sock, val + received, keyLen);
-            else
-                readUntil(sock, val + received, 16);
-            valLen = valLen > 16 ? valLen - 16 : 0;
-        }
+        val = new char[valSize];
+        readUntil(sock, val, valSize);
         return true;
     }
     void Marshal(int sock) {
         char buf[128];
-        buf[0] = (char) opcode;
-        sendData(sock, buf, 1);
-        int keyLen = key.length() + 1, sentKeyLen = 0;
+        uint8_t tmp = (uint8_t)opcode;
+        sendData(sock, (char *) &tmp, 1);
+        int32_t keyLen = (int32_t)key.length(), sentKeyLen = 0;
+        sendData(sock, (char *) &keyLen, 4);
         while (keyLen > 0) {
             if (keyLen > 128) {
                 memcpy(buf, key.c_str() + sentKeyLen, 128);
@@ -65,14 +63,12 @@ struct tk_command{
                 keyLen -= 128;
                 sendData(sock, buf, 128);
             } else {
-                memcpy(buf, key.c_str() + sentKeyLen, keyLen);
-                sendData(sock, buf, keyLen);
+                memcpy(buf, key.c_str() + sentKeyLen, (size_t)keyLen);
+                sendData(sock, buf, (size_t)keyLen);
                 break;
             }
         }
-        buf[0] = '\0';
-        memcpy(buf + 1, &valSize, 4);
-        sendData(sock, buf, 5);
+        sendData(sock, (char *) &valSize, 4);
         sendData(sock, val, valSize);
     }
 };

@@ -7,20 +7,6 @@
 #include <stdio.h>
 #include <gflags/gflags.h> // libgflags-dev    LBIS += lgflags
 
-static bool ValidatePort(const char* flagname, int32 value) {
-    if (value > 0 && value < 32768)
-        return true;
-    printf("Invalid value for --%s: %d\n", flagname, (int)value);
-    return false;
-}
-
-static bool ValidateN(const char* flagname, int32 value) {
-    if (value >= 3 && value <= 13 && value % 2 == 1)
-        return true;
-    printf("Invalid value for --%s: %d\n", flagname, (int)value);
-    return false;
-}
-
 DEFINE_int32(port, 7087, "Port # to listen on. Defaults to 7087");
 DEFINE_validator(port, &ValidatePort);
 DEFINE_int32(N, GROUP_SZIE, "Number of replicas. Defaults to 3");
@@ -52,10 +38,10 @@ int main(int argc, char * argv[]) {
     for (;;) {
         master->lock.lock();
         if (master->nodeList.size() == master->N) {
-            master->lock.Unlock();
+            master->lock.unlock();
             break;
         }
-        master->lock.Unlock();
+        master->lock.unlock();
         nano_sleep(100000000);
     }
     nano_sleep(2000000000);
@@ -99,8 +85,8 @@ int main(int argc, char * argv[]) {
     }
 
     for (int i = 0; i < master->nodes.size(); i++) {
-        if (nodes[i] != -1)
-            destroyConnection(nodes[i]);
+        if (master->nodes[i] != -1)
+            destroyConnection(master->nodes[i]);
     }
     return 0;
 }
@@ -143,7 +129,7 @@ void handlers(Master * master, int nsock) {
 
 void handleRegister(Master * master, int nsock) {
     RegisterArgs arg;
-    if (!arg.Unmarshal(sock)) {
+    if (!arg.Unmarshal(nsock)) {
         fprintf(stdout, "Cannot unmarshal RegisterArgs at socket %d\n", nsock);
         return;
     }
@@ -174,7 +160,7 @@ void handleRegister(Master * master, int nsock) {
         reply.Ready = false;
     }
     master->lock.unlock();
-    reply.Marshal(sock);
+    reply.Marshal(nsock);
 }
 
 void handleLeaderArgs(Master * master, int nsock) {
@@ -194,7 +180,7 @@ void handleReplicaListArgs(Master * master, int nsock) {
     if (master->nodeList.size() == master->N) {
         rp.Ready = true;
         rp.ReplicaAddrList = master->addrList;
-        rp.ReplicaAddrList = master->portList;
+        rp.ReplicaPortList = master->portList;
     } else {
         rp.Ready = false;
     }

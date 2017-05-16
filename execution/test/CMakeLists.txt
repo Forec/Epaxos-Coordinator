@@ -11,7 +11,6 @@ set(SOURCE_FILES
         ../../consensus/include/tk_consensus.h
         ../../consensus/include/tk_config.h
         ../../consensus/include/tk_log.h
-        ../../consensus/include/debug.h
         ../../consensus/include/tk_elog.h
         ../../consensus/include/tk_message.h
         ../../consensus/include/replica.h

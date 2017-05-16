@@ -5,7 +5,6 @@
 #ifndef TKDATABASE_REPLICA_H
 #define TKDATABASE_REPLICA_H
 
-#include "debug.h"
 #include "tk_message.h"
 #include "tk_elog.h"
 #include "../../config/config.h"

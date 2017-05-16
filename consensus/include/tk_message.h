@@ -42,8 +42,8 @@ struct Prepare {
 };
 
 struct PrepareReply {
-    bool Ok;
     TYPE Type;
+    bool Ok;
     STATUS  Status;
     int32_t AcceptorId;
     int32_t Replica;
@@ -131,6 +131,20 @@ struct PreAccept {
         Seq(_seq), Command(_command), Deps(_deps){
         Type = PREACCEPT;
     }
+    void print() {
+        fprintf(stdout, "PreAccept: leaderId = %d, replica = %d, "
+            "Instance = %d, ballot = %d, seq = %d\n", LeaderId, Replica,
+        Instance,Ballot, Seq);
+        for (int i = 0; i < Command.size(); i++) {
+            fprintf(stdout, " - Command[%d]: ", i);
+            Command[i].print();
+        }
+        fprintf(stdout, " - Deps: ");
+        for (int i = 0; i < GROUP_SZIE; i++) {
+            fprintf(stdout, "%d ", Deps[i]);
+        }
+        fprintf(stdout, "\n");
+    }
     bool Unmarshal(int sock) {
         readUntil(sock, (char *)&LeaderId, 4);
         readUntil(sock, (char *)&Replica, 4);
@@ -170,8 +184,8 @@ struct PreAccept {
 };
 
 struct PreAcceptReply {
-    bool  Ok;
     TYPE Type;
+    bool  Ok;
     int32_t Replica;
     int32_t Instance;
     int32_t Ballot;
@@ -298,8 +312,8 @@ struct Accept {
 };
 
 struct AcceptReply {
-    bool Ok;
     TYPE Type;
+    bool Ok;
     int32_t Replica;
     int32_t Instance;
     int32_t Ballot;
@@ -487,8 +501,8 @@ struct TryPreAccept {
 };
 
 struct TryPreAcceptReply {
-    bool Ok;
     TYPE Type;
+    bool Ok;
     int32_t AcceptorId;
     int32_t Replica;
     int32_t Instance;
@@ -925,7 +939,7 @@ struct GetReplicaListReply {
         }
         return true;
     }
-    void Marshal(int sock) {
+    bool Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
         sendData(sock, (char *)&msgType, 1);
         msgType = (uint8_t) Ready;
@@ -946,6 +960,7 @@ struct GetReplicaListReply {
             size = ReplicaPortList[i];
             sendData(sock, (char *) &size, 4);
         }
+        return true;
     }
 };
 
@@ -966,11 +981,13 @@ struct BeTheLeaderReply {
         Ok = (bool) tmp;
         return true;
     }
-    void Marshal(int sock) {
+    bool Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
-        sendData(sock, (char *)&msgType, 1);
+        if (sendData(sock, (char *)&msgType, 1) != 1)
+            return false;
         msgType = (uint8_t) Ok;
-        sendData(sock, (char *)&msgType, 1);
+        if (sendData(sock, (char *)&msgType, 1) != 1)
+            return false;
     }
 };
 
@@ -986,9 +1003,9 @@ struct GENERAL {
             return true;
         return false;
     }
-    void Marshal(int sock) {
+    bool Marshal(int sock) {
         uint8_t msgType = (uint8_t) Type;
-        sendData(sock, (char *)&msgType, 1);
+        return sendData(sock, (char *)&msgType, 1) == 1;
     }
 };
 

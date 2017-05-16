@@ -12,7 +12,8 @@
 #define GROUP_SZIE 3
 #define CHECKPOINT_CYCLE 1024
 
-#define PORT 9001
+#define SERVER_PORT 9001
+#define MASTER_PORT 7087
 
 #define MAX_BATCH 1000
 #define ADAPT_TIME_SEC 10
@@ -25,49 +26,49 @@ enum OP {
 };
 
 enum STATUS {
-    NONE = 0,
-    PREACCEPTED,
-    PREACCEPTED_EQ,
-    ACCEPTED,
-    COMMITTED,
-    EXECUTED
+    NONE = 0,               // 0
+    PREACCEPTED,            // 1
+    PREACCEPTED_EQ,         // 2
+    ACCEPTED,               // 3
+    COMMITTED,              // 4
+    EXECUTED                // 5
 };
 
 enum TYPE {
     DEFAULT = 0,
-    READ,
-    PROPOSE,
-    PROPOSE_AND_READ,
-    PROPOSE_REPLY,
-    PROPOSE_REPLY_TS,
-    PREPARE,
-    PREACCEPT,
-    ACCEPT,
-    COMMIT,
-    COMMIT_SHORT,
-    PREPARE_REPLY,
-    PREACCEPT_REPLY,
-    PREACCEPT_OK,
-    ACCEPT_REPLY,
-    TRY_PREACCEPT,
-    TRY_PREACCEPT_REPLY,
-    BEACON,
-    BEACON_REPLY,
-    FAST_CLOCK,
-    SLOW_CLOCK,
-    CLIENT_CONNECT,
-    RECOVER_INSTANCE,
-    INSTANCE_ID,
-    REGISTER_ARGS,
-    REGISTER_REPLY,
-    GET_LEADER_ARGS,
-    GET_LEADER_REPLY,
-    GET_REPLICA_LIST_ARGS,
-    GET_REPLICA_LIST_REPLY,
-    PING,
-    PING_REPLY,
-    BE_LEADER,
-    BE_LEADER_REPLY
+    READ,                   // 1
+    PROPOSE,                // 2
+    PROPOSE_AND_READ,       // 3
+    PROPOSE_REPLY,          // 4
+    PROPOSE_REPLY_TS,       // 5
+    PREPARE,                // 6
+    PREACCEPT,              // 7
+    ACCEPT,                 // 8
+    COMMIT,                 // 9
+    COMMIT_SHORT,           // 10
+    PREPARE_REPLY,          // 11
+    PREACCEPT_REPLY,        // 12
+    PREACCEPT_OK,           // 13
+    ACCEPT_REPLY,           // 14
+    TRY_PREACCEPT,          // 15
+    TRY_PREACCEPT_REPLY,    // 16
+    BEACON,                 // 17
+    BEACON_REPLY,           // 18
+    FAST_CLOCK,             // 19
+    SLOW_CLOCK,             // 20
+    CLIENT_CONNECT,         // 21
+    RECOVER_INSTANCE,       // 22
+    INSTANCE_ID,            // 23
+    REGISTER_ARGS,          // 24
+    REGISTER_REPLY,         // 25
+    GET_LEADER_ARGS,        // 26
+    GET_LEADER_REPLY,       // 27
+    GET_REPLICA_LIST_ARGS,  // 28
+    GET_REPLICA_LIST_REPLY, // 29
+    PING,                   // 30
+    PING_REPLY,             // 31
+    BE_LEADER,              // 32
+    BE_LEADER_REPLY         // 33
 };
 
 #define RDMA_CONNECTION int

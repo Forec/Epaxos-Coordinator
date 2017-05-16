@@ -7,9 +7,9 @@
 #include <stdio.h>
 #include <gflags/gflags.h> // libgflags-dev    LBIS += lgflags
 
-DEFINE_int32(port, 7087, "Port # to listen on. Defaults to 7087");
+DEFINE_int32(port, MASTER_PORT, ("Port # to listen on. Defaults to " + std::to_string(MASTER_PORT) + ".").c_str());
 DEFINE_validator(port, &ValidatePort);
-DEFINE_int32(N, GROUP_SZIE, "Number of replicas. Defaults to 3");
+DEFINE_int32(N, GROUP_SZIE, ("Number of replicas. Defaults to " + std::to_string(GROUP_SZIE) + ".").c_str());
 DEFINE_validator(N, &ValidateN);
 
 int main(int argc, char * argv[]) {
@@ -20,8 +20,8 @@ int main(int argc, char * argv[]) {
     Master * master = new Master();
     master->N = FLAGS_N;
     master->nodeList.clear();
-    master->addrList.resize(FLAGS_N, "");
-    master->portList.resize(FLAGS_N, 0);
+    master->addrList.clear();
+    master->portList.clear();
     master->nodes.resize(FLAGS_N, -1);
     master->leader.resize(FLAGS_N, false);
     master->alive.resize(FLAGS_N, false);
@@ -42,9 +42,9 @@ int main(int argc, char * argv[]) {
             break;
         }
         master->lock.unlock();
-        nano_sleep(100000000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    nano_sleep(2000000000);
+    std::this_thread::sleep_for(std::chrono::seconds(7));
 
     // connect to SMR servers
     for (int i = 0; i < master->N; i++) {
@@ -57,11 +57,13 @@ int main(int argc, char * argv[]) {
     master->leader[0] = true;
 
     for (;;) {
-        nano_sleep(3000 * 1000 * 1000);
+        std::this_thread::sleep_for(std::chrono::seconds(10));
         bool new_leader = false;
         for (int i = 0; i < master->nodes.size(); i++) {
+            fprintf(stdout, "Sending PING to replica %d\n", i);
             if (!ping(master->nodes[i])) {
                 master->alive[i] = false;
+                fprintf(stderr, "Replica %d does not reply PING\n", i);
                 if (master->leader[i]) {
                     new_leader = true;
                     master->leader[i] = false;
@@ -77,7 +79,7 @@ int main(int argc, char * argv[]) {
             if (master->alive[i]) {
                 if (BeTheLeader(master->nodes[i])) {
                     master->leader[i] = true;
-                    fprintf(stdout, "Replica %d is the new leader\n", i);
+                    fprintf(stdout, "Replica %d is the new leader(if proto is not EPaxos)\n", i);
                     break;
                 }
             }
@@ -101,7 +103,8 @@ void waitingConnections(Master * master) {
         hds.push_back(new std::thread (handlers, master, nsock));
     }
     for (int i = 0; i < hds.size(); i++) {
-        hds[i]->detach();
+        if (hds[i]->joinable())
+            hds[i]->detach();
         delete hds[i];
     }
 }
@@ -148,10 +151,11 @@ void handleRegister(Master * master, int nsock) {
         master->portList.push_back(arg.Port);
         master->nodeList.push_back(arg.Addr + ":" + std::to_string(arg.Port));
         nlen++;
+        printf("Now %d replica online, expect %d replica\n", nlen, master->N);
     }
 
     RegisterReply reply;
-    if (nlen == master->N) {
+    if (nlen >= master->N) {
         reply.Ready = true;
         reply.ReplicaId = index;
         reply.AddrList = master->addrList;
@@ -190,14 +194,16 @@ void handleReplicaListArgs(Master * master, int nsock) {
 
 bool ping(int sock) {
     GENERAL p(PING);
-    p.Marshal(sock);
+    if (!p.Marshal(sock))
+        return false;
     GENERAL pr(PING_REPLY);
     return pr.Unmarshal(sock);
 }
 
 bool BeTheLeader(int sock) {
     GENERAL p(BE_LEADER);
-    p.Marshal(sock);
+    if (!p.Marshal(sock))
+        return false;
     BeTheLeaderReply br;
     return br.Unmarshal(sock) && br.Ok;
 }

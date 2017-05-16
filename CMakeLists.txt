@@ -11,7 +11,7 @@ set(SOURCE_FILES
         consensus/include/tk_consensus.h
         consensus/include/tk_config.h
         consensus/include/tk_log.h
-        consensus/include/debug.h
+        utils/include/debug.h
         consensus/include/tk_elog.h
         consensus/include/tk_command.h
         consensus/include/tk_message.h
@@ -23,11 +23,16 @@ set(SOURCE_FILES
         utils/include/msg_queue.h
         utils/src/msg_queue.cpp
         utils/include/utils.h
+
         utils/src/utils.cpp 
         utils/include/communication.h 
         utils/src/communication.cpp 
         master/src/master.cpp 
         master/include/master.h 
+        server/include/server.h
+        server/src/server.cpp
+        client/include/client.h
+        client/src/client.cpp)
         transporter/test/new_test.c)
 
 add_executable(TkDatabase ${SOURCE_FILES})

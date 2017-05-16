@@ -26,7 +26,7 @@ strong_connect(Replica * r,
 
     if (instance_stack_size == top){
         if (!realloc(STACK, (instance_stack_size << 1) * sizeof(tk_instance *))){
-            info(stderr, "cannot realloc space for instance stack in tarjan.\n");
+            fprintf(stderr, "cannot realloc space for instance stack in tarjan.\n");
             return false;
         };
         instance_stack_size <<= 1;
@@ -78,6 +78,13 @@ strong_connect(Replica * r,
                 char * val = execute_command(&(w->cmds[idx]), r->statemachine);
 #ifndef DEBUG_EXEC
                 if (r->Dreply && w->lb && !w->lb->clientProposals.empty()) {
+                    ProposeReplyTS * prts = new ProposeReplyTS(true,
+                                                               w->lb->clientProposals[idx].CommandId,
+                                                               w->cmds[idx].valSize,
+                                                               val,
+                                                               w->lb->clientProposals[idx].Timestamp);
+                    prts->Marshal(w->lb->clientProposals[idx].Conn);
+                    fprintf(stdout, "Reply to client on sock %d in execution loop\n", w->lb->clientProposals[idx].Conn);
                     /*
                      * call API: replyProposal(w->lb->clientProposals[idx].id, ...args)
                      */
@@ -141,7 +148,7 @@ execute_command(tk_command * c, Tkdatabase * st) {
 void execute_thread(Replica * r) {
 
     if (!r) {
-        info(stderr, "initialize replica first!\n");
+        fprintf(stderr, "initialize replica first!\n");
         return;
     }
 
@@ -150,7 +157,7 @@ void execute_thread(Replica * r) {
     instance_stack = (tk_instance **) malloc(instance_stack_size * sizeof(tk_instance *));
 
     if (!instance_stack) {
-        info(stderr, "cannot allocate space for STACK\n");
+        fprintf(stderr, "cannot allocate space for STACK\n");
         return;
     }
 
@@ -180,6 +187,8 @@ void execute_thread(Replica * r) {
                             /*
                              * start recovery phase for instanceMatrix[q][inst]
                              */
+                            InstanceId * toRecover = new InstanceId(q, inst);
+                            r->mq->put(&toRecover);
 #ifdef DEBUG_EXEC
                             printf("start recovery phase for replica %d, instance %d\n", q, inst);
                             r->InstanceMatrix[q][inst].status = COMMITTED;
@@ -202,7 +211,7 @@ void execute_thread(Replica * r) {
             }
         }
         if (!executed)
-            nano_sleep(SLEEP_TIME_NS);
+            std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME_NS));
     }
     delete [] problemInstance;
     delete [] timeout;

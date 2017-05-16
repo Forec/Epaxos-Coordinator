@@ -7,7 +7,7 @@
 #include <bits/unordered_map.h>
 
 DEFINE_string(maddr, "127.0.0.1", "Master address, default to localhost.");
-DEFINE_int32(mport, 7087, "Master port, default to 7087.");
+DEFINE_int32(mport, MASTER_PORT, ("Master port, default to " + std::to_string(MASTER_PORT) + ".").c_str());
 DEFINE_int32(requests, 5000, "Total number of requests, default to 5000.");
 DEFINE_int32(w, 100, "Percentagee of updates(writes), default to 100.");
 DEFINE_int32(r, 1, "Split the total number of requests into this many rounds, and do rounds "
@@ -54,6 +54,7 @@ int main(int argc, char * argv[]) {
     }
 
     N = (int)rlp.ReplicaAddrList.size();
+    successful.resize(N, 0);
     std::vector<RDMA_CONNECTION> servers(N, -1);
     std::vector<std::string> karray((unsigned long)FLAGS_requests / FLAGS_r + FLAGS_eps, "");
     std::vector<int> rarray((unsigned long)FLAGS_requests / FLAGS_r + FLAGS_eps, -1);
@@ -103,8 +104,6 @@ int main(int argc, char * argv[]) {
         setsockopt(servers[i], IPPROTO_TCP, TCP_NODELAY, (void *)&on, on);  // forbids NAGLE algorithm
     }
 
-    std::vector<int> successfull(N, 0);
-
     int32_t id = 0;
     MsgQueue * mq = new MsgQueue(N, 1);
     tk_command tkc;
@@ -128,7 +127,7 @@ int main(int argc, char * argv[]) {
         clock_t before = clock();
 
         for (int i = 0; i < n + FLAGS_eps; i++) {
-            fprintf(stdout, "Sending proposal %d\n", id);
+//            fprintf(stdout, "Sending proposal %d\n", id);
             args.CommandId = id;
             if (put[i])
                 args.Command.opcode = PUT;
@@ -139,13 +138,16 @@ int main(int argc, char * argv[]) {
             strcpy(buf, _v.c_str());
             args.Command.val = buf;
             args.Command.valSize = (int32_t)_v.size() + 1;
+//            printf("send command: ");
+//            args.Command.print();
+//            fprintf(stdout, "Ready to send proposal %d to replica %d\n", id, rarray[i]);
             args.Marshal(servers[rarray[i]]);
             id++;
         }
 
-        bool succ = true;
+        uint8_t succ = 1;
         for (int i = 0; i < N; i++) {
-            succ |= (bool)mq->get();
+            succ &= *(uint8_t *)mq->get();
         }
 
         for (std::thread * wrt: wrts) {
@@ -154,7 +156,7 @@ int main(int argc, char * argv[]) {
         }
 
         clock_t after = clock();
-        fprintf(stdout, "Round took %ld\n", ((unsigned long)after - before) / CLOCKS_PER_SEC);
+        fprintf(stdout, "Round took %ld us\n", (unsigned long)(after - before));
 
         if (FLAGS_check) {
             for (int j = 0; j < n; j++) {
@@ -170,11 +172,12 @@ int main(int argc, char * argv[]) {
     }
 
     clock_t after_total = clock();
-    fprintf(stdout, "Test took %ld\n", (after_total - before_total) / CLOCKS_PER_SEC);
+    fprintf(stdout, "Test took %ld us\n", (unsigned long)(after_total - before_total));
 
     int sum = 0;
-    for (int successCount : successfull) {
-        sum += successCount;
+    for (int i = 0; i < N; i++) {
+        fprintf(stdout, "Replica %d successfully deals %d proposals\n", i, successful[i]);
+        sum += successful[i];
     }
     fprintf(stdout, "Successful: %d\n", sum);
 
@@ -191,8 +194,9 @@ void waitReplies(std::vector<RDMA_CONNECTION> & servers, int leader, int n, MsgQ
     ProposeReplyTS reply;
     for (int i = 0; i < n; i++) {
         uint8_t msgType;
-        readUntil(servers[i], (char *) &msgType, 1);
-        if ((TYPE)msgType != PROPOSE_REPLY_TS || !reply.Unmarshal(servers[i])) {
+        readUntil(servers[leader], (char *) &msgType, 1);
+//        fprintf(stdout, "client receive message type %d\n", msgType);
+        if ((TYPE)msgType != PROPOSE_REPLY_TS || !reply.Unmarshal(servers[leader])) {
             fprintf(stderr, "Error when getting propose reply from replica %d\n", i);
             e = true;
             continue;
@@ -206,10 +210,11 @@ void waitReplies(std::vector<RDMA_CONNECTION> & servers, int leader, int n, MsgQ
         if (reply.OK) {
             successful[leader] ++;
         }
+//        fprintf(stdout, "receive one reply from replica %d\n", leader);
     }
-    uint8_t true_u = 0;
+    char true_u = 0;
     if (!e)
-        true_u = 0xff;
+        true_u = 1;
     mq->put(&true_u);
 }
 

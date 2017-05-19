@@ -52,8 +52,10 @@ bool Tkdatabase::insert(Datanode * node, const string & path) {
 
 char * Tkdatabase::fetch(const string &path, int32_t &size) {
     auto it = Tkdb.find(path);
-    if(Tkdb.end() == it)
+    if(Tkdb.end() == it) {
+        size = 0;
         return nullptr;
+    }
     else {
         size = it->second->dataSize;
         return it->second->data;

@@ -51,13 +51,11 @@ int dialTo(const std::string & remoteIP, uint16_t port) {
 }
 
 long sendData(int sock, char * buf, size_t len) {
-//    fprintf(stdout, "send to sock %d, need to send %d bytes\n", sock, len);
-//    fflush(stdout);
     ssize_t sent = 0;
     while (len > 0) {
         ssize_t realWriteCount = write(sock, buf + sent, len);
         if (realWriteCount < 0) {
-            fprintf(stderr, "Connection error! Cannot send to sock %d!\n", sock);
+            fprintf(stderr, "Connection error! Send to sock %d with %d write count!\n", sock, realWriteCount);
             return realWriteCount;
         }
         len -= realWriteCount;
@@ -67,8 +65,6 @@ long sendData(int sock, char * buf, size_t len) {
 }
 
 ssize_t readUntil(int sock, char * buf, size_t len) {
-//    fprintf(stdout, "read from sock %d, need to read %d bytes\n", sock, len);
-//    fflush(stdout);
     ssize_t readed = (ssize_t )len;
     while (readed > 0) {
         ssize_t cur = read(sock, buf, (size_t)readed);

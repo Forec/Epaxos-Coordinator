@@ -22,6 +22,20 @@ struct tk_command{
     }
     tk_command(OP _op, const std::string & _k, int32_t _vs, char * _v) :
         opcode(_op), key(_k), valSize(_vs), val(_v) {};
+    ~tk_command() {
+    }
+    tk_command(const tk_command & other) {
+        opcode = other.opcode;
+        key = other.key;
+        valSize = other.valSize;
+        val = other.val;
+    }
+    tk_command &operator = (const tk_command & other) {
+        opcode = other.opcode;
+        key = other.key;
+        valSize = other.valSize;
+        val = other.val;
+    }
     void print() {
         fprintf(stdout, "OP = %d, key = %s, valSize = %d, val = %x\n",
                 opcode, key.c_str(), valSize, val);

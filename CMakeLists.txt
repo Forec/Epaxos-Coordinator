@@ -32,7 +32,7 @@ set(SOURCE_FILES
         server/include/server.h
         server/src/server.cpp
         client/include/client.h
-        client/src/client.cpp)
+        client/src/client.cpp
         transporter/test/new_test.c)
 
 add_executable(TkDatabase ${SOURCE_FILES})

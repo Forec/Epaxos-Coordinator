@@ -41,12 +41,12 @@ strong_connect(Replica * r,
             while ((r->InstanceMatrix[q][i] == nullptr) ||
                    r->InstanceMatrix[q][i]->cmds.empty() ||
                    v->cmds.empty()) {
-                nano_sleep(1000 * 1000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
             if (r->InstanceMatrix[q][i]->status == EXECUTED)
                 continue;
             while (r->InstanceMatrix[q][i]->status != COMMITTED) {
-                nano_sleep(1000 * 1000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
             tk_instance * w = r->InstanceMatrix[q][i];
 
@@ -73,18 +73,24 @@ strong_connect(Replica * r,
         for (int j = pos; j < top; ++j) {
             w = STACK[j];
             while (w == nullptr || w->cmds.empty())
-                nano_sleep(1000 * 1000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             for (int idx = 0; idx < w->cmds.size(); ++idx) {
                 char * val = execute_command(&(w->cmds[idx]), r->statemachine);
+#ifdef DEBUG_EXEC
+                printf("val = %s, w->lb is %s, w->lb->clientProposals size is %ld\n",
+                       val == nullptr ? "NULL": "not null",
+                       w->lb == nullptr ? "NULL" : "not null" ,
+                       w->lb == nullptr ? 9999 : w->lb->clientProposals.size());
+#endif
 #ifndef DEBUG_EXEC
                 if (r->Dreply && w->lb && !w->lb->clientProposals.empty()) {
                     ProposeReplyTS * prts = new ProposeReplyTS(true,
-                                                               w->lb->clientProposals[idx].CommandId,
-                                                               w->cmds[idx].valSize,
-                                                               val,
-                                                               w->lb->clientProposals[idx].Timestamp);
+                                w->lb->clientProposals[idx].CommandId,
+                                w->lb->clientProposals[idx].Command.opcode ==  PUT ? 0 : w->cmds[idx].valSize,
+                                val,
+                                w->lb->clientProposals[idx].Timestamp);
                     prts->Marshal(w->lb->clientProposals[idx].Conn);
-                    fprintf(stdout, "Reply to client on sock %d in execution loop\n", w->lb->clientProposals[idx].Conn);
+//                    fprintf(stdout, "Reply to client on sock %d in execution loop\n", w->lb->clientProposals[idx].Conn);
                     /*
                      * call API: replyProposal(w->lb->clientProposals[idx].id, ...args)
                      */
@@ -133,11 +139,11 @@ execute_command(tk_command * c, Tkdatabase * st) {
     char * res = nullptr;
     switch (c->opcode) {
         case PUT:
-            if (st->put(c->key, c->val, c->valSize))
-                res = c->val;
+            st->put(c->key, c->val, c->valSize);
             break;
         case GET:
             c->val = st->fetch(c->key, c->valSize);
+            res = c->val;
             break;
         default:
             return nullptr;
@@ -210,8 +216,9 @@ void execute_thread(Replica * r) {
                 }
             }
         }
-        if (!executed)
+        if (!executed) {
             std::this_thread::sleep_for(std::chrono::nanoseconds(SLEEP_TIME_NS));
+        }
     }
     delete [] problemInstance;
     delete [] timeout;

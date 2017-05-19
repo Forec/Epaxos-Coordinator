@@ -66,7 +66,7 @@ bool Replica::init() {
     Restore = false;
     InstanceMatrix = new tk_instance**[group_size];
     crtInstance.resize((unsigned long)group_size, 0);
-    executeUpTo.resize((unsigned long)group_size, 0);
+    executeUpTo.resize((unsigned long)group_size, -1);
     mq = new MsgQueue(1024 * 1024 ,8);
     pro_mq = new MsgQueue(1024 * 1024 ,8);
     Peers.resize((unsigned long)group_size, -1);
@@ -100,8 +100,9 @@ bool Replica::run() {
     fprintf(stdout, "Wait for client connections .................................. DONE!\n");
 
     if (Exec) {
+        statemachine = new Tkdatabase();
         threads.push_back(new std::thread(execute_thread, this));
-        fprintf(stdout, "Start execution loop: DONE!\n");
+        fprintf(stdout, "Start execution loop ......................................... DONE!\n");
     }
 
     if (Id == 0) {
@@ -130,7 +131,6 @@ bool Replica::run() {
     while (!Shutdown) {
         if (pro_mq_s != NULL && pro_mq_s->hasNext()) {
             Propose * msgp = *(Propose **)pro_mq_s->get();
-//            fprintf(stdout, "GET propose!\n");
             handlePropose(msgp);
             pro_mq_s = NULL;
         }
@@ -140,9 +140,6 @@ bool Replica::run() {
 
         void * msgp = mq->get();
         TYPE msgType = **(TYPE **) msgp;
-//        if (msgType != FAST_CLOCK) {
-//            fprintf(stdout, "parse msgType %d\n", msgType);
-//        }
         switch (msgType) {
             case FAST_CLOCK:
                 pro_mq_s = pro_mq;

@@ -9,7 +9,7 @@
 DEFINE_string(maddr, "127.0.0.1", "Master address, default to localhost.");
 DEFINE_int32(mport, MASTER_PORT, ("Master port, default to " + std::to_string(MASTER_PORT) + ".").c_str());
 DEFINE_int32(requests, 5000, "Total number of requests, default to 5000.");
-DEFINE_int32(w, 100, "Percentagee of updates(writes), default to 100.");
+DEFINE_int32(w, 100, "Percentage of updates(writes), default to 100.");
 DEFINE_int32(r, 1, "Split the total number of requests into this many rounds, and do rounds "
     "sequentially, default to");
 DEFINE_int32(eps, 0, "Send eps more messages per round than the client will wait for (to discount "
@@ -25,7 +25,7 @@ DEFINE_validator(mport, &ValidatePort);
 DEFINE_validator(conflicts, &ValidatePercent);
 DEFINE_validator(w, &ValidatePercent);
 
-int N;
+unsigned long N;
 std::vector<int> successful;
 std::vector<int> rarray;
 std::vector<bool> rsp;
@@ -53,12 +53,12 @@ int main(int argc, char * argv[]) {
         exit(0);
     }
 
-    N = (int)rlp.ReplicaAddrList.size();
+    N = (unsigned long)rlp.ReplicaAddrList.size();
     successful.resize(N, 0);
     std::vector<RDMA_CONNECTION> servers(N, -1);
     std::vector<std::string> karray((unsigned long)FLAGS_requests / FLAGS_r + FLAGS_eps, "");
     std::vector<int> rarray((unsigned long)FLAGS_requests / FLAGS_r + FLAGS_eps, -1);
-    std::vector<bool> put((unsigned long)FLAGS_requests / FLAGS_r + FLAGS_eps, false);
+    std::vector<bool> put((unsigned long)FLAGS_requests / FLAGS_r + FLAGS_eps, true);
     std::vector<int> perReplicaCount(N, 0);
     std::unordered_map<std::string, int> test;
 
@@ -127,17 +127,20 @@ int main(int argc, char * argv[]) {
         clock_t before = clock();
 
         for (int i = 0; i < n + FLAGS_eps; i++) {
-//            fprintf(stdout, "Sending proposal %d\n", id);
             args.CommandId = id;
-            if (put[i])
+            if (put[i]) {
                 args.Command.opcode = PUT;
-            else
+                std::string _v = randStr();
+                strcpy(buf, _v.c_str());
+                args.Command.val = buf;
+                args.Command.valSize = (int32_t) _v.size() + 1;
+            }
+            else {
                 args.Command.opcode = GET;
+                args.Command.valSize = 0;
+                args.Command.val = nullptr;
+            }
             args.Command.key = karray[i];
-            std::string _v = randStr();
-            strcpy(buf, _v.c_str());
-            args.Command.val = buf;
-            args.Command.valSize = (int32_t)_v.size() + 1;
 //            printf("send command: ");
 //            args.Command.print();
 //            fprintf(stdout, "Ready to send proposal %d to replica %d\n", id, rarray[i]);
@@ -161,7 +164,7 @@ int main(int argc, char * argv[]) {
         if (FLAGS_check) {
             for (int j = 0; j < n; j++) {
                 if (!rsp[j]) {
-                    fprintf(stderr, "Didn't receive from replica %d\n", j);
+                    fprintf(stderr, "Didn't receive  %d\n", j);
                 }
             }
         }
@@ -179,6 +182,8 @@ int main(int argc, char * argv[]) {
         fprintf(stdout, "Replica %d successfully deals %d proposals\n", i, successful[i]);
         sum += successful[i];
     }
+    fprintf(stdout, "Conflicts: %d%%, Write: %d%%, %s\n", FLAGS_conflicts, FLAGS_w,
+            FLAGS_check ? "With Check" : "Without Check");
     fprintf(stdout, "Successful: %d\n", sum);
 
     for (int sock: servers) {
@@ -195,9 +200,8 @@ void waitReplies(std::vector<RDMA_CONNECTION> & servers, int leader, int n, MsgQ
     for (int i = 0; i < n; i++) {
         uint8_t msgType;
         readUntil(servers[leader], (char *) &msgType, 1);
-//        fprintf(stdout, "client receive message type %d\n", msgType);
         if ((TYPE)msgType != PROPOSE_REPLY_TS || !reply.Unmarshal(servers[leader])) {
-            fprintf(stderr, "Error when getting propose reply from replica %d\n", i);
+            fprintf(stderr, "Error when getting propose reply from replica %d\n", leader);
             e = true;
             continue;
         }
@@ -210,7 +214,6 @@ void waitReplies(std::vector<RDMA_CONNECTION> & servers, int leader, int n, MsgQ
         if (reply.OK) {
             successful[leader] ++;
         }
-//        fprintf(stdout, "receive one reply from replica %d\n", leader);
     }
     char true_u = 0;
     if (!e)

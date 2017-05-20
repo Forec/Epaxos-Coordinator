@@ -156,6 +156,7 @@ struct rdma_handler{
     int tcp_port;
     size_t  write_offset; /*for the server side */
     site_t  read_offset; /*for the self side */
+    remote_mem_t *re_mem;
 };
 typedef struct rdma_handler rdma_handler_t;
 

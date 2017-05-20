@@ -711,10 +711,15 @@ int rdma_reg_mem(rdma_handler_t *handler){
     // register our userspace buffer with the HCA;
     handler->mr = ibv_reg_mr(handler->pd, handler->buf, buf_size,
                                      IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE);
+
     if(handler->mr == NULL){
         fprintf(stderr, "failed to register memory region\n");
         return 0;
     }
+	handler->re_mem = (remote_mem_t *)malloc(sizeof(remote_mem_t));
+	handler->re_mem->addr = (uint64_t)handler->buf;
+	handler->re_mem->rkey = handler->mr->rkey;
+	handler->re_mem->size = (uint32_t)handler->buf_size;
     return 1;
 }
 

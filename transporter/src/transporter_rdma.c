@@ -1040,7 +1040,45 @@ void destroy_rdma_connect(rdma_handler_t *handler){
 
 /* some thing changed after read code of forec */
 
+
+void ibPostWrite(struct ibv_qp *qp, struct ibv_mr *mr, void *txbuf, size_t txbufsize, remote_mem_t* mem)
+{
+	struct ibv_sge isge = { (uint64_t)txbuf, txbufsize, mr->lkey };
+	struct ibv_send_wr iswr;
+
+	memset(&iswr, 0, sizeof(iswr));
+	iswr.wr_id = 2;
+	iswr.next = NULL;
+	iswr.sg_list = &isge;
+	iswr.num_sge = 1;
+	iswr.opcode = IBV_WR_RDMA_WRITE;
+	iswr.send_flags = IBV_SEND_SIGNALED;
+
+	iswr.wr.rdma.remote_addr = mem->addr;
+	iswr.wr.rdma.rkey = mem->rkey;
+
+	struct ibv_send_wr *bad_iswr;
+	if (ibv_post_send(qp, &iswr, &bad_iswr)) {
+		fprintf(stderr, "ibv_post_send failed!\n");
+		exit(1);
+	}
+}
+
+void ibPostWriteAndWait(struct ibv_qp *qp, struct ibv_mr *mr, void *txbuf, size_t txbufsize, struct ibv_cq *cq, remote_mem_t* mem)
+{
+	ibPostSend(qp, mr, txbuf, txbufsize, mem);
+
+	struct ibv_wc iwc;
+	while (ibv_poll_cq(cq, 1, &iwc) < 1)
+		;
+	if (iwc.status != IBV_WC_SUCCESS) {
+		fprintf(stderr, "ibv_poll_cq returned failure\n");
+		exit(1);
+	}
+}
+
 int sendData(rdma_handler_t *handler, void *buf, size_t buf_len){
+
 
 
 }

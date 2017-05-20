@@ -824,7 +824,9 @@ rdma_handler_t *rdma_connect(const char *addr, int tcp_port){
     }
     init_rdma_connection(handler);
     exchange_params_t params = {handler->local_qp_attr->lid, handler->local_qp_attr->qpn, handler->local_qp_attr->psn};
-    params = client_exchange(addr, tcp_port, &params);
+	remote_mem_t mem = {handler->re_mem->addr, handler->re_mem->rkey, handler->re_mem->size};
+    params = client_exchange(addr, tcp_port, &params, &mem);
+	handler->re_mem = &mem;
     int j;
     for (j = 0; j < DEPTH; j++){
         ibPostReceive(handler->qp_of_this, handler->mr,
@@ -915,7 +917,9 @@ rdma_handler_t * rdma_accept(int tcp_port){
     }
     init_rdma_connection(handler);
     exchange_params_t params = {handler->local_qp_attr->lid, handler->local_qp_attr->qpn, handler->local_qp_attr->psn};
-    params = server_exchange(tcp_port,&params);
+	remote_mem_t mem = {handler->re_mem->addr, handler->re_mem->rkey, handler->re_mem->size};
+    params = server_exchange(tcp_port,&params, &mem);
+	handler->re_mem = &mem;
     int j;
     for (j = 0; j < DEPTH; j++){
         ibPostReceive(handler->qp_of_this, handler->mr,

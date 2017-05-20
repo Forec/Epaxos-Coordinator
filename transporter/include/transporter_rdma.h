@@ -55,7 +55,6 @@ struct exchange_params {
 
 typedef struct exchange_params exchange_params_t;
 
-typedef struct remote_mem remote_mem_t;
 
 struct replica_rdma {
 

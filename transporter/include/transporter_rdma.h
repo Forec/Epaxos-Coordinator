@@ -34,13 +34,7 @@
 #define PORT_NUM 20112
 
 
-struct exchange_params {
-    int lid;
-    int qpn;
-    int psn;
-};
 
-typedef struct exchange_params exchange_params_t;
 
 struct remote_mem {
 
@@ -49,6 +43,17 @@ struct remote_mem {
     uint32_t size;
 
 };
+
+typedef struct remote_mem remote_mem_t;
+
+struct exchange_params {
+    int lid;
+    int qpn;
+    int psn;
+    //remote_mem_t *re_mem;
+};
+
+typedef struct exchange_params exchange_params_t;
 
 typedef struct remote_mem remote_mem_t;
 
@@ -149,6 +154,8 @@ struct rdma_handler{
     struct ibv_mr *mr;
     char *addr;
     int tcp_port;
+    size_t  write_offset; /*for the server side */
+    site_t  read_offset; /*for the self side */
 };
 typedef struct rdma_handler rdma_handler_t;
 

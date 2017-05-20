@@ -334,7 +334,7 @@ int server_send_msg(replica_rdma_t *replica_rdma, void *msg, int len, int server
 	return 1;
 }
 
-struct exchange_params client_exchange(const char *server, uint16_t port, struct exchange_params *params)
+struct exchange_params client_exchange(const char *server, uint16_t port, struct exchange_params *params, remote_mem_t *mem)
 {
 	int s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s == -1) {
@@ -361,13 +361,14 @@ struct exchange_params client_exchange(const char *server, uint16_t port, struct
 
 	write(s, params, sizeof(*params));
 	read(s, params, sizeof(*params));
-
+	write(s, mem, sizeof(*mem));
+	read(s, mem, sizeof(*mem));
 	close(s);
 
 	return *params;
 }
 
-struct exchange_params server_exchange(uint16_t port, struct exchange_params *params)
+struct exchange_params server_exchange(uint16_t port, struct exchange_params *params, remote_mem_t *mem)
 {
 	int s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s == -1) {
@@ -407,6 +408,8 @@ struct exchange_params server_exchange(uint16_t port, struct exchange_params *pa
 
 	write(c, params, sizeof(*params));
 	read(c, params, sizeof(*params));
+	write(c, mem, sizeof(*mem));
+	read(c, mem, sizeof(*mem));
 
 	close(c);
 	close(s);
@@ -1025,4 +1028,15 @@ void destroy_rdma_connect(rdma_handler_t *handler){
 }
 
 
+
+/* some thing changed after read code of forec */
+
+int sendData(rdma_handler_t *handler, void *buf, size_t buf_len){
+
+
+}
+
+int readUntil(rdma_handler_t *handler, void *buf, size_t buf_len){
+
+}
 

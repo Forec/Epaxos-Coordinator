@@ -118,8 +118,8 @@ int replica_reg_mem(replica_rdma_t *replica_rdma);
 void ibPostReceive(struct ibv_qp *qp, struct ibv_mr *mr, void *rxbuf, size_t rxbufsize);
 void ibPostSend(struct ibv_qp *qp, struct ibv_mr *mr, void *txbuf, size_t txbufsize);
 void ibPostSendAndWait(struct ibv_qp *qp, struct ibv_mr *mr, void *txbuf, size_t txbufsize, struct ibv_cq *cq);
-struct exchange_params client_exchange(const char *server, uint16_t port, struct exchange_params *params);
-struct exchange_params server_exchange(uint16_t port, struct exchange_params *params);
+struct exchange_params client_exchange(const char *server, uint16_t port, struct exchange_params *params, remote_mem_t *mem);
+struct exchange_params server_exchange(uint16_t port, struct exchange_params *params, remote_mem_t *mem);
 
 //  main inteface about RDMA communication;
 int rdma_connect_policy(replica_rdma_t *replica_rdma);  //  each replica server will connect the other server that index less then itself, and wait for the greater to connect it;
@@ -144,17 +144,17 @@ struct rdma_handler{
     uint8_t replica_index;
     exchange_params_t *local_qp_attr;
     int ib_port_base;
-    char *buf;
+    void *buf;
     size_t buf_size;
-    char *send_buf;
-    char *receive_buf;
+    void *send_buf;
+    void *receive_buf;
     size_t receive_buf_size;
     size_t send_buf_size;
     struct ibv_mr *mr;
     char *addr;
     int tcp_port;
     size_t  write_offset; /*for the server side */
-    site_t  read_offset; /*for the self side */
+    size_t  read_offset; /*for the self side */
     remote_mem_t *re_mem;
 };
 typedef struct rdma_handler rdma_handler_t;
@@ -181,6 +181,7 @@ int sendData(rdma_handler_t *handler, char *buf, size_t buf_len);
 
 int readUntil(rdma_handler_t *handler, char *buf, size_t buf_len);
 
+void destroy_rdma_connect(rdma_handler_t *handler);
 
 
 #endif //TKDATABASE_TRANSPORTER_RDMA_H

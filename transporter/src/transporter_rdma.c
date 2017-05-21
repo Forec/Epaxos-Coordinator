@@ -452,7 +452,7 @@ int replica_reg_mem(replica_rdma_t *replica_rdma)
 	return 1;
 }
 
-
+/*
 
 int rdma_connect_policy(replica_rdma_t *replica_rdma){
 
@@ -564,7 +564,7 @@ int rdma_connect_policy(replica_rdma_t *replica_rdma){
 	return 1;
 }
 
-
+*/
 
 
 /*
@@ -682,7 +682,7 @@ int connect_init(replica_rdma_t *replica_rdma){
 	printf("register memory success !\n");
 	init_rdma_struct(replica_rdma);
 	printf("init_rdma_struct success !\n");
-	rdma_connect_policy(replica_rdma);
+	//rdma_connect_policy(replica_rdma);
 	return 1;
 }
 
@@ -710,16 +710,18 @@ int rdma_reg_mem(rdma_handler_t *handler){
     handler->receive_buf_size = buf_size / 2;
     // register our userspace buffer with the HCA;
     handler->mr = ibv_reg_mr(handler->pd, handler->buf, buf_size,
-                                     IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE);
+							 IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_READ |
+							 IBV_ACCESS_REMOTE_WRITE);
 
     if(handler->mr == NULL){
         fprintf(stderr, "failed to register memory region\n");
         return 0;
     }
+	memset(handler->buf, '\0', buf_size);
 	handler->re_mem = (remote_mem_t *)malloc(sizeof(remote_mem_t));
-	handler->re_mem->addr = (uint64_t)handler->buf;
+	handler->re_mem->addr = (uint64_t)handler->receive_buf;
 	handler->re_mem->rkey = handler->mr->rkey;
-	handler->re_mem->size = (uint32_t)handler->buf_size;
+	handler->re_mem->size = (uint32_t)handler->receive_buf_size;
 	handler->read_offset = 0;
 	handler->write_offset = 0;
     return 1;
@@ -765,7 +767,8 @@ void init_qp_for_connection(rdma_handler_t *handler){
     //printf("bug here??\n");
     attr.qp_state = IBV_QPS_INIT;
     attr.pkey_index = 0;
-    attr.qp_access_flags=IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE;
+    attr.qp_access_flags= IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_READ |
+						  IBV_ACCESS_REMOTE_WRITE;
     attr.port_num = 1;
         //printf("replica_rdma->ib_port_base: %d\n", replica_rdma->ib_port_base);
     CHECK(ibv_modify_qp(handler->qp_of_this, &attr,
@@ -809,7 +812,7 @@ rdma_handler_t *rdma_connect(const char *addr, int tcp_port){
         fprintf(stderr, "failed to find infiniband device \n");
         return NULL;
     }
-    printf("Using ib device '%s'.", dev->name);
+    printf("Using ib device '%s'.\n", dev->name);
     handler->context = ibv_open_device(dev);
     if(handler->context == NULL){
         printf("failed to open infiniband device\n");
@@ -827,15 +830,18 @@ rdma_handler_t *rdma_connect(const char *addr, int tcp_port){
     init_rdma_connection(handler);
     exchange_params_t params = {handler->local_qp_attr->lid, handler->local_qp_attr->qpn, handler->local_qp_attr->psn};
 	remote_mem_t mem = {handler->re_mem->addr, handler->re_mem->rkey, handler->re_mem->size};
+	printf("buffer info, addr: %ld, rkey: %ld, len: %ld\n", handler->re_mem->addr, handler->re_mem->rkey, handler->re_mem->size);
     params = client_exchange(addr, tcp_port, &params, &mem);
 	free(handler->re_mem);
 	handler->re_mem = &mem;
 
-    int j;
-    for (j = 0; j < DEPTH; j++){
-        ibPostReceive(handler->qp_of_this, handler->mr,
-                      handler->receive_buf, handler->receive_buf_size);
-    }
+	printf("buffer info, addr: %ld, rkey: %ld, len: %ld\n", handler->re_mem->addr, handler->re_mem->rkey, handler->re_mem->size);
+//
+//    int j;
+//    for (j = 0; j < DEPTH; j++){
+//        ibPostReceive(handler->qp_of_this, handler->mr,
+//                      handler->receive_buf, handler->receive_buf_size);
+//    }
 
     struct ibv_qp_attr qpa;
     memset(&qpa, 0, sizeof(qpa));
@@ -922,14 +928,16 @@ rdma_handler_t * rdma_accept(int tcp_port){
     init_rdma_connection(handler);
     exchange_params_t params = {handler->local_qp_attr->lid, handler->local_qp_attr->qpn, handler->local_qp_attr->psn};
 	remote_mem_t mem = {handler->re_mem->addr, handler->re_mem->rkey, handler->re_mem->size};
+	printf("buffer info, addr: %ld, rkey: %ld, len: %ld\n", handler->re_mem->addr, handler->re_mem->rkey, handler->re_mem->size);
     params = server_exchange(tcp_port,&params, &mem);
 	free(handler->re_mem);
 	handler->re_mem = &mem;
-    int j;
-    for (j = 0; j < DEPTH; j++){
-        ibPostReceive(handler->qp_of_this, handler->mr,
-                      handler->receive_buf, handler->receive_buf_size);
-    }
+	printf("buffer info, addr: %ld, rkey: %ld, len: %ld\n", handler->re_mem->addr, handler->re_mem->rkey, handler->re_mem->size);
+//    int j;
+//    for (j = 0; j < DEPTH; j++){
+//        ibPostReceive(handler->qp_of_this, handler->mr,
+//                      handler->receive_buf, handler->receive_buf_size);
+//    }
 
     struct ibv_qp_attr qpa;
     memset(&qpa, 0, sizeof(qpa));
@@ -1046,9 +1054,9 @@ void destroy_rdma_connect(rdma_handler_t *handler){
 /* some thing changed after read code of forec */
 
 
-void ibPostWrite(struct ibv_qp *qp, struct ibv_mr *mr, char *txbuf, size_t txbufsize, remote_mem_t* mem)
+void ibPostWrite(rdma_handler_t *handler, size_t buf_len)
 {
-	struct ibv_sge isge = { (uint64_t)txbuf, txbufsize, mr->lkey };
+	struct ibv_sge isge = { (uint64_t)handler->send_buf, buf_len, handler->mr->lkey };
 	struct ibv_send_wr iswr;
 
 	memset(&iswr, 0, sizeof(iswr));
@@ -1059,22 +1067,22 @@ void ibPostWrite(struct ibv_qp *qp, struct ibv_mr *mr, char *txbuf, size_t txbuf
 	iswr.opcode = IBV_WR_RDMA_WRITE;
 	iswr.send_flags = IBV_SEND_SIGNALED;
 
-	iswr.wr.rdma.remote_addr = mem->addr;
-	iswr.wr.rdma.rkey = mem->rkey;
+	iswr.wr.rdma.remote_addr = handler->re_mem->addr + (int) handler->write_offset;
+	iswr.wr.rdma.rkey = handler->re_mem->rkey;
 
 	struct ibv_send_wr *bad_iswr;
-	if (ibv_post_send(qp, &iswr, &bad_iswr)) {
+	if (ibv_post_send(handler->qp_of_this, &iswr, &bad_iswr)) {
 		fprintf(stderr, "ibv_post_send failed!\n");
 		exit(1);
 	}
 }
 
-void ibPostWriteAndWait(struct ibv_qp *qp, struct ibv_mr *mr, char *txbuf, size_t txbufsize, struct ibv_cq *cq, remote_mem_t* mem)
+void ibPostWriteAndWait(rdma_handler_t *handler, size_t buf_len)
 {
-	ibPostSend(qp, mr, txbuf, txbufsize, mem);
-
+	ibPostWrite(handler, buf_len);
+	printf("buf context: %s\n", handler->send_buf);
 	struct ibv_wc iwc;
-	while (ibv_poll_cq(cq, 1, &iwc) < 1)
+	while (ibv_poll_cq(handler->send_cq, 1, &iwc) < 1)
 		;
 	if (iwc.status != IBV_WC_SUCCESS) {
 		fprintf(stderr, "ibv_poll_cq returned failure\n");
@@ -1085,15 +1093,16 @@ void ibPostWriteAndWait(struct ibv_qp *qp, struct ibv_mr *mr, char *txbuf, size_
 int sendData(rdma_handler_t *handler, char *buf, size_t buf_len){
 
 	//first regist buf mem;
-	struct ibv_mr *temp_mr = (struct ibv_mr *)malloc(sizeof(struct ibv_mr));
-	temp_mr = ibv_reg_mr(handler->pd, buf, buf_len,
-							 IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE );
-	CHECK(!temp_mr, "ibv_reg_mr failed.")
-	handler->re_mem->addr = handler->re_mem + handler->write_offset;
-	ibPostWriteAndWait(handler->qp_of_this, temp_mr, buf, buf_len, handler->send_cq, handler->re_mem);
+	memcpy(handler->send_buf, buf, buf_len);
+	//struct ibv_mr *temp_mr = (struct ibv_mr *)malloc(sizeof(struct ibv_mr));
+	//temp_mr = ibv_reg_mr(handler->pd, buf, buf_len,
+	//						 IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE );
+	//CHECK(!temp_mr, "ibv_reg_mr failed.")
+	ibPostWriteAndWait(handler, buf_len);
 	handler->write_offset += buf_len;
-	ibv_dereg_mr(temp_mr);
-	free(buf);
+	//ibv_dereg_mr(temp_mr);
+	//free(buf);
+	return buf_len;
 }
 
 int readUntil(rdma_handler_t *handler, char *buf, size_t buf_len){

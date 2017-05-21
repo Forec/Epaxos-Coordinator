@@ -144,10 +144,10 @@ struct rdma_handler{
     uint8_t replica_index;
     exchange_params_t *local_qp_attr;
     int ib_port_base;
-    void *buf;
+    char *buf;
     size_t buf_size;
-    void *send_buf;
-    void *receive_buf;
+    char *send_buf;
+    char *receive_buf;
     size_t receive_buf_size;
     size_t send_buf_size;
     struct ibv_mr *mr;
@@ -175,7 +175,11 @@ int rdma_send(rdma_handler_t* handler, void *buf, int32_t len);
 
 //for server.
 
+//new !!
 
+int sendData(rdma_handler_t *handler, char *buf, size_t buf_len);
+
+int readUntil(rdma_handler_t *handler, char *buf, size_t buf_len);
 
 
 

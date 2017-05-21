@@ -45,19 +45,23 @@ int main(int argc, char* arg[])
     } else{
         handler = init_rdma_server();
     }
-    char *buf = "12345678";
+    char *buf = "123456\0";
     if(servername){
         sleep(1);
-        rdma_send(handler, (void*) buf, 8);
-        destroy_rdma_connect(handler);
+        sendData(handler, buf, 7);
+        //rdma_send(handler, (void *)buf, 8);
+        //destroy_rdma_connect(handler);
     }else{
 
-        while(1){
-            void *rbuf=(void *)malloc(sizeof(void) * 8);
-            rdma_receive(handler, rbuf, 8);
-            printf("%s\n", (char *)rbuf);
-        }
-        // destroy_rdma_connect(handler);
+//        while(1){
+//            void *rbuf=(void *)malloc(sizeof(void) * 8);
+//            rdma_receive(handler, rbuf, 8);
+//            printf("%s\n", (char *)rbuf);
+//        }
+        char *rbuf = (char *)malloc(sizeof(char) * 7);
+        readUntil(handler, rbuf, 7);
+        printf("%s\n", rbuf);
+//        // destroy_rdma_connect(handler);
 
     }
 

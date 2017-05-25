@@ -33,6 +33,8 @@ set(SOURCE_FILES
         server/src/server.cpp
         client/include/client.h
         client/src/client.cpp
+        coor_log/include/tk_txn.h
+        coor_log/src/tk_txn.cpp
         transporter/test/new_test.c)
 
 add_executable(TkDatabase ${SOURCE_FILES})

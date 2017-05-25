@@ -7,67 +7,31 @@
 
 #include <vector>
 #include <string>
-#include "tk_jute.h"
-//typedef FileHeader FileHeader_t;
+#include "../../consensus/include/tk_elog.h"
+#include "../../consensus/include/tk_command.h"
 
 using namespace std;
 
-struct writeBuff{
+struct serializeBuff{
     int32_t len;
     char* buff;
 };
 
-struct FileList{
+struct readBuff{
     int32_t len;
-    int32_t* fdList;
+    int32_t position;
+    char* buff;
+    vector<string> fileName;
 };
 
-typedef FileList FileList_t;
-
-struct TxnHeader
-{
-	int64_t clientId;
-	int32_t cxid;
-	int64_t zxid;
-	int64_t time;
-	int32_t type;
-	string status;
-};
-
-typedef TxnHeader TxnHeader_t;
-
-struct Txn
-{
-	TxnHeader_t* hdr;
-	struct serializeBuff* log;
-	int32_t recordtype;
-};
-
-typedef Txn Txn_t;
-
-struct FileTxnLog
-{
-	int64_t preAllocSize;
-	int32_t version;
-	int64_t dbId;
-	string fileName;
-//	char* fileName;
-	char* toFlush;
-	int64_t currentSize;
-	int64_t currentPosition;
-	char* log;
-	std::vector<Txn_t> txnList;
-};
-
-typedef FileTxnLog FileTxnLog_t;
-
-void readLogFromFile(int32_t snapshotZxid);
-void initFileTxnLog(FileTxnLog_t* FTL,int32_t version);
-bool append(FileTxnLog_t *FTL,Txn_t* txn);
+struct readBuff readInstanceFromFile(int32_t snapshotZxid);
+bool append(int32_t replicaId,struct tk_instance ti);
 uint32_t Checksum(unsigned char *data, int32_t len);
-bool fileNameCompare(string name1,string name2);
-vector<string> readFileList();
-bool readNextLogFile(vector<string> fileName,struct readBuff* rb);
+bool readNextLogFile(struct readBuff* rb);
 int file_size2(string filename);
+int32_t nextInstance(struct tk_instance* pi,struct readBuff* rb);
+
+//serialize instance
+void serializeInstance(struct tk_instance pi,struct serializeBuff* oa);
 
 #endif

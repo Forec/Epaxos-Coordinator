@@ -1095,33 +1095,45 @@ void ibPostWriteAndWait(rdma_handler_t *handler, size_t buf_len)
 
 int sendData(rdma_handler_t *handler, char *buf, size_t buf_len){
 
-	//first regist buf mem;
-	memcpy(handler->send_buf, buf, buf_len);
+    //first regist buf mem;
+    if(handler->write_offset + buf_len >  handler->receive_buf_size){
+        handler->write_offset = 0;
+    }
+    memcpy(handler->send_buf, buf, buf_len);
 
     memset(handler->send_buf + buf_len, '1', 1);
-	//struct ibv_mr *temp_mr = (struct ibv_mr *)malloc(sizeof(struct ibv_mr));
-	//temp_mr = ibv_reg_mr(handler->pd, buf, buf_len,
-	//						 IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE );
-	//CHECK(!temp_mr, "ibv_reg_mr failed.")
-	ibPostWriteAndWait(handler, buf_len + 1);
-	handler->write_offset += buf_len + 1;
-	//ibv_dereg_mr(temp_mr);
-	//free(buf);
+    //struct ibv_mr *temp_mr = (struct ibv_mr *)malloc(sizeof(struct ibv_mr));
+    //temp_mr = ibv_reg_mr(handler->pd, buf, buf_len,
+    //						 IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_LOCAL_WRITE );
+    //CHECK(!temp_mr, "ibv_reg_mr failed.")
+    ibPostWriteAndWait(handler, buf_len + 1);
+    handler->write_offset += buf_len + 1;
+    //ibv_dereg_mr(temp_mr);
+    //free(buf);
 
-	return buf_len;
+    return buf_len;
 }
 
 int readUntil(rdma_handler_t *handler, char *buf, size_t buf_len){
-	size_t have_read = handler->read_offset;
+    size_t have_read = handler->read_offset;
+
+    if(have_read + buf_len > handler->receive_buf_size){
+        have_read = 0;
+        handler->read_offset = 0;
+        //add socket to tell the other side begin to write;
+        //memset(handle)
+    }
     //void *temp = (void *)malloc(sizeof(void));
     //memset(temp, 1, 1);
-	while(1){
+    while(1){
+
         if(memcmp(handler->receive_buf + have_read + buf_len, (void *)"1", 1) == 0){
             memcpy(buf, handler->receive_buf + have_read, buf_len);
+            bzero(handler->receive_buf + have_read, buf_len + 1);
             break;
         }
-	}
-	handler->read_offset += buf_len + 1;
-	return buf_len;
+    }
+    handler->read_offset += buf_len + 1;
+    return buf_len;
 }
 

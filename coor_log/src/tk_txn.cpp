@@ -26,11 +26,112 @@ using namespace std;
 #define basePath "./"
 
 
+bool writeDataTreeToFile(dataTree * zoo_dataTree){
+    int fd = 0;
+    string fileName = "data";
+    fd = open(fileName.c_str(),O_CREAT|O_RDWR|O_APPEND,S_IRWXU);
+    if(fd < 0) {
+        cout << "couldn't open file---" << fileName << endl;
+        return false;
+    }
+    //store datanode
+    cout<<"store data node"<<endl;
+    writeDataNodeToFile(&zoo_dataTree->root,fd);
+    int temp = close(fd);
+}
+
+bool writeDataNodeToFile(dataNode * node,int fd){
+    //store node data
+    struct oarchive *oa = create_buffer_oarchive();
+    oa->serialize_String(oa,"",&node->path);
+    serialize_StatPersisted(oa,"",&node->stat);
+    serialize_ACL_vector(oa,"",&node->acl);
+    oa->serialize_Buffer(oa,"",&node->data);
+    struct buffer buff;
+    buff.len = get_buffer_len(oa);
+    buff.buff = (char*)malloc(buff.len);
+    memcpy(buff.buff,get_buffer(oa),buff.len);
+    int wlen = write(fd,&buff.len,sizeof(int32_t));
+    wlen = write(fd,buff.buff,buff.len);
+    cout<<"son size="+node->son.size()<<endl;
+    free(buff.buff);
+    cout<<"free buff"<<endl;
+    close_buffer_oarchive(&oa,1);
+    cout<<"free oa done"<<endl;
+    //store son node
+    map<std::string,struct dataNode_t *>::iterator iter;
+    for(iter=node->son.begin();iter!=node->son.end();iter++ ){
+        writeDataNodeToFile(iter->second,fd);
+    }
+    return true;
+}
+
+bool readDataTreeFromFile(dataTree * zoo_dataTree,string fileName,int32_t fd){
+    struct readBuff rb;
+    rb.len = file_size2(fileName);
+    rb.buff = (char*)malloc(rb.len);
+    rb.position = 0;
+    int i = read(fd,rb.buff,rb.len);
+    close(fd);
+    //length
+    int32_t length = 0;
+    memcpy(&length,rb.buff+rb.position,sizeof(int32_t));
+    rb.position+=sizeof(int32_t);
+    struct iarchive * ia;
+    ia = create_buffer_iarchive(rb.buff+rb.position,length);
+    rb.position+=length;
+    deserialize_StatPersisted(ia,"",&zoo_dataTree->root.stat);
+    deserialize_ACL_vector(ia,"",&zoo_dataTree->root.acl);
+    ia->deserialize_Buffer(ia,"",&zoo_dataTree->root.data);
+    cout<<"read root node done"<<endl;
+    while(rb.position < rb.len){
+        cout<<"position=";
+        cout<<rb.position<<endl;
+        cout<<"len=";
+        cout<<rb.len<<endl;
+        // length
+        length = 0;
+        memcpy(&length,rb.buff+rb.position,sizeof(int32_t));
+        rb.position+=sizeof(int32_t);
+        struct iarchive * ia;
+        ia = create_buffer_iarchive(rb.buff+rb.position,length);
+        rb.position+=length;
+        struct buffer pathBuff;
+        ia->deserialize_Buffer(ia,"",&pathBuff);
+        string nodePath(pathBuff.buff);
+        cout<<"read node "+nodePath<<endl;
+        dataNode * newNode = new dataNode;
+        deserialize_StatPersisted(ia,"",&newNode->stat);
+        deserialize_ACL_vector(ia,"",&newNode->acl);
+        ia->deserialize_Buffer(ia,"",&newNode->data);
+        cout<<newNode->stat.ctime<<endl;
+        //insert node
+        vector<string> vPath = getPathVector(nodePath);
+        dataNode * nextNode = &zoo_dataTree->root;
+        cout<<vPath.at(0)<<endl;
+        for(int i = 0;i < vPath.size();i++){
+            map<string ,dataNode *>::iterator l_it;
+            l_it=nextNode->son.find(vPath.at(i));
+            if(i == vPath.size()-1){
+                //insert
+                cout<<"inserting node "+vPath.at(i)<<endl;
+                newNode->parentNode = nextNode;
+                nextNode->son.insert(pair<string,dataNode*>(vPath.at(i),newNode));
+                break;
+            }
+            nextNode = l_it->second;
+        }
+        close_buffer_iarchive(&ia);
+    }
+    cout<<"read done"<<endl;
+    return true;
+}
+
 void int2str(const int &int_temp,string &string_temp)
 {
         stringstream stream;
         stream<<int_temp;
-        string_temp=stream.str();   //此处也可以用 stream>>string_temp
+        string_temp=stream.str();
 }
 uint32_t Checksum(unsigned char *data, int32_t len){
     uint32_t a = 1, b = 0;
@@ -104,7 +205,7 @@ bool formatInstance(struct tk_instance* ti,struct readBuff* rb){
         int32_t keySize = 0;
         memcpy(&keySize,rb->buff+rb->position,sizeof(int32_t));
         rb->position+=sizeof(int32_t);
-        char key[keySize+1] = "";
+        char key[keySize+1];
         memcpy(key,rb->buff+rb->position,keySize);
         rb->position+=keySize;
         key[keySize] = '\0';
@@ -224,7 +325,7 @@ void serializeInstance(struct tk_instance ti,struct serializeBuff* oa){
         //cout<<"keySize="<<keySize<<endl;
         memcpy(oa->buff+serizlizeLength,&keySize,sizeof(int32_t));
         serizlizeLength+=sizeof(int32_t);
-        char key[keySize] = "";
+        char key[keySize];
         for(int j = 0;j < keySize;j++){
             key[j] = command.key[j];
         }

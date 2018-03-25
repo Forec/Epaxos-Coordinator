@@ -17,7 +17,8 @@ set(SOURCE_FILES
         ../include/zookeeperServer.jute.h
         ../src/zookeeperServer.jute.c
         ../include/zookeeperServer.h
-        ../src/zookeeperServer.cpp)
+        ../src/zookeeperServer.cpp
+        )
 
 add_executable(zookeeperServer ${SOURCE_FILES})
 target_link_libraries(zookeeperServer gflags pthread)

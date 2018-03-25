@@ -4,21 +4,13 @@
 
 #include "../include/zookeeperServer.h"
 #include "../include/serverCnxn.h"
-#include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/epoll.h>
 #include <fcntl.h>
 #include <thread>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <map>
-
-#define maxConnections 100
-#define RequestHeaderLength 8
 
 
-void processConnectRequest(int32_t len,char * buf,struct zookeeperServer * zServer,int32_t socketfd){
+void processConnectRequest(int32_t len,char * buf,struct zookeeperServer * zServer,int32_t socketfd,MsgQueue * pro_mq){
     std::cout<<"process connect request"<<std::endl;
     serverCnxnFactory * cnxnFactory = &zServer->cnxnFactory;
     struct ConnectRequest cr;
@@ -38,25 +30,10 @@ void processConnectRequest(int32_t len,char * buf,struct zookeeperServer * zServ
     if(sessionId != 0){
         //renew a session
         cout<<"session Id ="<<sessionId<<endl;
-        bool valid = addSession(&cnxnFactory->st,sessionId,cr.timeOut);
+        map<int64_t ,Session>::iterator it;
+        it = cnxnFactory->st.sessionById.find(sessionId);
         struct ConnectResponse response;
-        if(valid){
-            response.timeOut = cnxnFactory->tick;
-            struct buffer passwd;
-            passwd.len = 16;
-            passwd.buff = (char *)malloc(16);
-            memcpy(passwd.buff,cnxnFactory->st.sessionById.at(sessionId).password,16);
-            response.passwd = passwd;
-            response.sessionId = 5;
-            response.protocolVersion = 3;
-            struct oarchive *oa = create_buffer_oarchive();
-            int32_t len = 36;
-            oa->serialize_Int(oa,"",&len);
-            serialize_ConnectResponse(oa,"connectResponse",&response);
-
-            queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-            cout<<"发送connectResponse"<<endl;
-        } else{
+        if(it == cnxnFactory->st.sessionById.end()){//session timeout . need to recreate a new session
             response.timeOut = 0;
             struct buffer passwd;
             passwd.len = 16;
@@ -68,14 +45,67 @@ void processConnectRequest(int32_t len,char * buf,struct zookeeperServer * zServ
             int32_t len = 36;
             oa->serialize_Int(oa,"",&len);
             serialize_ConnectResponse(oa,"connectResponse",&response);
-
-            queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-            cout<<"发送connectResponse"<<endl;
+            int32_t fd = getFd(sessionId,cnxnFactory);
+            if(fd != -1){
+                queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                cout<<"发送connectResponse"<<endl;
+            }
+        }else{
+            int64_t valid = createSession(&zServer->cnxnFactory.st,cr.timeOut);
+            if(valid){
+                response.timeOut = cnxnFactory->tick;
+                struct buffer passwd;
+                passwd.len = 16;
+                passwd.buff = (char *)malloc(16);
+                memcpy(passwd.buff,cnxnFactory->st.sessionById.at(sessionId).password,16);
+                response.passwd = passwd;
+                response.sessionId = 5;
+                response.protocolVersion = 3;
+                struct oarchive *oa = create_buffer_oarchive();
+                int32_t len = 36;
+                oa->serialize_Int(oa,"",&len);
+                serialize_ConnectResponse(oa,"connectResponse",&response);
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"发送connectResponse"<<endl;
+                }
+            }
         }
+
     }else {
         sessionId = createCnxn(cnxnFactory,socketfd,sessionTimeout);
         cout<<"create session complete"<<endl;
         cout<<"sessionid = "<<sessionId<<endl;
+        //init create session request
+        Session session = cnxnFactory->st.sessionById.at(sessionId);
+        struct RequestHeader rh;
+        rh.type = ZOO_CREATESESSION_OP;
+        rh.xid = 100;
+        struct CreateSessionRequest createSessionrsq;
+        createSessionrsq.sessionId = sessionId;
+        createSessionrsq.sessionTimeout = session.sessionTimeout;
+        createSessionrsq.passwd.len = 16;
+        memcpy(createSessionrsq.passwd.buff,session.password,16);
+        struct oarchive * cspOa = create_buffer_oarchive();
+        serialize_RequestHeader(cspOa,"",&rh);
+        serialize_CreateSessionRequest(cspOa,"serialize create session request ",&createSessionrsq);
+        int packetLen = get_buffer_len(cspOa);
+        char * buff = (char *)malloc(packetLen);
+        memcpy(buff,get_buffer(cspOa),packetLen);
+        //init tk_command
+        tk_command * command = new tk_command();
+        command->opcode = CREATESESSION;
+        command->key = "";
+        command->owner = zServer->serverId;
+        command->sessionId = sessionId;
+        command->valSize = packetLen;
+        command->val = buff;
+        //init propose
+        Propose *propose = new Propose();
+        propose->Command = *command;
+        pro_mq->put(&propose);
+        //send response to client
         struct ConnectResponse response;
         response.timeOut = cnxnFactory->tick;
         struct buffer passwd;
@@ -83,359 +113,516 @@ void processConnectRequest(int32_t len,char * buf,struct zookeeperServer * zServ
         passwd.buff = (char *)malloc(16);
         memcpy(passwd.buff,cnxnFactory->st.sessionById.at(sessionId).password,16);
         response.passwd = passwd;
-        response.sessionId = 5;
+        response.sessionId = sessionId;
         response.protocolVersion = 3;
         struct oarchive *oa = create_buffer_oarchive();
         int32_t len = 36;
         oa->serialize_Int(oa,"",&len);
         serialize_ConnectResponse(oa,"connectResponse",&response);
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送connectResponse"<<endl;
+        int32_t fd = getFd(sessionId,cnxnFactory);
+        if(fd != -1){
+            cout<<"fd="<<fd<<"socketfd="<<socketfd<<endl;
+            queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+            cout<<"发送connectResponse"<<endl;
+        }
+        close_buffer_oarchive(&oa,1);
+        close_buffer_oarchive(&cspOa,1);
     }
     return;
 }
 
-
-void processRequest(int32_t len,char * buf,struct zookeeperServer * zServer,int64_t sessionId){
+void pre_processRequest(struct zookeeperServer * zServer,buffer_list_t * toProcess,MsgQueue * pro_mq){
+    int32_t len = toProcess->len;
+    int64_t sessionId = toProcess->sessionId;
     serverCnxnFactory * cnxnFactory = &zServer->cnxnFactory;
+    Propose * propose = new Propose();
     //deserialize header
-    struct iarchive * ia = create_buffer_iarchive(buf,RequestHeaderLength);
+    struct iarchive * ia;
+    ia = create_buffer_iarchive(toProcess->buffer,RequestHeaderLength);
     struct RequestHeader header;
     deserialize_RequestHeader(ia,"deserialize requestHeader",&header);
     //check session
-
-    //cout<<"touch session "<<sessionId<<endl;
     touchSession(sessionId,zServer->cnxnFactory.tick,&cnxnFactory->st);
-
-    if(header.type == ZOO_PING_OP){
-        cout<<"ping"<<endl;
-        struct ReplyHeader rh;
-        rh.xid = -2;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = 0;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-        serialize_ReplyHeader(oa1,"ping",&rh);
-        int32_t len = get_buffer_len(oa1);
-        close_buffer_oarchive(&oa1,1);
-        oa->serialize_Int(oa,"",&len);
-        serialize_ReplyHeader(oa,"ping",&rh);
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送ping response"<<endl;
-    }else if(header.type == ZOO_CREATE_OP){
-        cout<<"create op"<<endl;
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct CreateRequest createReq;
-        deserialize_CreateRequest(ia,"deserialize create request",&createReq);
-
-        //add node
-        ZOO_ERRORS err = zoo_addNode(&zServer->zoo_dataTree,createReq.path,createReq.data,createReq.acl,
-                                     sessionId,createReq.flags,getNextZxid(zServer), getTime(),cnxnFactory->cnxnList.at(sessionId).auth);
-        //response
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = err;
-
-        struct oarchive *oa = create_buffer_oarchive();
-        if(err == ZOK){
-            string nodePath(createReq.path);
-            string parentPath = nodePath.substr(0,nodePath.find_last_of('/'));
-
-            triggerWatch(createReq.path,ZOO_CREATED_EVENT,&zServer->zoo_dataTree.dataWatch,&zServer->to_send);
-            triggerWatch(const_cast<char*>(parentPath.c_str()),ZOO_CHILD_EVENT,&zServer->zoo_dataTree.childWatch,&zServer->to_send);
-            struct oarchive *oa1 = create_buffer_oarchive();
-            struct CreateResponse cr;
-            cr.path = createReq.path;
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            serialize_CreateResponse(oa1,"create response",&cr);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
-            serialize_CreateResponse(oa,"create response",&cr);
-        }else{
-            struct oarchive *oa1 = create_buffer_oarchive();
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
+    switch(header.type){
+        case ZOO_CREATE_OP: {
+            cout<<"pre create op"<<endl;
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct CreateRequest createReq;
+            deserialize_CreateRequest(ia,"deserialize create request",&createReq);
+            //init tk_command
+            tk_command * command = new tk_command();
+            command->owner = zServer->serverId;
+            command->key = createReq.path;
+            cout<<"pre create path="<<command->key<<endl;
+            cout<<"pre create flag="<<createReq.flags<<endl;
+            command->sessionId = sessionId;
+            command->valSize = len;
+            command->val = (char *)malloc(len);
+            memcpy(command->val,toProcess->buffer,len);
+            //init propose
+            propose->Command = *command;
+            pro_mq->put(&propose);
+            break;
         }
 
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送createResponse"<<endl;
-
-    }else if(header.type == ZOO_DELETE_OP){
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct DeleteRequest deleteReq;
-        deserialize_DeleteRequest(ia,"deserialize delete request",&deleteReq);
-
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = 0;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-
-        ZOO_ERRORS err = zoo_deleteNode(&zServer->zoo_dataTree,deleteReq.path,rh.zxid,cnxnFactory->cnxnList.at(sessionId).auth);
-        rh.err = err;
-        if(err == ZOK){
-            triggerWatch(deleteReq.path,ZOO_DELETED_EVENT,&zServer->zoo_dataTree.dataWatch,&zServer->to_send);
+        case ZOO_DELETE_OP: {
+            cout<<"pre delete op"<<endl;
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct DeleteRequest deleteReq;
+            deserialize_DeleteRequest(ia,"deserialize delete request",&deleteReq);
+            tk_command * command = new tk_command();
+            //init tk_command
+            command->owner = zServer->serverId;
+            command->key = deleteReq.path;
+            command->sessionId = sessionId;
+            command->valSize = len;
+            command->val = toProcess->buffer;
+            //init propose
+            propose->Command = *command;
+            pro_mq->put(&propose);
+            break;
         }
-        serialize_ReplyHeader(oa1,"create op reply header",&rh);
-        int32_t rLen = get_buffer_len(oa1);
-        close_buffer_oarchive(&oa1,1);
-        oa->serialize_Int(oa,"length",&rLen);
-        serialize_ReplyHeader(oa,"create op reply header",&rh);
-
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送deleteResponse"<<endl;
-    }else if(header.type == ZOO_EXISTS_OP){
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct ExistsRequest existReq;
-        deserialize_ExistsRequest(ia,"deserialize exist request",&existReq);
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = 0;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-        struct ExistsResponse er;
-
-        ZOO_ERRORS err = zoo_isExist(&zServer->zoo_dataTree,existReq.path,&er);
-        rh.err = err;
-        if(err == ZOK){
-            if(existReq.watch != 0){
-                addWatch(existReq.path,&zServer->zoo_dataTree.dataWatch,sessionId);
-            }
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            serialize_ExistsResponse(oa1,"get data response",&er);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
-            serialize_ExistsResponse(oa,"getdata response",&er);
-        }else{
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
+        case ZOO_SETDATA_OP: {
+            cout<<"pre set data"<<endl;
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct SetDataRequest setDataReq;
+            deserialize_SetDataRequest(ia,"deserialize set data request",&setDataReq);
+            tk_command * command = new tk_command();
+            //init tk_command
+            command->owner = zServer->serverId;
+            command->key = setDataReq.path;
+            command->sessionId = sessionId;
+            command->valSize = len;
+            command->val = toProcess->buffer;
+            //init propose
+            propose->Command = *command;
+            pro_mq->put(&propose);
+            break;
         }
-
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送ExistsResponse"<<endl;
-
-
-    }else if(header.type == ZOO_GETDATA_OP){
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct GetDataRequest getDataReq;
-        deserialize_GetDataRequest(ia,"deserialize get data request",&getDataReq);
-
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = 0;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-        struct GetDataResponse gdr;
-
-        //get data
-        ZOO_ERRORS err = zoo_getData(&zServer->zoo_dataTree,getDataReq.path,&gdr,cnxnFactory->cnxnList.at(sessionId).auth);
-        rh.err = err;
-        if(err == ZOK){
-            if(getDataReq.watch != 0){
-                addWatch(getDataReq.path,&zServer->zoo_dataTree.dataWatch,sessionId);
-            }
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            serialize_GetDataResponse(oa1,"get data response",&gdr);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
-            serialize_GetDataResponse(oa,"getdata response",&gdr);
-        }else{
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
+        case ZOO_SETACL_OP: {
+            cout<<"pre set acl"<<endl;
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct SetACLRequest setAclReq;
+            deserialize_SetACLRequest(ia,"deserialize set acl request",&setAclReq);
+            tk_command * command = new tk_command();
+            //init tk_command
+            command->owner = zServer->serverId;
+            command->key = setAclReq.path;
+            command->sessionId = sessionId;
+            command->valSize = len;
+            command->val = toProcess->buffer;
+            //init propose
+            propose->Command = *command;
+            pro_mq->put(&propose);
+            break;
         }
-
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送getDataResponse"<<endl;
-
-    }else if(header.type == ZOO_SETDATA_OP){
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct SetDataRequest setDataReq;
-        deserialize_SetDataRequest(ia,"deserialize set data request",&setDataReq);
-
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = 0;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-        struct SetDataResponse sdr;
-
-        //get data
-        ZOO_ERRORS err = zoo_setData(&zServer->zoo_dataTree,setDataReq.path,setDataReq.data,setDataReq.version,
-                                     rh.zxid,getTime(),&sdr.stat,cnxnFactory->cnxnList.at(sessionId).auth);
-        rh.err = err;
-        if(err == ZOK){
-            triggerWatch(setDataReq.path,ZOO_CHANGED_EVENT,&zServer->zoo_dataTree.dataWatch,&zServer->to_send);
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            serialize_SetDataResponse(oa1,"set data response",&sdr);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
-            serialize_SetDataResponse(oa,"setdata response",&sdr);
-        }else{
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
+        case ZOO_SETAUTH_OP: {
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct AuthPacket authPacket;
+            deserialize_AuthPacket(ia,"deserialize addauth request",&authPacket);
+            tk_command * command = new tk_command();
+            //init tk_command
+            command->owner = zServer->serverId;
+            command->key = authPacket.scheme;
+            command->sessionId = sessionId;
+            command->valSize = len;
+            command->val = toProcess->buffer;
+            //init propose
+            propose->Command = *command;
+            pro_mq->put(&propose);
+            break;
         }
-
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送setDataResponse"<<endl;
-
-    }else if(header.type == ZOO_GETACL_OP){
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct GetACLRequest getAclReq;
-        deserialize_GetACLRequest(ia,"deserialize get acl request",&getAclReq);
-
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = 0;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-        struct GetACLResponse gar;
-
-        //get acl
-        ZOO_ERRORS err = zoo_getACL(&zServer->zoo_dataTree,getAclReq.path,&gar);
-        rh.err = err;
-        serialize_ReplyHeader(oa1,"create op reply header",&rh);
-        serialize_GetACLResponse(oa1,"get acl response",&gar);
-        int32_t rLen = get_buffer_len(oa1);
-        close_buffer_oarchive(&oa1,1);
-        oa->serialize_Int(oa,"length",&rLen);
-        serialize_ReplyHeader(oa,"create op reply header",&rh);
-        serialize_GetACLResponse(oa,"setdata response",&gar);
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送getaclResponse"<<endl;
-
-    }else if(header.type == ZOO_SETACL_OP){
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct SetACLRequest setAclReq;
-        deserialize_SetACLRequest(ia,"deserialize set acl request",&setAclReq);
-
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = 0;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-        struct SetACLResponse sar;
-
-        //set acl
-        ZOO_ERRORS err = zoo_setACL(&zServer->zoo_dataTree,setAclReq.path,setAclReq.acl,setAclReq.version,cnxnFactory->cnxnList.at(sessionId).auth,&sar.stat);
-        rh.err = err;
-        if(err == ZOK){
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            serialize_SetACLResponse(oa1,"set acl response",&sar);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
-            serialize_SetACLResponse(oa,"set acl response",&sar);
-        }else{
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
+        case ZOO_CLOSE_OP:{
+            //send close sessin to all other server
+            //init tk_command
+            tk_command * command = new tk_command();
+            command->owner = zServer->serverId;
+            command->key = "";
+            command->sessionId = sessionId;
+            command->valSize = len;
+            command->val = (char *)malloc(len);
+            command->opcode = CLOSESESSION;
+            memcpy(command->val,toProcess->buffer,len);
+            //init propose
+            propose->Command = *command;
+            pro_mq->put(&propose);
+            break;
         }
-
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送setAclResponse"<<endl;
-
-
-    }else if(header.type == ZOO_GETCHILDREN_OP){
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct GetChildrenRequest getChildrenReq;
-        deserialize_GetChildrenRequest(ia,"deserialize get children request",&getChildrenReq);
-
-        struct GetChildrenResponse gcr;
-
-        //get children
-        ZOO_ERRORS err = zoo_getChildren(&zServer->zoo_dataTree,getChildrenReq.path,&gcr.children,cnxnFactory->cnxnList.at(sessionId).auth);
-
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = getNextZxid(zServer);
-        rh.err = err;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-        if(err == ZOK){
-            if(getChildrenReq.watch != 0){
-                addWatch(getChildrenReq.path,&zServer->zoo_dataTree.childWatch,sessionId);
-            }
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            serialize_GetChildrenResponse(oa1,"get children response",&gcr);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
-            serialize_GetChildrenResponse(oa,"get children response",&gcr);
-        }else{
-            serialize_ReplyHeader(oa1,"create op reply header",&rh);
-            int32_t rLen = get_buffer_len(oa1);
-            close_buffer_oarchive(&oa1,1);
-            oa->serialize_Int(oa,"length",&rLen);
-            serialize_ReplyHeader(oa,"create op reply header",&rh);
-        }
-
-
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送get children Response"<<endl;
-
-    }else if(header.type == ZOO_SETAUTH_OP){
-        struct iarchive * ia = create_buffer_iarchive(buf+8,len-8);
-        struct AuthPacket authPacket;
-        deserialize_AuthPacket(ia,"deserialize addauth request",&authPacket);
-        //add auth
-        ZOO_ERRORS err = zoo_addAuth(&cnxnFactory->cnxnList.at(sessionId),authPacket);
-
-        struct ReplyHeader rh;
-        rh.xid = header.xid;
-        rh.zxid = 0;
-        rh.err = err;
-        struct oarchive *oa = create_buffer_oarchive();
-        struct oarchive *oa1 = create_buffer_oarchive();
-        serialize_ReplyHeader(oa1,"ping",&rh);
-        int32_t len = get_buffer_len(oa1);
-        close_buffer_oarchive(&oa1,1);
-        oa->serialize_Int(oa,"",&len);
-        serialize_ReplyHeader(oa,"ping",&rh);
-        queue_buffer_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId);
-        cout<<"发送addauthResponse"<<endl;
-    }else{
-        cout<<"type=="<<header.type<<endl;
+        case ZOO_PING_OP:
+        case ZOO_EXISTS_OP:
+        case ZOO_GETCHILDREN_OP:
+        case ZOO_GETDATA_OP:
+        case ZOO_GETACL_OP:
+        default :
+            queue_buffer(&zServer->to_process,toProcess,0);
     }
+    close_buffer_iarchive(&ia);
+}
+
+void processRequest(struct zookeeperServer * zServer,buffer_list_t * toProcess){
+    bool isOwnerThis = false;
+    cout<<"packet owner = "<<toProcess->ownerOrfd<<"||serverid = "<<zServer->serverId<<"||sessionId="<<toProcess->sessionId<<endl;
+    if(toProcess->ownerOrfd == zServer->serverId){
+        isOwnerThis = true;
+    }
+    int32_t len = toProcess->len;
+    int64_t sessionId = toProcess->sessionId;
+    serverCnxnFactory * cnxnFactory = &zServer->cnxnFactory;
+    //deserialize header
+    struct iarchive * ia;
+    ia = create_buffer_iarchive(toProcess->buffer,RequestHeaderLength);
+    struct RequestHeader header;
+    deserialize_RequestHeader(ia,"deserialize requestHeader",&header);
+
+    ZOO_ERRORS err;
+    int32_t rlen = 0;
+    struct oarchive * oa = create_buffer_oarchive();
+    struct ReplyHeader rh;
+    switch(header.type){
+        case ZOO_CREATESESSION_OP:{
+            cout<<"zoo create session"<<endl;
+            cout<<"serverId"<<zServer->serverId<<endl;
+            if(toProcess->ownerOrfd == zServer->serverId)
+                break;
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            cout<<"deserialize createsession request"<<endl;
+            struct CreateSessionRequest createSessionreq;
+            deserialize_CreateSessionRequest(ia,"deserialize create session request",&createSessionreq);
+            //create session
+            Session session;
+            session.sessionId = sessionId;
+            session.owner = toProcess->ownerOrfd;
+            session.sessionTimeout = createSessionreq.sessionTimeout;
+            cout<<"memory copy"<<endl;
+            strncpy(session.password,createSessionreq.passwd.buff,15);
+            cout<<"create session complete"<<sessionId<<endl;
+            session.isClosing = false;
+            createCnxn(&zServer->cnxnFactory,session);
+            map<int64_t ,serverCnxn>::iterator it;
+            cout<<"session id"<<session.sessionId<<endl;
+            it = cnxnFactory->cnxnList.find(sessionId);
+            if(it == cnxnFactory->cnxnList.end()){
+                cout<<"just insert but could not find session"<<endl;
+            }
+            break;
+        }
+        case ZOO_CLOSE_OP:{
+            cout<<"close session op"<<endl;
+            //delete session & cnxn
+            removeSession(sessionId,zServer);
+            //send response to client
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = ZCLOSING;
+                oa->serialize_Int(oa,"",&rlen);
+                serialize_ReplyHeader(oa,"close",&rh);
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send close response to client"<<endl;
+                }
+            }
+            cout<<"close session complete"<<sessionId<<endl;
+            break;
+        }
+        case ZOO_PING_OP:{
+            cout<<"ping"<<endl;
+            rh.xid = -2;
+            rh.zxid = getNextZxid(zServer);
+            rh.err = 0;
+            oa->serialize_Int(oa,"",&rlen);
+            serialize_ReplyHeader(oa,"ping",&rh);
+            int32_t fd = getFd(sessionId,cnxnFactory);
+            if(fd != -1){
+                queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                //cout<<"send ping response to client"<<endl;
+            }
+            break;}
+        case ZOO_CREATE_OP:{
+            cout<<"create op"<<endl;
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct CreateRequest createReq;
+            deserialize_CreateRequest(ia,"deserialize create request",&createReq);
+
+            //add node
+            map<int64_t ,serverCnxn>::iterator it;
+            it = cnxnFactory->cnxnList.find(sessionId);
+            if(it == cnxnFactory->cnxnList.end()){
+                cout<<"could not find session "<<endl;
+            } else
+                cout<<"session found"<<endl;
+            cout<<createReq.flags<<"flags"<<endl;
+            string bu = createReq.data.buff;
+            cout<<"data"<<bu<<endl;
+            string nodepath = createReq.path;
+            cout<<"nodepath="<<nodepath<<endl;
+            err = zoo_addNode(&zServer->zoo_dataTree,createReq.path,createReq.data,createReq.acl,
+                                         sessionId,createReq.flags,getNextZxid(zServer), getTime(),cnxnFactory->cnxnList.at(sessionId).auth);
+            //trigger watch
+            cout<<"create op result err = "<<ZOK<<"triggering watch"<<endl;
+            if(err == ZOK){
+                string nodePath(createReq.path);
+                string parentPath = nodePath.substr(0,nodePath.find_last_of('/'));
+                triggerWatch(createReq.path,ZOO_CREATED_EVENT,&zServer->zoo_dataTree.dataWatch,&zServer->to_send,&zServer->cnxnFactory);
+                triggerWatch(const_cast<char*>(parentPath.c_str()),ZOO_CHILD_EVENT,&zServer->zoo_dataTree.childWatch,&zServer->to_send,&zServer->cnxnFactory);
+            }
+            //response
+            cout<<"trigger watch done! response to client"<<endl;
+            if(isOwnerThis){
+                cout<<"this is the owner"<<endl;
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = err;
+                if(err == ZOK){
+                    struct CreateResponse cr;
+                    cr.path = createReq.path;
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"create op reply header",&rh);
+                    serialize_CreateResponse(oa,"create response",&cr);
+                }else{
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"create op reply header",&rh);
+                }
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send create Response"<<endl;
+                }
+            }
+            break;}
+        case ZOO_DELETE_OP:{
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct DeleteRequest deleteReq;
+            deserialize_DeleteRequest(ia,"deserialize delete request",&deleteReq);
+            //delete node
+            err = zoo_deleteNode(&zServer->zoo_dataTree,deleteReq.path,rh.zxid,cnxnFactory->cnxnList.at(sessionId).auth);
+            //trigger watch
+            if(err == ZOK){
+                triggerWatch(deleteReq.path,ZOO_DELETED_EVENT,&zServer->zoo_dataTree.dataWatch,&zServer->to_send,&zServer->cnxnFactory);
+            }
+            //response
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = err;
+                oa->serialize_Int(oa,"length",&rlen);
+                serialize_ReplyHeader(oa,"delete  op reply header",&rh);
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send delete Response"<<endl;
+                }
+            }
+            break;}
+        case ZOO_EXISTS_OP:{
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct ExistsRequest existReq;
+            deserialize_ExistsRequest(ia,"deserialize exist request",&existReq);
+            //is exist
+            struct ExistsResponse er;
+            err = zoo_isExist(&zServer->zoo_dataTree,existReq.path,&er);
+            //add watch
+            if(err == ZOK){
+                if(existReq.watch != 0){
+                    addWatch(existReq.path,&zServer->zoo_dataTree.dataWatch,sessionId);
+                }
+            }
+            //response
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = err;
+                if(err == ZOK){
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"is exist reply header",&rh);
+                    serialize_ExistsResponse(oa,"is exist response",&er);
+                }else{
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"is exist op reply header",&rh);
+                }
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send exist Response"<<endl;
+                }
+            }
+            break;}
+        case ZOO_GETDATA_OP:{
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct GetDataRequest getDataReq;
+            deserialize_GetDataRequest(ia,"deserialize get data request",&getDataReq);
+            //get data
+            struct GetDataResponse gdr;
+            err = zoo_getData(&zServer->zoo_dataTree,getDataReq.path,&gdr,cnxnFactory->cnxnList.at(sessionId).auth);
+            //trigger watch
+            if(err == ZOK){
+                if(getDataReq.watch != 0){
+                    addWatch(getDataReq.path,&zServer->zoo_dataTree.dataWatch,sessionId);
+                }
+            }
+            //response
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = err;
+                if(err == ZOK){
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"get data op reply header",&rh);
+                    serialize_GetDataResponse(oa,"get data response",&gdr);
+                }else{
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"get data op reply header",&rh);
+                }
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send get data Response"<<endl;
+                }
+            }
+            break;}
+        case ZOO_SETDATA_OP:{
+            cout<<"set data"<<endl;
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct SetDataRequest setDataReq;
+            deserialize_SetDataRequest(ia,"deserialize set data request",&setDataReq);
+            //set data
+            struct SetDataResponse sdr;
+            err = zoo_setData(&zServer->zoo_dataTree,setDataReq.path,setDataReq.data,setDataReq.version,
+                              rh.zxid,getTime(),&sdr.stat,cnxnFactory->cnxnList.at(sessionId).auth);
+            //trigger watch
+            if(err == ZOK){
+                cout<<"trigger set data watch"<<endl;
+                triggerWatch(setDataReq.path,ZOO_CHANGED_EVENT,&zServer->zoo_dataTree.dataWatch,&zServer->to_send,&zServer->cnxnFactory);
+            }
+            //response
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = err;
+                if(err == ZOK){
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"set data op reply header",&rh);
+                    serialize_SetDataResponse(oa,"set data response",&sdr);
+                }else{
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"set data op reply header",&rh);
+                }
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send set data Response"<<endl;
+                }
+            }
+            break;}
+        case ZOO_GETACL_OP:{
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct GetACLRequest getAclReq;
+            deserialize_GetACLRequest(ia,"deserialize get acl request",&getAclReq);
+            //get acl
+            struct GetACLResponse gar;
+            err = zoo_getACL(&zServer->zoo_dataTree,getAclReq.path,&gar);
+            //response
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = err;
+                oa->serialize_Int(oa,"length",&rlen);
+                serialize_ReplyHeader(oa,"get acl op reply header",&rh);
+                serialize_GetACLResponse(oa,"get acl response",&gar);
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send get acl Response"<<endl;
+                }
+            }
+            break;}
+        case ZOO_SETACL_OP:{
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct SetACLRequest setAclReq;
+            deserialize_SetACLRequest(ia,"deserialize set acl request",&setAclReq);
+            //set acl
+            struct SetACLResponse sar;
+            err = zoo_setACL(&zServer->zoo_dataTree,setAclReq.path,setAclReq.acl,setAclReq.version,cnxnFactory->cnxnList.at(sessionId).auth,&sar.stat);
+            //response
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = err;
+                if(err == ZOK){
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"set acl op reply header",&rh);
+                    serialize_SetACLResponse(oa,"set acl response",&sar);
+                }else{
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"set acl op reply header",&rh);
+                }
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send set acl Response"<<endl;
+                }
+            }
+            break;}
+        case ZOO_GETCHILDREN_OP:{
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct GetChildrenRequest getChildrenReq;
+            deserialize_GetChildrenRequest(ia,"deserialize get children request",&getChildrenReq);
+            //get children
+            struct GetChildrenResponse gcr;
+            err = zoo_getChildren(&zServer->zoo_dataTree,getChildrenReq.path,&gcr.children,cnxnFactory->cnxnList.at(sessionId).auth);
+            //add watch
+            if(err == ZOK){
+                if(getChildrenReq.watch != 0){
+                    addWatch(getChildrenReq.path,&zServer->zoo_dataTree.childWatch,sessionId);
+                }
+            }
+            //response
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = getNextZxid(zServer);
+                rh.err = err;
+                if(err == ZOK){
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"get children op reply header",&rh);
+                    serialize_GetChildrenResponse(oa,"get children response",&gcr);
+                }else{
+                    oa->serialize_Int(oa,"length",&rlen);
+                    serialize_ReplyHeader(oa,"get children op reply header",&rh);
+                }
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send get children Response"<<endl;
+                }
+            }
+            break;}
+        case ZOO_SETAUTH_OP:{
+            ia = create_buffer_iarchive(toProcess->buffer+8,len-8);
+            struct AuthPacket authPacket;
+            deserialize_AuthPacket(ia,"deserialize addauth request",&authPacket);
+            //add auth
+            err = zoo_addAuth(&cnxnFactory->cnxnList.at(sessionId),authPacket);
+            //response
+            if(isOwnerThis){
+                rh.xid = header.xid;
+                rh.zxid = 0;
+                rh.err = err;
+                oa->serialize_Int(oa,"",&rlen);
+                serialize_ReplyHeader(oa,"ping",&rh);
+                int32_t fd = getFd(sessionId,cnxnFactory);
+                if(fd != -1){
+                    queue_buffer_reply_bytes(&zServer->to_send,get_buffer(oa),get_buffer_len(oa),sessionId,fd);
+                    cout<<"send set auth Response"<<endl;
+                }
+            }
+            break;}
+        default :
+            cout<<"header type = "<<header.type<<endl;
+            cout<<"header xid = "<<header.xid<<endl;
+    }
+    close_buffer_oarchive(&oa,1);
+    close_buffer_iarchive(&ia);
 
 }
 
@@ -448,40 +635,38 @@ int64_t getTime(){
     return time(&now);
 }
 
-
-int main(int argc, char * argv[]) {
-    fprintf(stdout, "zServer starting on port %d\n", 2181);
-    fprintf(stdout, "...waiting for connections\n");
-
-
-
-    zookeeperServer * zServer = new zookeeperServer();
-    zServer->Listener = 2181;
+bool initZookeeperServer(zookeeperServer * zServer,int32_t listenPort,int32_t serverId){
+    cout<<"initing zookeeperServer with listen port"<<listenPort<<endl;
+    zServer->Listener = listenPort;
     zServer->cnxnFactory.tick = 10000;
     zServer->cnxnFactory.minSessionTimeout = 2*10000;
     zServer->cnxnFactory.maxSessionTimeout = 20*10000;
     map<int64_t ,int32_t > sessionWithTimeOut;
-    zServer->cnxnFactory.st = initSessinTracker(0,10000,sessionWithTimeOut);
-    zServer->zxid = 0;
+    zServer->cnxnFactory.st = initSessinTracker(serverId,10000,sessionWithTimeOut);
+    int64_t zxid = serverId;
+    zServer->zxid = zxid << 32;
     zServer->to_process.bufferLength = 0;
+    zServer->serverId = serverId;
+    zServer->zoo_dataTree.root.path = "/";
+    string fileName = "data";
+    int fd = open(fileName.c_str(),O_RDONLY);
+    if(fd < 0){
+        cout<<"there is no data file"<<endl;
+    }else{
+        readDataTreeFromFile(&zServer->zoo_dataTree,fileName,fd);
+    }
+    return true;
+}
 
-
-
-
-    thread acceptFromClients(listenOnPort,zServer);
-
-    thread process(processPacket,zServer);
-
-    thread sendResponseToClients(sendResponse,zServer);
-
-    thread sessionTracker(processSessionTracker,&zServer->cnxnFactory.st);
-
-    acceptFromClients.join();
-    process.join();
-    sendResponseToClients.join();
-    sessionTracker.join();
-
-    return 0;
+void pre_processPacket(zookeeperServer * zkServer,MsgQueue * pro_mq){
+    buffer_list_t * toProcess;
+    while(1){
+        toProcess = dequeue_buffer(&zkServer->pre_process);
+        if(!!toProcess){
+            //cout<<"pre_process socket from "<<toProcess->sessionId<<endl;
+            pre_processRequest(zkServer,toProcess,pro_mq);
+        }
+    }
 }
 
 void processPacket(zookeeperServer * zkServer){
@@ -489,26 +674,65 @@ void processPacket(zookeeperServer * zkServer){
     while(1){
         toProcess = dequeue_buffer(&zkServer->to_process);
         if(!!toProcess){
-            cout<<"process socket from "<<toProcess->sessionId<<endl;
-            processRequest(toProcess->len,toProcess->buffer,zkServer,toProcess->sessionId);
-        }else{
-            this_thread::sleep_for(chrono::milliseconds(10));
+            //cout<<"process socket from "<<toProcess->sessionId<<endl;
+            processRequest(zkServer,toProcess);
         }
     }
-
 }
+
 
 void sendResponse(zookeeperServer * zkServer){
     buffer_list_t * toSend;
     while(1){
         toSend = dequeue_buffer(&zkServer->to_send);
         if(!!toSend){
-            cout<<"send response to client"<<toSend->sessionId<<endl;
-            write(zkServer->cnxnFactory.cnxnList.at(toSend->sessionId).socketfd,toSend->buffer,toSend->len);
-        }else{
-            this_thread::sleep_for(chrono::milliseconds(10));
+            cout<<"send response to client"<<toSend->sessionId<<"socketfd="<<toSend->ownerOrfd<<endl;
+            write(toSend->ownerOrfd,toSend->buffer,toSend->len);
         }
     }
+}
+
+
+void removeSession(int64_t sessionId,zookeeperServer * zkServer){
+    //session is connected to this server?
+    map<int64_t ,Session>::iterator it;
+    serverCnxnFactory * cnxnFactory = &zkServer->cnxnFactory;
+    it = cnxnFactory->st.sessionById.find(sessionId);
+    if(it == cnxnFactory->st.sessionById.end()){
+        return;
+    }
+    //remove session from session tracker
+    lockSessionTracker(&cnxnFactory->st);
+    cnxnFactory->st.sessionById.erase(sessionId);
+    unLockSessionTracker(&cnxnFactory->st);
+    cout<<"remove session complete"<<endl;
+    //remove ephemerals
+    dataTree * dt = &zkServer->zoo_dataTree;
+    unordered_map<int64_t ,set<string>>::iterator ephIt;
+    ephIt = dt->ephemerals.find(sessionId);
+    if(ephIt != dt->ephemerals.end()){
+        dt->ephemerals.erase(sessionId);
+    }
+    cout<<"remove ephemerals complete"<<endl;
+    //remove watches
+    deleteWatch(sessionId,&zkServer->zoo_dataTree.dataWatch);
+    deleteWatch(sessionId,&zkServer->zoo_dataTree.childWatch);
+    cout<<"delete watched complete"<<endl;
+    //remove session from cnxn factory
+    map<int64_t ,serverCnxn>::iterator cnxnIt;
+    cnxnIt = cnxnFactory->cnxnList.find(sessionId);
+    if(cnxnIt == cnxnFactory->cnxnList.end()){
+        return ;
+    }else{
+        int32_t fd = cnxnIt->second.socketfd;
+        cnxnFactory->cnxnList.erase(sessionId);
+        map<int32_t ,int64_t >::iterator fdIt;
+        fdIt = cnxnFactory->cnxnIdBySocketfd.find(fd);
+        if(fdIt != cnxnFactory->cnxnIdBySocketfd.end())
+            cnxnFactory->cnxnIdBySocketfd.erase(fd);
+    }
+    cout<<"remove cnxn complete"<<endl;
+    return ;
 }
 
 void setnonblocking(int sock)
@@ -527,7 +751,7 @@ void setnonblocking(int sock)
         exit(1);
     }
 }
-void listenOnPort(zookeeperServer * zkServer){
+void listenOnPort(zookeeperServer * zkServer,MsgQueue * pro_mq){
     int32_t i, listenfd, connfd, sockfd,epfd,nfds, portnumber;
     int64_t sessionId = 0;
     ssize_t readed;
@@ -540,7 +764,7 @@ void listenOnPort(zookeeperServer * zkServer){
 
     //声明epoll_event结构体的变量,ev用于注册事件,数组用于回传要处理的事件
 
-    struct epoll_event ev,events[maxConnections];
+    struct epoll_event ev;
     //生成用于处理accept的epoll专用的文件描述符
 
     epfd=epoll_create(maxConnections+1);
@@ -559,8 +783,9 @@ void listenOnPort(zookeeperServer * zkServer){
     epoll_ctl(epfd,EPOLL_CTL_ADD,listenfd,&ev);
     bzero(&serveraddr, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
+    serveraddr.sin_addr.s_addr = htons(INADDR_ANY);
     char local_addr[]="127.0.0.1";
-    inet_aton(local_addr,&(serveraddr.sin_addr));//htons(portnumber);
+    //inet_aton(local_addr,&(serveraddr.sin_addr));//htons(portnumber);
 
     serveraddr.sin_port=htons(portnumber);
     bind(listenfd,(sockaddr *)&serveraddr, sizeof(serveraddr));
@@ -568,11 +793,11 @@ void listenOnPort(zookeeperServer * zkServer){
     for ( ; ; ) {
         //等待epoll事件的发生
 
-        nfds=epoll_wait(epfd,events,maxConnections,-1);
+        nfds=epoll_wait(epfd,zkServer->events,maxConnections,-1);
         //处理所发生的所有事件
         for(i=0;i<nfds;++i)
         {
-            if(events[i].data.fd==listenfd)//如果新监测到一个SOCKET用户连接到了绑定的SOCKET端口，建立新的连接。
+            if(zkServer->events[i].data.fd==listenfd)//如果新监测到一个SOCKET用户连接到了绑定的SOCKET端口，建立新的连接。
 
             {
                 connfd = accept(listenfd,(sockaddr *)&clientaddr, &clilen);
@@ -597,20 +822,20 @@ void listenOnPort(zookeeperServer * zkServer){
 
                 epoll_ctl(epfd,EPOLL_CTL_ADD,connfd,&ev);
             }
-            else if(events[i].events&EPOLLIN)//如果是已经连接的用户，并且收到数据，那么进行读入。
+            else if(zkServer->events[i].events&EPOLLIN)//如果是已经连接的用户，并且收到数据，那么进行读入。
             {
 
-                if ( (sockfd = events[i].data.fd) < 0)
+                if ( (sockfd = zkServer->events[i].data.fd) < 0)
                     continue;
                 if ( (readed = read(sockfd, &packetLength, sizeof(int))) < 0) {
                     if (errno == ECONNRESET) {
                         close(sockfd);
-                        events[i].data.fd = -1;
+                        zkServer->events[i].data.fd = -1;
                     } else
                         std::cout<<"readline error"<<std::endl;
                 } else if (readed == 0) {
                     close(sockfd);
-                    events[i].data.fd = -1;
+                    zkServer->events[i].data.fd = -1;
                 }
                 packetLength = ntohl(packetLength);
                 readed = read(sockfd, line, packetLength);
@@ -619,10 +844,10 @@ void listenOnPort(zookeeperServer * zkServer){
                 }else{
                     l_it=zkServer->cnxnFactory.cnxnIdBySocketfd.find(sockfd);
                     if(l_it==zkServer->cnxnFactory.cnxnIdBySocketfd.end()){
-                        processConnectRequest(packetLength,line,zkServer,sockfd);
+                        processConnectRequest(packetLength,line,zkServer,sockfd,pro_mq);
                     }else{
                         sessionId = l_it->second;
-                        queue_buffer_bytes(&zkServer->to_process,line,packetLength,sessionId);
+                        queue_buffer_bytes(&zkServer->pre_process,line,packetLength,sessionId,zkServer->serverId);
                     }
                 }
 

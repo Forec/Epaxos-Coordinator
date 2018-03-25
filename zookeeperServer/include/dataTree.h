@@ -9,7 +9,9 @@
 #include <unordered_map>
 #include <set>
 #include <vector>
+#include <string>
 #include <iostream>
+#include <string>
 #include "zookeeperServer.jute.h"
 #include "zookeeperServer.recordio.h"
 #include "proto.h"
@@ -45,6 +47,7 @@ struct dataNode_t{
     struct StatPersisted stat;
     struct ACL_vector acl;
     struct buffer data;
+    char * path;
     std::map<std::string,struct dataNode_t *> son;
 };
 
@@ -59,7 +62,7 @@ struct dataTree_t{
 
 typedef dataTree_t dataTree;
 
-
+vector<string> getPathVector(string path);
 ZOO_ERRORS zoo_addNode(dataTree * dt,char * path,struct buffer data,struct ACL_vector acls,
                  int64_t ephemeralOwner, int32_t flag, int64_t zxid, int64_t time,std::vector<struct Id> auth);
 ZOO_ERRORS zoo_isExist(dataTree * dt,char * path,struct ExistsResponse * er);
@@ -70,6 +73,10 @@ ZOO_ERRORS zoo_setACL(dataTree * dt,char * path,struct ACL_vector acls,int32_t v
 ZOO_ERRORS zoo_setData(dataTree * dt,char * path,struct buffer data, int32_t version, int64_t zxid, int64_t time,struct Stat * stat,std::vector<struct Id> auth);
 ZOO_ERRORS zoo_getData(dataTree * dt,char * path,struct GetDataResponse * gdr,std::vector<struct Id> auth);
 
-
+ZOO_ERRORS zoo_addNode(dataTree * dt,std::string path,struct buffer data,struct ACL_vector acls,
+                       int64_t ephemeralOwner, int32_t flag, int64_t zxid, int64_t time,std::vector<struct Id> auth);
+ZOO_ERRORS zoo_getData(dataTree * dt,std::string path,struct GetDataResponse * gdr,vector<struct Id> auth);
+ZOO_ERRORS zoo_setData(dataTree * dt,std::string path,struct buffer data, int32_t version, int64_t zxid, int64_t time,struct Stat * stat,std::vector<struct Id> auth);
+ZOO_ERRORS zoo_isExist(dataTree * dt,string path,struct ExistsResponse * er);
 
 #endif //TKDATABASE_DATATREE_H

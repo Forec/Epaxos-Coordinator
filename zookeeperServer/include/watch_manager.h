@@ -7,6 +7,7 @@
 
 #include "zookeeperServer.jute.h"
 #include "zk_adaptor.h"
+#include "serverCnxn.h"
 #include "proto.h"
 #include <unordered_map>
 #include <set>
@@ -26,9 +27,11 @@ typedef struct {
 
 void addWatch(char * path,watchManager * manager,int64_t sessionId);
 
-void triggerWatch(char * path,int32_t eventType,watchManager * manager,buffer_head_t * to_send);
+void triggerWatch(char * path,int32_t eventType,watchManager * manager,buffer_head_t * to_send,serverCnxnFactory * cnxnFactory);
 
-void processEvent(struct WatcherEvent event,buffer_head_t * to_send,int32_t sessionId);
+void deleteWatch(int64_t sessionId,watchManager * manager);
+
+void processEvent(struct WatcherEvent event,buffer_head_t * to_send,int64_t sessionId,serverCnxnFactory * cnxnFactory);
 bool operator < (const watch &a,const watch &b);
 bool operator == (const watch &a, const watch &b);
 

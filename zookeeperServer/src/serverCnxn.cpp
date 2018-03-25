@@ -31,6 +31,15 @@ ZOO_ERRORS zoo_addAuth(serverCnxn * cnxn,struct AuthPacket authPacket){
     return ZOK;
 }
 
+bool createCnxn(serverCnxnFactory * cnxnFactory,Session session){
+    cout<<"create cnxn"<<endl;
+    serverCnxn cnxn;
+    cnxn.sessionId = session.sessionId;
+    cnxn.socketfd = -1;
+    cnxnFactory->cnxnList.insert(make_pair(session.sessionId,cnxn));
+    cnxnFactory->st.sessionById.insert(make_pair(session.sessionId,session));
+    return true;
+}
 
 int64_t createCnxn(serverCnxnFactory * cnxnFactory,int32_t socketfd,int32_t timeout){
     int64_t sessionId = createSession(&cnxnFactory->st,timeout);
@@ -39,11 +48,10 @@ int64_t createCnxn(serverCnxnFactory * cnxnFactory,int32_t socketfd,int32_t time
     cnxn.socketfd = socketfd;
     cnxnFactory->cnxnList.insert(make_pair(sessionId,cnxn));
     cnxnFactory->cnxnIdBySocketfd.insert(make_pair(socketfd,sessionId));
-    cout<<"sessionId = "<<sessionId<<endl;
     return sessionId;
 }
 
-int64_t initializeNextSession(long id) {
+int64_t initializeNextSession(int64_t id) {
     int64_t nextSid = 0;
     struct timeval tv;                //获取一个时间结构
     gettimeofday(&tv, NULL);   //获取当前时间
@@ -56,38 +64,44 @@ int64_t initializeNextSession(long id) {
 }
 
 
-int64_t createSessionId(sessionTracker* st,int32_t timeout){
+int64_t createSessionId(sessionTracker* st){
 
     return st->nextSessionId++;
 }
 
 int64_t createSession(sessionTracker * st,int32_t timeout){
-    std::cout<<"create a session"<<std::endl;
-    int64_t sessionId = createSessionId(st,timeout);
-    addSession(st,sessionId,timeout);
-    cout<<"add session complete"<<endl;
-    return sessionId;
+    int64_t sessionId = createSessionId(st);
+    cout<<"create a new session,sessionId="<<sessionId<<endl;
+    Session session;
+    getPassword(session.password,sessionId);
+    session.sessionId = sessionId;
+    session.sessionTimeout = timeout;
+    session.tickTime = 0;
+    session.isClosing = false;
+    session.owner = st->serverId;
+    bool valid = addNewSession(st,sessionId,timeout,session);
+    if(valid){
+        cout<<"add session complete"<<endl;
+        return sessionId;
+    }else {
+        cout<<"add session fail:touch session fail"<<endl;
+        return 0;
+    }
 }
-
-bool addSession(sessionTracker * st,int64_t sessionId,int32_t timeout){
-    st->sessionWithTimeOut.insert(make_pair(sessionId,timeout));
+//add new session
+bool addNewSession(sessionTracker * st,int64_t sessionId,int32_t timeout,Session session){
+    //st->sessionWithTimeOut.insert(make_pair(sessionId,timeout));
+    st->sessionById.insert(make_pair(sessionId,session));
+    cout<<"ready to touch session"<<endl;
+    return touchSession(sessionId,timeout,st);
+}
+//add a reconnect session,session already exists
+bool addReconnectSession(sessionTracker * st,int64_t sessionId,int32_t timeout){
+    //st->sessionWithTimeOut.insert(make_pair(sessionId,timeout));
     map<int64_t ,Session>::iterator lt;
     lt = st->sessionById.find(sessionId);
-    if(lt == st->sessionById.end()){
-        //create a new session
-        cout<<"create a new session,sessionId="<<sessionId<<endl;
-        Session session;
-        getPassword(session.password,sessionId);
-        session.sessionId = sessionId;
-        session.sessionTimeout = timeout;
-        session.tickTime = 0;
-        session.isClosing = false;
-        session.owner = st->serverId;
-        st->sessionById.insert(make_pair(sessionId,session));
-    }else{
-        lt->second.isClosing = true;
-        lt->second.owner = st->serverId;
-    }
+    lt->second.isClosing = false;
+    lt->second.owner = st->serverId;
     cout<<"ready to touch session"<<endl;
     return touchSession(sessionId,timeout,st);
 }
@@ -111,6 +125,11 @@ bool touchSession(int64_t sessionId,int32_t timeout,sessionTracker * st){
             unLockSessionTracker(st);
             return false;
         }
+        if(lt->second.owner != st->serverId){
+            cout<<"session owner is not me"<<endl;
+            unLockSessionTracker(st);
+            return false;
+        }
         int64_t expireTime = roundToInterval(getCurrentTimeMillion() + timeout,st);
         if(lt->second.tickTime >= expireTime){
             // Nothing needs to be done
@@ -120,12 +139,13 @@ bool touchSession(int64_t sessionId,int32_t timeout,sessionTracker * st){
         set<Session> sessions;
         map<int64_t ,set<Session>>::iterator it;
         it = st->sessionSets.find(lt->second.tickTime);
-        if(it != st->sessionSets.end()){
+        if(it != st->sessionSets.end()){//erase session from expire time
             cout<<"erase expire time"<<lt->second.tickTime<<endl;
             st->sessionSets.at(lt->second.tickTime).erase(lt->second);
         }
         lt->second.tickTime = expireTime;
         it = st->sessionSets.find(lt->second.tickTime);
+        //add session to next time bucket
         if(it == st->sessionSets.end()){
             sessions.insert(lt->second);
             st->sessionSets.insert(make_pair(lt->second.tickTime,sessions));
@@ -176,6 +196,7 @@ void processSessionTracker(sessionTracker * st){
             set<Session>::iterator sit;
             for(sit = sessions.begin();sit != sessions.end();sit++){
                 setSessionClosing(sit->sessionId,st);
+                //need to send close session to all servers
                 //send close session to client
                 cout<<"session expired "<<st->nextExpirationTime<<endl;
                 //queue_buffer_bytes()
@@ -185,6 +206,8 @@ void processSessionTracker(sessionTracker * st){
         unLockSessionTracker(st);
     }
 }
+
+
 
 void setSessionClosing(int64_t sessionId,sessionTracker * st){
     map<int64_t ,Session>::iterator it;
@@ -199,9 +222,9 @@ bool operator < (const Session & a,const Session &b){
 }
 
 
-sessionTracker initSessinTracker(int64_t nextSessionId,int32_t tickTime,map<int64_t ,int32_t > sessionWithTimeOut){
+sessionTracker initSessinTracker(int64_t serverId,int32_t tickTime,map<int64_t ,int32_t > sessionWithTimeOut){
     sessionTracker st;
-    st.nextSessionId = initializeNextSession(nextSessionId);
+    st.nextSessionId = initializeNextSession(serverId);
     st.expirationInterval = tickTime;
     st.nextExpirationTime = roundToInterval(getCurrentTimeMillion(),&st);
     st.lock = PTHREAD_MUTEX_INITIALIZER;
@@ -240,4 +263,14 @@ ZOO_ERRORS setOwner(int64_t sessionId,sessionTracker * st,int64_t serverId){
     }
     it->second.owner = serverId;
     return ZOK;
+}
+
+int32_t getFd(int64_t sessionId,serverCnxnFactory * cnxnFactory){
+    map<int64_t ,serverCnxn>::iterator it;
+    it = cnxnFactory->cnxnList.find(sessionId);
+    if(it != cnxnFactory->cnxnList.end()){
+        return it->second.socketfd;
+    }else{
+        return -1;
+    }
 }

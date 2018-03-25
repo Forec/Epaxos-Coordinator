@@ -538,6 +538,44 @@ int deserialize_DeleteRequest(struct iarchive *in, const char *tag, struct Delet
 void deallocate_DeleteRequest(struct DeleteRequest*v){
     deallocate_String(&v->path);
 }
+int serialize_CreateSessionRequest(struct oarchive *out, const char *tag, struct CreateSessionRequest *v){
+    int rc;
+    rc = out->start_record(out, tag);
+    rc = rc ? rc : out->serialize_Long(out, "version", &v->sessionId);
+    rc = rc ? rc : out->serialize_Int(out, "version", &v->sessionTimeout);
+    rc = rc ? rc : out->serialize_Buffer(out, "version", &v->passwd);
+    rc = rc ? rc : out->end_record(out, tag);
+    return rc;
+}
+int deserialize_CreateSessionRequest(struct iarchive *in, const char *tag, struct CreateSessionRequest*v){
+    int rc;
+    rc = in->start_record(in, tag);
+    rc = rc ? rc : in->deserialize_Long(in, "version", &v->sessionId);
+    rc = rc ? rc : in->deserialize_Int(in, "version", &v->sessionTimeout);
+    rc = rc ? rc : in->deserialize_Buffer(in, "version", &v->passwd);
+    rc = rc ? rc : in->end_record(in, tag);
+    return rc;
+}
+void deallocate_CreateSessionRequest(struct CreateSessionRequest*v){
+
+}
+int serialize_DeleteSessionRequest(struct oarchive *out, const char *tag, struct DeleteSessionRequest *v){
+    int rc;
+    rc = out->start_record(out, tag);
+    rc = rc ? rc : out->serialize_Long(out, "version", &v->sessionId);
+    rc = rc ? rc : out->end_record(out, tag);
+    return rc;
+}
+int deserialize_DeleteSessionRequest(struct iarchive *in, const char *tag, struct DeleteSessionRequest*v){
+    int rc;
+    rc = in->start_record(in, tag);
+    rc = rc ? rc : in->deserialize_Long(in, "version", &v->sessionId);
+    rc = rc ? rc : in->end_record(in, tag);
+    return rc;
+}
+void deallocate_DeleteSessionRequest(struct DeleteSessionRequest*v){
+
+}
 int serialize_GetChildrenRequest(struct oarchive *out, const char *tag, struct GetChildrenRequest *v){
     int rc;
     rc = out->start_record(out, tag);

@@ -9,6 +9,8 @@
 #include <string>
 #include "../../consensus/include/tk_elog.h"
 #include "../../consensus/include/tk_command.h"
+#include "../../zookeeperServer/include/zookeeperServer.h"
+#include "../../zookeeperServer/include/dataTree.h"
 
 using namespace std;
 
@@ -18,11 +20,16 @@ struct serializeBuff{
 };
 
 struct readBuff{
-    int32_t len;
-    int32_t position;
+    int64_t len;
+    int64_t position;
     char* buff;
     vector<string> fileName;
 };
+
+bool writeDataTreeToFile(dataTree * zoo_dataTree);
+bool writeDataNodeToFile(dataNode * node,int fd);
+
+bool readDataTreeFromFile(dataTree * zoo_dataTree,string fileName,int32_t fd);
 
 struct readBuff readInstanceFromFile(int32_t snapshotZxid);
 bool append(int32_t replicaId,struct tk_instance ti);

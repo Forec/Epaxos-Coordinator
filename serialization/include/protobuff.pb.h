@@ -36,12 +36,54 @@ extern AcceptJuteDefaultTypeInternal _AcceptJute_default_instance_;
 class AcceptReplyJute;
 class AcceptReplyJuteDefaultTypeInternal;
 extern AcceptReplyJuteDefaultTypeInternal _AcceptReplyJute_default_instance_;
+class BallotJute;
+class BallotJuteDefaultTypeInternal;
+extern BallotJuteDefaultTypeInternal _BallotJute_default_instance_;
+class BeTheLeaderReplyJute;
+class BeTheLeaderReplyJuteDefaultTypeInternal;
+extern BeTheLeaderReplyJuteDefaultTypeInternal _BeTheLeaderReplyJute_default_instance_;
+class Beacon_msgJute;
+class Beacon_msgJuteDefaultTypeInternal;
+extern Beacon_msgJuteDefaultTypeInternal _Beacon_msgJute_default_instance_;
+class Beacon_msg_replyJute;
+class Beacon_msg_replyJuteDefaultTypeInternal;
+extern Beacon_msg_replyJuteDefaultTypeInternal _Beacon_msg_replyJute_default_instance_;
+class ClientConnectJute;
+class ClientConnectJuteDefaultTypeInternal;
+extern ClientConnectJuteDefaultTypeInternal _ClientConnectJute_default_instance_;
+class ClockJute;
+class ClockJuteDefaultTypeInternal;
+extern ClockJuteDefaultTypeInternal _ClockJute_default_instance_;
 class CommitJute;
 class CommitJuteDefaultTypeInternal;
 extern CommitJuteDefaultTypeInternal _CommitJute_default_instance_;
 class CommitShortJute;
 class CommitShortJuteDefaultTypeInternal;
 extern CommitShortJuteDefaultTypeInternal _CommitShortJute_default_instance_;
+class GENERALJute;
+class GENERALJuteDefaultTypeInternal;
+extern GENERALJuteDefaultTypeInternal _GENERALJute_default_instance_;
+class GetLeaderArgsJute;
+class GetLeaderArgsJuteDefaultTypeInternal;
+extern GetLeaderArgsJuteDefaultTypeInternal _GetLeaderArgsJute_default_instance_;
+class GetLeaderReplyJute;
+class GetLeaderReplyJuteDefaultTypeInternal;
+extern GetLeaderReplyJuteDefaultTypeInternal _GetLeaderReplyJute_default_instance_;
+class GetReplicaListArgsJute;
+class GetReplicaListArgsJuteDefaultTypeInternal;
+extern GetReplicaListArgsJuteDefaultTypeInternal _GetReplicaListArgsJute_default_instance_;
+class GetReplicaListReplyJute;
+class GetReplicaListReplyJuteDefaultTypeInternal;
+extern GetReplicaListReplyJuteDefaultTypeInternal _GetReplicaListReplyJute_default_instance_;
+class InstanceIdJute;
+class InstanceIdJuteDefaultTypeInternal;
+extern InstanceIdJuteDefaultTypeInternal _InstanceIdJute_default_instance_;
+class PackedInstanceJute;
+class PackedInstanceJuteDefaultTypeInternal;
+extern PackedInstanceJuteDefaultTypeInternal _PackedInstanceJute_default_instance_;
+class PackedRecoveryInfoJute;
+class PackedRecoveryInfoJuteDefaultTypeInternal;
+extern PackedRecoveryInfoJuteDefaultTypeInternal _PackedRecoveryInfoJute_default_instance_;
 class PreAcceptJute;
 class PreAcceptJuteDefaultTypeInternal;
 extern PreAcceptJuteDefaultTypeInternal _PreAcceptJute_default_instance_;
@@ -57,12 +99,36 @@ extern PrepareJuteDefaultTypeInternal _PrepareJute_default_instance_;
 class PrepareReplyJute;
 class PrepareReplyJuteDefaultTypeInternal;
 extern PrepareReplyJuteDefaultTypeInternal _PrepareReplyJute_default_instance_;
+class ProposeAndReadJute;
+class ProposeAndReadJuteDefaultTypeInternal;
+extern ProposeAndReadJuteDefaultTypeInternal _ProposeAndReadJute_default_instance_;
+class ProposeJute;
+class ProposeJuteDefaultTypeInternal;
+extern ProposeJuteDefaultTypeInternal _ProposeJute_default_instance_;
+class ProposeReplyJute;
+class ProposeReplyJuteDefaultTypeInternal;
+extern ProposeReplyJuteDefaultTypeInternal _ProposeReplyJute_default_instance_;
+class ProposeReplyTSJute;
+class ProposeReplyTSJuteDefaultTypeInternal;
+extern ProposeReplyTSJuteDefaultTypeInternal _ProposeReplyTSJute_default_instance_;
+class ReadJute;
+class ReadJuteDefaultTypeInternal;
+extern ReadJuteDefaultTypeInternal _ReadJute_default_instance_;
+class RegisterArgsJute;
+class RegisterArgsJuteDefaultTypeInternal;
+extern RegisterArgsJuteDefaultTypeInternal _RegisterArgsJute_default_instance_;
+class RegisterReplyJute;
+class RegisterReplyJuteDefaultTypeInternal;
+extern RegisterReplyJuteDefaultTypeInternal _RegisterReplyJute_default_instance_;
 class TryPreAcceptJute;
 class TryPreAcceptJuteDefaultTypeInternal;
 extern TryPreAcceptJuteDefaultTypeInternal _TryPreAcceptJute_default_instance_;
 class TryPreAcceptReplyJute;
 class TryPreAcceptReplyJuteDefaultTypeInternal;
 extern TryPreAcceptReplyJuteDefaultTypeInternal _TryPreAcceptReplyJute_default_instance_;
+class TxnHeaderJute;
+class TxnHeaderJuteDefaultTypeInternal;
+extern TxnHeaderJuteDefaultTypeInternal _TxnHeaderJute_default_instance_;
 class tk_command_jute;
 class tk_command_juteDefaultTypeInternal;
 extern tk_command_juteDefaultTypeInternal _tk_command_jute_default_instance_;
@@ -164,9 +230,9 @@ class tk_command_jute : public ::google::protobuf::Message /* @@protoc_insertion
   ::std::string* release_key();
   void set_allocated_key(::std::string* key);
 
-  // string val = 3;
+  // string val = 6;
   void clear_val();
-  static const int kValFieldNumber = 3;
+  static const int kValFieldNumber = 6;
   const ::std::string& val() const;
   void set_val(const ::std::string& value);
   #if LANG_CXX11
@@ -184,6 +250,24 @@ class tk_command_jute : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::int32 opcode() const;
   void set_opcode(::google::protobuf::int32 value);
 
+  // int32 owner = 4;
+  void clear_owner();
+  static const int kOwnerFieldNumber = 4;
+  ::google::protobuf::int32 owner() const;
+  void set_owner(::google::protobuf::int32 value);
+
+  // int64 sessioId = 3;
+  void clear_sessioid();
+  static const int kSessioIdFieldNumber = 3;
+  ::google::protobuf::int64 sessioid() const;
+  void set_sessioid(::google::protobuf::int64 value);
+
+  // int32 valSize = 5;
+  void clear_valsize();
+  static const int kValSizeFieldNumber = 5;
+  ::google::protobuf::int32 valsize() const;
+  void set_valsize(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:tkJute.tk_command_jute)
  private:
 
@@ -191,6 +275,9 @@ class tk_command_jute : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::internal::ArenaStringPtr key_;
   ::google::protobuf::internal::ArenaStringPtr val_;
   ::google::protobuf::int32 opcode_;
+  ::google::protobuf::int32 owner_;
+  ::google::protobuf::int64 sessioid_;
+  ::google::protobuf::int32 valsize_;
   mutable int _cached_size_;
   friend struct protobuf_protobuff_2eproto::TableStruct;
 };
@@ -263,27 +350,33 @@ class PrepareJute : public ::google::protobuf::Message /* @@protoc_insertion_poi
 
   // accessors -------------------------------------------------------
 
-  // int32 LeaderId = 1;
+  // uint32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::uint32 type() const;
+  void set_type(::google::protobuf::uint32 value);
+
+  // int32 LeaderId = 2;
   void clear_leaderid();
-  static const int kLeaderIdFieldNumber = 1;
+  static const int kLeaderIdFieldNumber = 2;
   ::google::protobuf::int32 leaderid() const;
   void set_leaderid(::google::protobuf::int32 value);
 
-  // int32 Replica = 2;
+  // int32 Replica = 3;
   void clear_replica();
-  static const int kReplicaFieldNumber = 2;
+  static const int kReplicaFieldNumber = 3;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 3;
+  // int32 Instance = 4;
   void clear_instance();
-  static const int kInstanceFieldNumber = 3;
+  static const int kInstanceFieldNumber = 4;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Ballot = 4;
+  // int32 Ballot = 5;
   void clear_ballot();
-  static const int kBallotFieldNumber = 4;
+  static const int kBallotFieldNumber = 5;
   ::google::protobuf::int32 ballot() const;
   void set_ballot(::google::protobuf::int32 value);
 
@@ -291,6 +384,7 @@ class PrepareJute : public ::google::protobuf::Message /* @@protoc_insertion_poi
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::uint32 type_;
   ::google::protobuf::int32 leaderid_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
@@ -367,10 +461,22 @@ class PrepareReplyJute : public ::google::protobuf::Message /* @@protoc_insertio
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 Deps = 9;
+  // repeated .tkJute.tk_command_jute Command = 9;
+  int command_size() const;
+  void clear_command();
+  static const int kCommandFieldNumber = 9;
+  const ::tkJute::tk_command_jute& command(int index) const;
+  ::tkJute::tk_command_jute* mutable_command(int index);
+  ::tkJute::tk_command_jute* add_command();
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+      mutable_command();
+  const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+      command() const;
+
+  // repeated int32 Deps = 10;
   int deps_size() const;
   void clear_deps();
-  static const int kDepsFieldNumber = 9;
+  static const int kDepsFieldNumber = 10;
   ::google::protobuf::int32 deps(int index) const;
   void set_deps(int index, ::google::protobuf::int32 value);
   void add_deps(::google::protobuf::int32 value);
@@ -379,50 +485,47 @@ class PrepareReplyJute : public ::google::protobuf::Message /* @@protoc_insertio
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_deps();
 
-  // .tkJute.tk_command_jute cmd = 7;
-  bool has_cmd() const;
-  void clear_cmd();
-  static const int kCmdFieldNumber = 7;
-  const ::tkJute::tk_command_jute& cmd() const;
-  ::tkJute::tk_command_jute* mutable_cmd();
-  ::tkJute::tk_command_jute* release_cmd();
-  void set_allocated_cmd(::tkJute::tk_command_jute* cmd);
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
 
-  // int32 AcceptorId = 1;
+  // bool Ok = 2;
+  void clear_ok();
+  static const int kOkFieldNumber = 2;
+  bool ok() const;
+  void set_ok(bool value);
+
+  // int32 Status = 3;
+  void clear_status();
+  static const int kStatusFieldNumber = 3;
+  ::google::protobuf::int32 status() const;
+  void set_status(::google::protobuf::int32 value);
+
+  // int32 AcceptorId = 4;
   void clear_acceptorid();
-  static const int kAcceptorIdFieldNumber = 1;
+  static const int kAcceptorIdFieldNumber = 4;
   ::google::protobuf::int32 acceptorid() const;
   void set_acceptorid(::google::protobuf::int32 value);
 
-  // int32 Replica = 2;
+  // int32 Replica = 5;
   void clear_replica();
-  static const int kReplicaFieldNumber = 2;
+  static const int kReplicaFieldNumber = 5;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 3;
+  // int32 Instance = 6;
   void clear_instance();
-  static const int kInstanceFieldNumber = 3;
+  static const int kInstanceFieldNumber = 6;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Ok = 4;
-  void clear_ok();
-  static const int kOkFieldNumber = 4;
-  ::google::protobuf::int32 ok() const;
-  void set_ok(::google::protobuf::int32 value);
-
-  // int32 Ballot = 5;
+  // int32 Ballot = 7;
   void clear_ballot();
-  static const int kBallotFieldNumber = 5;
+  static const int kBallotFieldNumber = 7;
   ::google::protobuf::int32 ballot() const;
   void set_ballot(::google::protobuf::int32 value);
-
-  // int32 Status = 6;
-  void clear_status();
-  static const int kStatusFieldNumber = 6;
-  ::google::protobuf::int32 status() const;
-  void set_status(::google::protobuf::int32 value);
 
   // int32 Seq = 8;
   void clear_seq();
@@ -434,15 +537,16 @@ class PrepareReplyJute : public ::google::protobuf::Message /* @@protoc_insertio
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute > command_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > deps_;
   mutable int _deps_cached_byte_size_;
-  ::tkJute::tk_command_jute* cmd_;
+  ::google::protobuf::int32 type_;
+  bool ok_;
+  ::google::protobuf::int32 status_;
   ::google::protobuf::int32 acceptorid_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
-  ::google::protobuf::int32 ok_;
   ::google::protobuf::int32 ballot_;
-  ::google::protobuf::int32 status_;
   ::google::protobuf::int32 seq_;
   mutable int _cached_size_;
   friend struct protobuf_protobuff_2eproto::TableStruct;
@@ -516,10 +620,22 @@ class PreAcceptJute : public ::google::protobuf::Message /* @@protoc_insertion_p
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 Deps = 7;
+  // repeated .tkJute.tk_command_jute Command = 7;
+  int command_size() const;
+  void clear_command();
+  static const int kCommandFieldNumber = 7;
+  const ::tkJute::tk_command_jute& command(int index) const;
+  ::tkJute::tk_command_jute* mutable_command(int index);
+  ::tkJute::tk_command_jute* add_command();
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+      mutable_command();
+  const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+      command() const;
+
+  // repeated int32 Deps = 8;
   int deps_size() const;
   void clear_deps();
-  static const int kDepsFieldNumber = 7;
+  static const int kDepsFieldNumber = 8;
   ::google::protobuf::int32 deps(int index) const;
   void set_deps(int index, ::google::protobuf::int32 value);
   void add_deps(::google::protobuf::int32 value);
@@ -528,36 +644,33 @@ class PreAcceptJute : public ::google::protobuf::Message /* @@protoc_insertion_p
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_deps();
 
-  // .tkJute.tk_command_jute cmd = 5;
-  bool has_cmd() const;
-  void clear_cmd();
-  static const int kCmdFieldNumber = 5;
-  const ::tkJute::tk_command_jute& cmd() const;
-  ::tkJute::tk_command_jute* mutable_cmd();
-  ::tkJute::tk_command_jute* release_cmd();
-  void set_allocated_cmd(::tkJute::tk_command_jute* cmd);
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
 
-  // int32 LeaderId = 1;
+  // int32 LeaderId = 2;
   void clear_leaderid();
-  static const int kLeaderIdFieldNumber = 1;
+  static const int kLeaderIdFieldNumber = 2;
   ::google::protobuf::int32 leaderid() const;
   void set_leaderid(::google::protobuf::int32 value);
 
-  // int32 Replica = 2;
+  // int32 Replica = 3;
   void clear_replica();
-  static const int kReplicaFieldNumber = 2;
+  static const int kReplicaFieldNumber = 3;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 3;
+  // int32 Instance = 4;
   void clear_instance();
-  static const int kInstanceFieldNumber = 3;
+  static const int kInstanceFieldNumber = 4;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Ballot = 4;
+  // int32 Ballot = 5;
   void clear_ballot();
-  static const int kBallotFieldNumber = 4;
+  static const int kBallotFieldNumber = 5;
   ::google::protobuf::int32 ballot() const;
   void set_ballot(::google::protobuf::int32 value);
 
@@ -571,9 +684,10 @@ class PreAcceptJute : public ::google::protobuf::Message /* @@protoc_insertion_p
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute > command_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > deps_;
   mutable int _deps_cached_byte_size_;
-  ::tkJute::tk_command_jute* cmd_;
+  ::google::protobuf::int32 type_;
   ::google::protobuf::int32 leaderid_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
@@ -651,10 +765,10 @@ class PreAcceptReplyJute : public ::google::protobuf::Message /* @@protoc_insert
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 Deps = 6;
+  // repeated int32 Deps = 7;
   int deps_size() const;
   void clear_deps();
-  static const int kDepsFieldNumber = 6;
+  static const int kDepsFieldNumber = 7;
   ::google::protobuf::int32 deps(int index) const;
   void set_deps(int index, ::google::protobuf::int32 value);
   void add_deps(::google::protobuf::int32 value);
@@ -663,10 +777,10 @@ class PreAcceptReplyJute : public ::google::protobuf::Message /* @@protoc_insert
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_deps();
 
-  // repeated int32 CommittedDeps = 7;
+  // repeated int32 CommittedDeps = 8;
   int committeddeps_size() const;
   void clear_committeddeps();
-  static const int kCommittedDepsFieldNumber = 7;
+  static const int kCommittedDepsFieldNumber = 8;
   ::google::protobuf::int32 committeddeps(int index) const;
   void set_committeddeps(int index, ::google::protobuf::int32 value);
   void add_committeddeps(::google::protobuf::int32 value);
@@ -675,33 +789,39 @@ class PreAcceptReplyJute : public ::google::protobuf::Message /* @@protoc_insert
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_committeddeps();
 
-  // int32 Replica = 1;
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // bool Ok = 2;
+  void clear_ok();
+  static const int kOkFieldNumber = 2;
+  bool ok() const;
+  void set_ok(bool value);
+
+  // int32 Replica = 3;
   void clear_replica();
-  static const int kReplicaFieldNumber = 1;
+  static const int kReplicaFieldNumber = 3;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 2;
+  // int32 Instance = 4;
   void clear_instance();
-  static const int kInstanceFieldNumber = 2;
+  static const int kInstanceFieldNumber = 4;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Ok = 3;
-  void clear_ok();
-  static const int kOkFieldNumber = 3;
-  ::google::protobuf::int32 ok() const;
-  void set_ok(::google::protobuf::int32 value);
-
-  // int32 Ballot = 4;
+  // int32 Ballot = 5;
   void clear_ballot();
-  static const int kBallotFieldNumber = 4;
+  static const int kBallotFieldNumber = 5;
   ::google::protobuf::int32 ballot() const;
   void set_ballot(::google::protobuf::int32 value);
 
-  // int32 Seq = 5;
+  // int32 Seq = 6;
   void clear_seq();
-  static const int kSeqFieldNumber = 5;
+  static const int kSeqFieldNumber = 6;
   ::google::protobuf::int32 seq() const;
   void set_seq(::google::protobuf::int32 value);
 
@@ -713,9 +833,10 @@ class PreAcceptReplyJute : public ::google::protobuf::Message /* @@protoc_insert
   mutable int _deps_cached_byte_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > committeddeps_;
   mutable int _committeddeps_cached_byte_size_;
+  ::google::protobuf::int32 type_;
+  bool ok_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
-  ::google::protobuf::int32 ok_;
   ::google::protobuf::int32 ballot_;
   ::google::protobuf::int32 seq_;
   mutable int _cached_size_;
@@ -790,9 +911,15 @@ class PreAcceptOkJute : public ::google::protobuf::Message /* @@protoc_insertion
 
   // accessors -------------------------------------------------------
 
-  // int32 Instance = 1;
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 Instance = 2;
   void clear_instance();
-  static const int kInstanceFieldNumber = 1;
+  static const int kInstanceFieldNumber = 2;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
@@ -800,6 +927,7 @@ class PreAcceptOkJute : public ::google::protobuf::Message /* @@protoc_insertion
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
   ::google::protobuf::int32 instance_;
   mutable int _cached_size_;
   friend struct protobuf_protobuff_2eproto::TableStruct;
@@ -873,10 +1001,10 @@ class AcceptJute : public ::google::protobuf::Message /* @@protoc_insertion_poin
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 Deps = 7;
+  // repeated int32 Deps = 8;
   int deps_size() const;
   void clear_deps();
-  static const int kDepsFieldNumber = 7;
+  static const int kDepsFieldNumber = 8;
   ::google::protobuf::int32 deps(int index) const;
   void set_deps(int index, ::google::protobuf::int32 value);
   void add_deps(::google::protobuf::int32 value);
@@ -885,39 +1013,45 @@ class AcceptJute : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_deps();
 
-  // int32 LeaderId = 1;
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 LeaderId = 2;
   void clear_leaderid();
-  static const int kLeaderIdFieldNumber = 1;
+  static const int kLeaderIdFieldNumber = 2;
   ::google::protobuf::int32 leaderid() const;
   void set_leaderid(::google::protobuf::int32 value);
 
-  // int32 Replica = 2;
+  // int32 Replica = 3;
   void clear_replica();
-  static const int kReplicaFieldNumber = 2;
+  static const int kReplicaFieldNumber = 3;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 3;
+  // int32 Instance = 4;
   void clear_instance();
-  static const int kInstanceFieldNumber = 3;
+  static const int kInstanceFieldNumber = 4;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Ballot = 4;
+  // int32 Ballot = 5;
   void clear_ballot();
-  static const int kBallotFieldNumber = 4;
+  static const int kBallotFieldNumber = 5;
   ::google::protobuf::int32 ballot() const;
   void set_ballot(::google::protobuf::int32 value);
 
-  // int32 Count = 5;
+  // int32 Count = 6;
   void clear_count();
-  static const int kCountFieldNumber = 5;
+  static const int kCountFieldNumber = 6;
   ::google::protobuf::int32 count() const;
   void set_count(::google::protobuf::int32 value);
 
-  // int32 Seq = 6;
+  // int32 Seq = 7;
   void clear_seq();
-  static const int kSeqFieldNumber = 6;
+  static const int kSeqFieldNumber = 7;
   ::google::protobuf::int32 seq() const;
   void set_seq(::google::protobuf::int32 value);
 
@@ -927,6 +1061,7 @@ class AcceptJute : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > deps_;
   mutable int _deps_cached_byte_size_;
+  ::google::protobuf::int32 type_;
   ::google::protobuf::int32 leaderid_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
@@ -1005,27 +1140,33 @@ class AcceptReplyJute : public ::google::protobuf::Message /* @@protoc_insertion
 
   // accessors -------------------------------------------------------
 
-  // int32 Replica = 1;
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // bool Ok = 2;
+  void clear_ok();
+  static const int kOkFieldNumber = 2;
+  bool ok() const;
+  void set_ok(bool value);
+
+  // int32 Replica = 3;
   void clear_replica();
-  static const int kReplicaFieldNumber = 1;
+  static const int kReplicaFieldNumber = 3;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 2;
+  // int32 Instance = 4;
   void clear_instance();
-  static const int kInstanceFieldNumber = 2;
+  static const int kInstanceFieldNumber = 4;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Ok = 3;
-  void clear_ok();
-  static const int kOkFieldNumber = 3;
-  ::google::protobuf::int32 ok() const;
-  void set_ok(::google::protobuf::int32 value);
-
-  // int32 Ballot = 4;
+  // int32 Ballot = 5;
   void clear_ballot();
-  static const int kBallotFieldNumber = 4;
+  static const int kBallotFieldNumber = 5;
   ::google::protobuf::int32 ballot() const;
   void set_ballot(::google::protobuf::int32 value);
 
@@ -1033,9 +1174,10 @@ class AcceptReplyJute : public ::google::protobuf::Message /* @@protoc_insertion
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  bool ok_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
-  ::google::protobuf::int32 ok_;
   ::google::protobuf::int32 ballot_;
   mutable int _cached_size_;
   friend struct protobuf_protobuff_2eproto::TableStruct;
@@ -1109,10 +1251,22 @@ class CommitJute : public ::google::protobuf::Message /* @@protoc_insertion_poin
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 Deps = 6;
+  // repeated .tkJute.tk_command_jute Command = 6;
+  int command_size() const;
+  void clear_command();
+  static const int kCommandFieldNumber = 6;
+  const ::tkJute::tk_command_jute& command(int index) const;
+  ::tkJute::tk_command_jute* mutable_command(int index);
+  ::tkJute::tk_command_jute* add_command();
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+      mutable_command();
+  const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+      command() const;
+
+  // repeated int32 Deps = 7;
   int deps_size() const;
   void clear_deps();
-  static const int kDepsFieldNumber = 6;
+  static const int kDepsFieldNumber = 7;
   ::google::protobuf::int32 deps(int index) const;
   void set_deps(int index, ::google::protobuf::int32 value);
   void add_deps(::google::protobuf::int32 value);
@@ -1121,30 +1275,27 @@ class CommitJute : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_deps();
 
-  // .tkJute.tk_command_jute cmd = 4;
-  bool has_cmd() const;
-  void clear_cmd();
-  static const int kCmdFieldNumber = 4;
-  const ::tkJute::tk_command_jute& cmd() const;
-  ::tkJute::tk_command_jute* mutable_cmd();
-  ::tkJute::tk_command_jute* release_cmd();
-  void set_allocated_cmd(::tkJute::tk_command_jute* cmd);
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
 
-  // int32 LeaderId = 1;
+  // int32 LeaderId = 2;
   void clear_leaderid();
-  static const int kLeaderIdFieldNumber = 1;
+  static const int kLeaderIdFieldNumber = 2;
   ::google::protobuf::int32 leaderid() const;
   void set_leaderid(::google::protobuf::int32 value);
 
-  // int32 Replica = 2;
+  // int32 Replica = 3;
   void clear_replica();
-  static const int kReplicaFieldNumber = 2;
+  static const int kReplicaFieldNumber = 3;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 3;
+  // int32 Instance = 4;
   void clear_instance();
-  static const int kInstanceFieldNumber = 3;
+  static const int kInstanceFieldNumber = 4;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
@@ -1158,9 +1309,10 @@ class CommitJute : public ::google::protobuf::Message /* @@protoc_insertion_poin
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute > command_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > deps_;
   mutable int _deps_cached_byte_size_;
-  ::tkJute::tk_command_jute* cmd_;
+  ::google::protobuf::int32 type_;
   ::google::protobuf::int32 leaderid_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
@@ -1237,10 +1389,10 @@ class CommitShortJute : public ::google::protobuf::Message /* @@protoc_insertion
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 Deps = 6;
+  // repeated int32 Deps = 7;
   int deps_size() const;
   void clear_deps();
-  static const int kDepsFieldNumber = 6;
+  static const int kDepsFieldNumber = 7;
   ::google::protobuf::int32 deps(int index) const;
   void set_deps(int index, ::google::protobuf::int32 value);
   void add_deps(::google::protobuf::int32 value);
@@ -1249,33 +1401,39 @@ class CommitShortJute : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_deps();
 
-  // int32 LeaderId = 1;
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 LeaderId = 2;
   void clear_leaderid();
-  static const int kLeaderIdFieldNumber = 1;
+  static const int kLeaderIdFieldNumber = 2;
   ::google::protobuf::int32 leaderid() const;
   void set_leaderid(::google::protobuf::int32 value);
 
-  // int32 Replica = 2;
+  // int32 Replica = 3;
   void clear_replica();
-  static const int kReplicaFieldNumber = 2;
+  static const int kReplicaFieldNumber = 3;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 3;
+  // int32 Instance = 4;
   void clear_instance();
-  static const int kInstanceFieldNumber = 3;
+  static const int kInstanceFieldNumber = 4;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Count = 4;
+  // int32 Count = 5;
   void clear_count();
-  static const int kCountFieldNumber = 4;
+  static const int kCountFieldNumber = 5;
   ::google::protobuf::int32 count() const;
   void set_count(::google::protobuf::int32 value);
 
-  // int32 Seq = 5;
+  // int32 Seq = 6;
   void clear_seq();
-  static const int kSeqFieldNumber = 5;
+  static const int kSeqFieldNumber = 6;
   ::google::protobuf::int32 seq() const;
   void set_seq(::google::protobuf::int32 value);
 
@@ -1285,6 +1443,7 @@ class CommitShortJute : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > deps_;
   mutable int _deps_cached_byte_size_;
+  ::google::protobuf::int32 type_;
   ::google::protobuf::int32 leaderid_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
@@ -1362,10 +1521,22 @@ class TryPreAcceptJute : public ::google::protobuf::Message /* @@protoc_insertio
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 Deps = 7;
+  // repeated .tkJute.tk_command_jute Command = 7;
+  int command_size() const;
+  void clear_command();
+  static const int kCommandFieldNumber = 7;
+  const ::tkJute::tk_command_jute& command(int index) const;
+  ::tkJute::tk_command_jute* mutable_command(int index);
+  ::tkJute::tk_command_jute* add_command();
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+      mutable_command();
+  const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+      command() const;
+
+  // repeated int32 Deps = 8;
   int deps_size() const;
   void clear_deps();
-  static const int kDepsFieldNumber = 7;
+  static const int kDepsFieldNumber = 8;
   ::google::protobuf::int32 deps(int index) const;
   void set_deps(int index, ::google::protobuf::int32 value);
   void add_deps(::google::protobuf::int32 value);
@@ -1374,36 +1545,33 @@ class TryPreAcceptJute : public ::google::protobuf::Message /* @@protoc_insertio
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_deps();
 
-  // .tkJute.tk_command_jute cmd = 5;
-  bool has_cmd() const;
-  void clear_cmd();
-  static const int kCmdFieldNumber = 5;
-  const ::tkJute::tk_command_jute& cmd() const;
-  ::tkJute::tk_command_jute* mutable_cmd();
-  ::tkJute::tk_command_jute* release_cmd();
-  void set_allocated_cmd(::tkJute::tk_command_jute* cmd);
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
 
-  // int32 LeaderId = 1;
+  // int32 LeaderId = 2;
   void clear_leaderid();
-  static const int kLeaderIdFieldNumber = 1;
+  static const int kLeaderIdFieldNumber = 2;
   ::google::protobuf::int32 leaderid() const;
   void set_leaderid(::google::protobuf::int32 value);
 
-  // int32 Replica = 2;
+  // int32 Replica = 3;
   void clear_replica();
-  static const int kReplicaFieldNumber = 2;
+  static const int kReplicaFieldNumber = 3;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 3;
+  // int32 Instance = 4;
   void clear_instance();
-  static const int kInstanceFieldNumber = 3;
+  static const int kInstanceFieldNumber = 4;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Ballot = 4;
+  // int32 Ballot = 5;
   void clear_ballot();
-  static const int kBallotFieldNumber = 4;
+  static const int kBallotFieldNumber = 5;
   ::google::protobuf::int32 ballot() const;
   void set_ballot(::google::protobuf::int32 value);
 
@@ -1417,9 +1585,10 @@ class TryPreAcceptJute : public ::google::protobuf::Message /* @@protoc_insertio
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute > command_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > deps_;
   mutable int _deps_cached_byte_size_;
-  ::tkJute::tk_command_jute* cmd_;
+  ::google::protobuf::int32 type_;
   ::google::protobuf::int32 leaderid_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
@@ -1497,51 +1666,57 @@ class TryPreAcceptReplyJute : public ::google::protobuf::Message /* @@protoc_ins
 
   // accessors -------------------------------------------------------
 
-  // int32 AcceptorId = 1;
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // bool Ok = 2;
+  void clear_ok();
+  static const int kOkFieldNumber = 2;
+  bool ok() const;
+  void set_ok(bool value);
+
+  // int32 AcceptorId = 3;
   void clear_acceptorid();
-  static const int kAcceptorIdFieldNumber = 1;
+  static const int kAcceptorIdFieldNumber = 3;
   ::google::protobuf::int32 acceptorid() const;
   void set_acceptorid(::google::protobuf::int32 value);
 
-  // int32 Replica = 2;
+  // int32 Replica = 4;
   void clear_replica();
-  static const int kReplicaFieldNumber = 2;
+  static const int kReplicaFieldNumber = 4;
   ::google::protobuf::int32 replica() const;
   void set_replica(::google::protobuf::int32 value);
 
-  // int32 Instance = 3;
+  // int32 Instance = 5;
   void clear_instance();
-  static const int kInstanceFieldNumber = 3;
+  static const int kInstanceFieldNumber = 5;
   ::google::protobuf::int32 instance() const;
   void set_instance(::google::protobuf::int32 value);
 
-  // int32 Ok = 4;
-  void clear_ok();
-  static const int kOkFieldNumber = 4;
-  ::google::protobuf::int32 ok() const;
-  void set_ok(::google::protobuf::int32 value);
-
-  // int32 Ballot = 5;
+  // int32 Ballot = 6;
   void clear_ballot();
-  static const int kBallotFieldNumber = 5;
+  static const int kBallotFieldNumber = 6;
   ::google::protobuf::int32 ballot() const;
   void set_ballot(::google::protobuf::int32 value);
 
-  // int32 ConfilctReplica = 6;
+  // int32 ConfilctReplica = 7;
   void clear_confilctreplica();
-  static const int kConfilctReplicaFieldNumber = 6;
+  static const int kConfilctReplicaFieldNumber = 7;
   ::google::protobuf::int32 confilctreplica() const;
   void set_confilctreplica(::google::protobuf::int32 value);
 
-  // int32 ConfilctInstance = 7;
+  // int32 ConfilctInstance = 8;
   void clear_confilctinstance();
-  static const int kConfilctInstanceFieldNumber = 7;
+  static const int kConfilctInstanceFieldNumber = 8;
   ::google::protobuf::int32 confilctinstance() const;
   void set_confilctinstance(::google::protobuf::int32 value);
 
-  // int32 ConfilctStatus = 8;
+  // int32 ConfilctStatus = 9;
   void clear_confilctstatus();
-  static const int kConfilctStatusFieldNumber = 8;
+  static const int kConfilctStatusFieldNumber = 9;
   ::google::protobuf::int32 confilctstatus() const;
   void set_confilctstatus(::google::protobuf::int32 value);
 
@@ -1549,14 +1724,2311 @@ class TryPreAcceptReplyJute : public ::google::protobuf::Message /* @@protoc_ins
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  bool ok_;
   ::google::protobuf::int32 acceptorid_;
   ::google::protobuf::int32 replica_;
   ::google::protobuf::int32 instance_;
-  ::google::protobuf::int32 ok_;
   ::google::protobuf::int32 ballot_;
   ::google::protobuf::int32 confilctreplica_;
   ::google::protobuf::int32 confilctinstance_;
   ::google::protobuf::int32 confilctstatus_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ProposeJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.ProposeJute) */ {
+ public:
+  ProposeJute();
+  virtual ~ProposeJute();
+
+  ProposeJute(const ProposeJute& from);
+
+  inline ProposeJute& operator=(const ProposeJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ProposeJute& default_instance();
+
+  static inline const ProposeJute* internal_default_instance() {
+    return reinterpret_cast<const ProposeJute*>(
+               &_ProposeJute_default_instance_);
+  }
+
+  void Swap(ProposeJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ProposeJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ProposeJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ProposeJute& from);
+  void MergeFrom(const ProposeJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ProposeJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .tkJute.tk_command_jute Command = 4;
+  bool has_command() const;
+  void clear_command();
+  static const int kCommandFieldNumber = 4;
+  const ::tkJute::tk_command_jute& command() const;
+  ::tkJute::tk_command_jute* mutable_command();
+  ::tkJute::tk_command_jute* release_command();
+  void set_allocated_command(::tkJute::tk_command_jute* command);
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 CommandId = 2;
+  void clear_commandid();
+  static const int kCommandIdFieldNumber = 2;
+  ::google::protobuf::int32 commandid() const;
+  void set_commandid(::google::protobuf::int32 value);
+
+  // int64 Timestamp = 3;
+  void clear_timestamp();
+  static const int kTimestampFieldNumber = 3;
+  ::google::protobuf::int64 timestamp() const;
+  void set_timestamp(::google::protobuf::int64 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.ProposeJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::tkJute::tk_command_jute* command_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 commandid_;
+  ::google::protobuf::int64 timestamp_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ProposeReplyJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.ProposeReplyJute) */ {
+ public:
+  ProposeReplyJute();
+  virtual ~ProposeReplyJute();
+
+  ProposeReplyJute(const ProposeReplyJute& from);
+
+  inline ProposeReplyJute& operator=(const ProposeReplyJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ProposeReplyJute& default_instance();
+
+  static inline const ProposeReplyJute* internal_default_instance() {
+    return reinterpret_cast<const ProposeReplyJute*>(
+               &_ProposeReplyJute_default_instance_);
+  }
+
+  void Swap(ProposeReplyJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ProposeReplyJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ProposeReplyJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ProposeReplyJute& from);
+  void MergeFrom(const ProposeReplyJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ProposeReplyJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // bool Ok = 2;
+  void clear_ok();
+  static const int kOkFieldNumber = 2;
+  bool ok() const;
+  void set_ok(bool value);
+
+  // int32 CommandId = 3;
+  void clear_commandid();
+  static const int kCommandIdFieldNumber = 3;
+  ::google::protobuf::int32 commandid() const;
+  void set_commandid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.ProposeReplyJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  bool ok_;
+  ::google::protobuf::int32 commandid_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ProposeReplyTSJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.ProposeReplyTSJute) */ {
+ public:
+  ProposeReplyTSJute();
+  virtual ~ProposeReplyTSJute();
+
+  ProposeReplyTSJute(const ProposeReplyTSJute& from);
+
+  inline ProposeReplyTSJute& operator=(const ProposeReplyTSJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ProposeReplyTSJute& default_instance();
+
+  static inline const ProposeReplyTSJute* internal_default_instance() {
+    return reinterpret_cast<const ProposeReplyTSJute*>(
+               &_ProposeReplyTSJute_default_instance_);
+  }
+
+  void Swap(ProposeReplyTSJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ProposeReplyTSJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ProposeReplyTSJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ProposeReplyTSJute& from);
+  void MergeFrom(const ProposeReplyTSJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ProposeReplyTSJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string Value = 5;
+  void clear_value();
+  static const int kValueFieldNumber = 5;
+  const ::std::string& value() const;
+  void set_value(const ::std::string& value);
+  #if LANG_CXX11
+  void set_value(::std::string&& value);
+  #endif
+  void set_value(const char* value);
+  void set_value(const char* value, size_t size);
+  ::std::string* mutable_value();
+  ::std::string* release_value();
+  void set_allocated_value(::std::string* value);
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // bool Ok = 2;
+  void clear_ok();
+  static const int kOkFieldNumber = 2;
+  bool ok() const;
+  void set_ok(bool value);
+
+  // int32 CommandId = 3;
+  void clear_commandid();
+  static const int kCommandIdFieldNumber = 3;
+  ::google::protobuf::int32 commandid() const;
+  void set_commandid(::google::protobuf::int32 value);
+
+  // int32 ValueSize = 4;
+  void clear_valuesize();
+  static const int kValueSizeFieldNumber = 4;
+  ::google::protobuf::int32 valuesize() const;
+  void set_valuesize(::google::protobuf::int32 value);
+
+  // int64 Timestamp = 6;
+  void clear_timestamp();
+  static const int kTimestampFieldNumber = 6;
+  ::google::protobuf::int64 timestamp() const;
+  void set_timestamp(::google::protobuf::int64 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.ProposeReplyTSJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr value_;
+  ::google::protobuf::int32 type_;
+  bool ok_;
+  ::google::protobuf::int32 commandid_;
+  ::google::protobuf::int32 valuesize_;
+  ::google::protobuf::int64 timestamp_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ReadJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.ReadJute) */ {
+ public:
+  ReadJute();
+  virtual ~ReadJute();
+
+  ReadJute(const ReadJute& from);
+
+  inline ReadJute& operator=(const ReadJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ReadJute& default_instance();
+
+  static inline const ReadJute* internal_default_instance() {
+    return reinterpret_cast<const ReadJute*>(
+               &_ReadJute_default_instance_);
+  }
+
+  void Swap(ReadJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ReadJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ReadJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ReadJute& from);
+  void MergeFrom(const ReadJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ReadJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string key = 3;
+  void clear_key();
+  static const int kKeyFieldNumber = 3;
+  const ::std::string& key() const;
+  void set_key(const ::std::string& value);
+  #if LANG_CXX11
+  void set_key(::std::string&& value);
+  #endif
+  void set_key(const char* value);
+  void set_key(const char* value, size_t size);
+  ::std::string* mutable_key();
+  ::std::string* release_key();
+  void set_allocated_key(::std::string* key);
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 CommandId = 2;
+  void clear_commandid();
+  static const int kCommandIdFieldNumber = 2;
+  ::google::protobuf::int32 commandid() const;
+  void set_commandid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.ReadJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr key_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 commandid_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ProposeAndReadJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.ProposeAndReadJute) */ {
+ public:
+  ProposeAndReadJute();
+  virtual ~ProposeAndReadJute();
+
+  ProposeAndReadJute(const ProposeAndReadJute& from);
+
+  inline ProposeAndReadJute& operator=(const ProposeAndReadJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ProposeAndReadJute& default_instance();
+
+  static inline const ProposeAndReadJute* internal_default_instance() {
+    return reinterpret_cast<const ProposeAndReadJute*>(
+               &_ProposeAndReadJute_default_instance_);
+  }
+
+  void Swap(ProposeAndReadJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ProposeAndReadJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ProposeAndReadJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ProposeAndReadJute& from);
+  void MergeFrom(const ProposeAndReadJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ProposeAndReadJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string key = 4;
+  void clear_key();
+  static const int kKeyFieldNumber = 4;
+  const ::std::string& key() const;
+  void set_key(const ::std::string& value);
+  #if LANG_CXX11
+  void set_key(::std::string&& value);
+  #endif
+  void set_key(const char* value);
+  void set_key(const char* value, size_t size);
+  ::std::string* mutable_key();
+  ::std::string* release_key();
+  void set_allocated_key(::std::string* key);
+
+  // .tkJute.tk_command_jute Command = 3;
+  bool has_command() const;
+  void clear_command();
+  static const int kCommandFieldNumber = 3;
+  const ::tkJute::tk_command_jute& command() const;
+  ::tkJute::tk_command_jute* mutable_command();
+  ::tkJute::tk_command_jute* release_command();
+  void set_allocated_command(::tkJute::tk_command_jute* command);
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 CommandId = 2;
+  void clear_commandid();
+  static const int kCommandIdFieldNumber = 2;
+  ::google::protobuf::int32 commandid() const;
+  void set_commandid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.ProposeAndReadJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr key_;
+  ::tkJute::tk_command_jute* command_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 commandid_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class InstanceIdJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.InstanceIdJute) */ {
+ public:
+  InstanceIdJute();
+  virtual ~InstanceIdJute();
+
+  InstanceIdJute(const InstanceIdJute& from);
+
+  inline InstanceIdJute& operator=(const InstanceIdJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const InstanceIdJute& default_instance();
+
+  static inline const InstanceIdJute* internal_default_instance() {
+    return reinterpret_cast<const InstanceIdJute*>(
+               &_InstanceIdJute_default_instance_);
+  }
+
+  void Swap(InstanceIdJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline InstanceIdJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  InstanceIdJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const InstanceIdJute& from);
+  void MergeFrom(const InstanceIdJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(InstanceIdJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 replica = 2;
+  void clear_replica();
+  static const int kReplicaFieldNumber = 2;
+  ::google::protobuf::int32 replica() const;
+  void set_replica(::google::protobuf::int32 value);
+
+  // int32 instance = 3;
+  void clear_instance();
+  static const int kInstanceFieldNumber = 3;
+  ::google::protobuf::int32 instance() const;
+  void set_instance(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.InstanceIdJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 replica_;
+  ::google::protobuf::int32 instance_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ClockJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.ClockJute) */ {
+ public:
+  ClockJute();
+  virtual ~ClockJute();
+
+  ClockJute(const ClockJute& from);
+
+  inline ClockJute& operator=(const ClockJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ClockJute& default_instance();
+
+  static inline const ClockJute* internal_default_instance() {
+    return reinterpret_cast<const ClockJute*>(
+               &_ClockJute_default_instance_);
+  }
+
+  void Swap(ClockJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ClockJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ClockJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ClockJute& from);
+  void MergeFrom(const ClockJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ClockJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.ClockJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class Beacon_msgJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.Beacon_msgJute) */ {
+ public:
+  Beacon_msgJute();
+  virtual ~Beacon_msgJute();
+
+  Beacon_msgJute(const Beacon_msgJute& from);
+
+  inline Beacon_msgJute& operator=(const Beacon_msgJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Beacon_msgJute& default_instance();
+
+  static inline const Beacon_msgJute* internal_default_instance() {
+    return reinterpret_cast<const Beacon_msgJute*>(
+               &_Beacon_msgJute_default_instance_);
+  }
+
+  void Swap(Beacon_msgJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Beacon_msgJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Beacon_msgJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const Beacon_msgJute& from);
+  void MergeFrom(const Beacon_msgJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(Beacon_msgJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 Rid = 2;
+  void clear_rid();
+  static const int kRidFieldNumber = 2;
+  ::google::protobuf::int32 rid() const;
+  void set_rid(::google::protobuf::int32 value);
+
+  // uint64 timestamp = 3;
+  void clear_timestamp();
+  static const int kTimestampFieldNumber = 3;
+  ::google::protobuf::uint64 timestamp() const;
+  void set_timestamp(::google::protobuf::uint64 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.Beacon_msgJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 rid_;
+  ::google::protobuf::uint64 timestamp_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class Beacon_msg_replyJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.Beacon_msg_replyJute) */ {
+ public:
+  Beacon_msg_replyJute();
+  virtual ~Beacon_msg_replyJute();
+
+  Beacon_msg_replyJute(const Beacon_msg_replyJute& from);
+
+  inline Beacon_msg_replyJute& operator=(const Beacon_msg_replyJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Beacon_msg_replyJute& default_instance();
+
+  static inline const Beacon_msg_replyJute* internal_default_instance() {
+    return reinterpret_cast<const Beacon_msg_replyJute*>(
+               &_Beacon_msg_replyJute_default_instance_);
+  }
+
+  void Swap(Beacon_msg_replyJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Beacon_msg_replyJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Beacon_msg_replyJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const Beacon_msg_replyJute& from);
+  void MergeFrom(const Beacon_msg_replyJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(Beacon_msg_replyJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // uint64 timestamp = 2;
+  void clear_timestamp();
+  static const int kTimestampFieldNumber = 2;
+  ::google::protobuf::uint64 timestamp() const;
+  void set_timestamp(::google::protobuf::uint64 value);
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.Beacon_msg_replyJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::uint64 timestamp_;
+  ::google::protobuf::int32 type_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ClientConnectJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.ClientConnectJute) */ {
+ public:
+  ClientConnectJute();
+  virtual ~ClientConnectJute();
+
+  ClientConnectJute(const ClientConnectJute& from);
+
+  inline ClientConnectJute& operator=(const ClientConnectJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ClientConnectJute& default_instance();
+
+  static inline const ClientConnectJute* internal_default_instance() {
+    return reinterpret_cast<const ClientConnectJute*>(
+               &_ClientConnectJute_default_instance_);
+  }
+
+  void Swap(ClientConnectJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ClientConnectJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ClientConnectJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ClientConnectJute& from);
+  void MergeFrom(const ClientConnectJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ClientConnectJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.ClientConnectJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class RegisterArgsJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.RegisterArgsJute) */ {
+ public:
+  RegisterArgsJute();
+  virtual ~RegisterArgsJute();
+
+  RegisterArgsJute(const RegisterArgsJute& from);
+
+  inline RegisterArgsJute& operator=(const RegisterArgsJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RegisterArgsJute& default_instance();
+
+  static inline const RegisterArgsJute* internal_default_instance() {
+    return reinterpret_cast<const RegisterArgsJute*>(
+               &_RegisterArgsJute_default_instance_);
+  }
+
+  void Swap(RegisterArgsJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline RegisterArgsJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  RegisterArgsJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const RegisterArgsJute& from);
+  void MergeFrom(const RegisterArgsJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(RegisterArgsJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string Addr = 2;
+  void clear_addr();
+  static const int kAddrFieldNumber = 2;
+  const ::std::string& addr() const;
+  void set_addr(const ::std::string& value);
+  #if LANG_CXX11
+  void set_addr(::std::string&& value);
+  #endif
+  void set_addr(const char* value);
+  void set_addr(const char* value, size_t size);
+  ::std::string* mutable_addr();
+  ::std::string* release_addr();
+  void set_allocated_addr(::std::string* addr);
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 Port = 3;
+  void clear_port();
+  static const int kPortFieldNumber = 3;
+  ::google::protobuf::int32 port() const;
+  void set_port(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.RegisterArgsJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr addr_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 port_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class RegisterReplyJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.RegisterReplyJute) */ {
+ public:
+  RegisterReplyJute();
+  virtual ~RegisterReplyJute();
+
+  RegisterReplyJute(const RegisterReplyJute& from);
+
+  inline RegisterReplyJute& operator=(const RegisterReplyJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RegisterReplyJute& default_instance();
+
+  static inline const RegisterReplyJute* internal_default_instance() {
+    return reinterpret_cast<const RegisterReplyJute*>(
+               &_RegisterReplyJute_default_instance_);
+  }
+
+  void Swap(RegisterReplyJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline RegisterReplyJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  RegisterReplyJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const RegisterReplyJute& from);
+  void MergeFrom(const RegisterReplyJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(RegisterReplyJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated string AddrList = 3;
+  int addrlist_size() const;
+  void clear_addrlist();
+  static const int kAddrListFieldNumber = 3;
+  const ::std::string& addrlist(int index) const;
+  ::std::string* mutable_addrlist(int index);
+  void set_addrlist(int index, const ::std::string& value);
+  #if LANG_CXX11
+  void set_addrlist(int index, ::std::string&& value);
+  #endif
+  void set_addrlist(int index, const char* value);
+  void set_addrlist(int index, const char* value, size_t size);
+  ::std::string* add_addrlist();
+  void add_addrlist(const ::std::string& value);
+  #if LANG_CXX11
+  void add_addrlist(::std::string&& value);
+  #endif
+  void add_addrlist(const char* value);
+  void add_addrlist(const char* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& addrlist() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_addrlist();
+
+  // repeated int32 PortList = 4;
+  int portlist_size() const;
+  void clear_portlist();
+  static const int kPortListFieldNumber = 4;
+  ::google::protobuf::int32 portlist(int index) const;
+  void set_portlist(int index, ::google::protobuf::int32 value);
+  void add_portlist(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      portlist() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_portlist();
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 ReplicaId = 2;
+  void clear_replicaid();
+  static const int kReplicaIdFieldNumber = 2;
+  ::google::protobuf::int32 replicaid() const;
+  void set_replicaid(::google::protobuf::int32 value);
+
+  // bool Ready = 5;
+  void clear_ready();
+  static const int kReadyFieldNumber = 5;
+  bool ready() const;
+  void set_ready(bool value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.RegisterReplyJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> addrlist_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > portlist_;
+  mutable int _portlist_cached_byte_size_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 replicaid_;
+  bool ready_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class GetLeaderArgsJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.GetLeaderArgsJute) */ {
+ public:
+  GetLeaderArgsJute();
+  virtual ~GetLeaderArgsJute();
+
+  GetLeaderArgsJute(const GetLeaderArgsJute& from);
+
+  inline GetLeaderArgsJute& operator=(const GetLeaderArgsJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetLeaderArgsJute& default_instance();
+
+  static inline const GetLeaderArgsJute* internal_default_instance() {
+    return reinterpret_cast<const GetLeaderArgsJute*>(
+               &_GetLeaderArgsJute_default_instance_);
+  }
+
+  void Swap(GetLeaderArgsJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline GetLeaderArgsJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  GetLeaderArgsJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const GetLeaderArgsJute& from);
+  void MergeFrom(const GetLeaderArgsJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(GetLeaderArgsJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.GetLeaderArgsJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class GetLeaderReplyJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.GetLeaderReplyJute) */ {
+ public:
+  GetLeaderReplyJute();
+  virtual ~GetLeaderReplyJute();
+
+  GetLeaderReplyJute(const GetLeaderReplyJute& from);
+
+  inline GetLeaderReplyJute& operator=(const GetLeaderReplyJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetLeaderReplyJute& default_instance();
+
+  static inline const GetLeaderReplyJute* internal_default_instance() {
+    return reinterpret_cast<const GetLeaderReplyJute*>(
+               &_GetLeaderReplyJute_default_instance_);
+  }
+
+  void Swap(GetLeaderReplyJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline GetLeaderReplyJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  GetLeaderReplyJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const GetLeaderReplyJute& from);
+  void MergeFrom(const GetLeaderReplyJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(GetLeaderReplyJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int32 LeaderId = 2;
+  void clear_leaderid();
+  static const int kLeaderIdFieldNumber = 2;
+  ::google::protobuf::int32 leaderid() const;
+  void set_leaderid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.GetLeaderReplyJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int32 leaderid_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class GetReplicaListArgsJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.GetReplicaListArgsJute) */ {
+ public:
+  GetReplicaListArgsJute();
+  virtual ~GetReplicaListArgsJute();
+
+  GetReplicaListArgsJute(const GetReplicaListArgsJute& from);
+
+  inline GetReplicaListArgsJute& operator=(const GetReplicaListArgsJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetReplicaListArgsJute& default_instance();
+
+  static inline const GetReplicaListArgsJute* internal_default_instance() {
+    return reinterpret_cast<const GetReplicaListArgsJute*>(
+               &_GetReplicaListArgsJute_default_instance_);
+  }
+
+  void Swap(GetReplicaListArgsJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline GetReplicaListArgsJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  GetReplicaListArgsJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const GetReplicaListArgsJute& from);
+  void MergeFrom(const GetReplicaListArgsJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(GetReplicaListArgsJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.GetReplicaListArgsJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class GetReplicaListReplyJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.GetReplicaListReplyJute) */ {
+ public:
+  GetReplicaListReplyJute();
+  virtual ~GetReplicaListReplyJute();
+
+  GetReplicaListReplyJute(const GetReplicaListReplyJute& from);
+
+  inline GetReplicaListReplyJute& operator=(const GetReplicaListReplyJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetReplicaListReplyJute& default_instance();
+
+  static inline const GetReplicaListReplyJute* internal_default_instance() {
+    return reinterpret_cast<const GetReplicaListReplyJute*>(
+               &_GetReplicaListReplyJute_default_instance_);
+  }
+
+  void Swap(GetReplicaListReplyJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline GetReplicaListReplyJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  GetReplicaListReplyJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const GetReplicaListReplyJute& from);
+  void MergeFrom(const GetReplicaListReplyJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(GetReplicaListReplyJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated string ReplicaAddrList = 3;
+  int replicaaddrlist_size() const;
+  void clear_replicaaddrlist();
+  static const int kReplicaAddrListFieldNumber = 3;
+  const ::std::string& replicaaddrlist(int index) const;
+  ::std::string* mutable_replicaaddrlist(int index);
+  void set_replicaaddrlist(int index, const ::std::string& value);
+  #if LANG_CXX11
+  void set_replicaaddrlist(int index, ::std::string&& value);
+  #endif
+  void set_replicaaddrlist(int index, const char* value);
+  void set_replicaaddrlist(int index, const char* value, size_t size);
+  ::std::string* add_replicaaddrlist();
+  void add_replicaaddrlist(const ::std::string& value);
+  #if LANG_CXX11
+  void add_replicaaddrlist(::std::string&& value);
+  #endif
+  void add_replicaaddrlist(const char* value);
+  void add_replicaaddrlist(const char* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& replicaaddrlist() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_replicaaddrlist();
+
+  // repeated int32 ReplicaPortList = 4;
+  int replicaportlist_size() const;
+  void clear_replicaportlist();
+  static const int kReplicaPortListFieldNumber = 4;
+  ::google::protobuf::int32 replicaportlist(int index) const;
+  void set_replicaportlist(int index, ::google::protobuf::int32 value);
+  void add_replicaportlist(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      replicaportlist() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_replicaportlist();
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // bool Ready = 2;
+  void clear_ready();
+  static const int kReadyFieldNumber = 2;
+  bool ready() const;
+  void set_ready(bool value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.GetReplicaListReplyJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> replicaaddrlist_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > replicaportlist_;
+  mutable int _replicaportlist_cached_byte_size_;
+  ::google::protobuf::int32 type_;
+  bool ready_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class BeTheLeaderReplyJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.BeTheLeaderReplyJute) */ {
+ public:
+  BeTheLeaderReplyJute();
+  virtual ~BeTheLeaderReplyJute();
+
+  BeTheLeaderReplyJute(const BeTheLeaderReplyJute& from);
+
+  inline BeTheLeaderReplyJute& operator=(const BeTheLeaderReplyJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BeTheLeaderReplyJute& default_instance();
+
+  static inline const BeTheLeaderReplyJute* internal_default_instance() {
+    return reinterpret_cast<const BeTheLeaderReplyJute*>(
+               &_BeTheLeaderReplyJute_default_instance_);
+  }
+
+  void Swap(BeTheLeaderReplyJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline BeTheLeaderReplyJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  BeTheLeaderReplyJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const BeTheLeaderReplyJute& from);
+  void MergeFrom(const BeTheLeaderReplyJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(BeTheLeaderReplyJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // bool Ok = 2;
+  void clear_ok();
+  static const int kOkFieldNumber = 2;
+  bool ok() const;
+  void set_ok(bool value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.BeTheLeaderReplyJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  bool ok_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class GENERALJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.GENERALJute) */ {
+ public:
+  GENERALJute();
+  virtual ~GENERALJute();
+
+  GENERALJute(const GENERALJute& from);
+
+  inline GENERALJute& operator=(const GENERALJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GENERALJute& default_instance();
+
+  static inline const GENERALJute* internal_default_instance() {
+    return reinterpret_cast<const GENERALJute*>(
+               &_GENERALJute_default_instance_);
+  }
+
+  void Swap(GENERALJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline GENERALJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  GENERALJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const GENERALJute& from);
+  void MergeFrom(const GENERALJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(GENERALJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 Type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.GENERALJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 type_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class TxnHeaderJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.TxnHeaderJute) */ {
+ public:
+  TxnHeaderJute();
+  virtual ~TxnHeaderJute();
+
+  TxnHeaderJute(const TxnHeaderJute& from);
+
+  inline TxnHeaderJute& operator=(const TxnHeaderJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const TxnHeaderJute& default_instance();
+
+  static inline const TxnHeaderJute* internal_default_instance() {
+    return reinterpret_cast<const TxnHeaderJute*>(
+               &_TxnHeaderJute_default_instance_);
+  }
+
+  void Swap(TxnHeaderJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline TxnHeaderJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  TxnHeaderJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const TxnHeaderJute& from);
+  void MergeFrom(const TxnHeaderJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(TxnHeaderJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string status = 6;
+  void clear_status();
+  static const int kStatusFieldNumber = 6;
+  const ::std::string& status() const;
+  void set_status(const ::std::string& value);
+  #if LANG_CXX11
+  void set_status(::std::string&& value);
+  #endif
+  void set_status(const char* value);
+  void set_status(const char* value, size_t size);
+  ::std::string* mutable_status();
+  ::std::string* release_status();
+  void set_allocated_status(::std::string* status);
+
+  // int64 sessionId = 1;
+  void clear_sessionid();
+  static const int kSessionIdFieldNumber = 1;
+  ::google::protobuf::int64 sessionid() const;
+  void set_sessionid(::google::protobuf::int64 value);
+
+  // int64 zxid = 3;
+  void clear_zxid();
+  static const int kZxidFieldNumber = 3;
+  ::google::protobuf::int64 zxid() const;
+  void set_zxid(::google::protobuf::int64 value);
+
+  // int32 cxid = 2;
+  void clear_cxid();
+  static const int kCxidFieldNumber = 2;
+  ::google::protobuf::int32 cxid() const;
+  void set_cxid(::google::protobuf::int32 value);
+
+  // int32 type = 5;
+  void clear_type();
+  static const int kTypeFieldNumber = 5;
+  ::google::protobuf::int32 type() const;
+  void set_type(::google::protobuf::int32 value);
+
+  // int64 time = 4;
+  void clear_time();
+  static const int kTimeFieldNumber = 4;
+  ::google::protobuf::int64 time() const;
+  void set_time(::google::protobuf::int64 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.TxnHeaderJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr status_;
+  ::google::protobuf::int64 sessionid_;
+  ::google::protobuf::int64 zxid_;
+  ::google::protobuf::int32 cxid_;
+  ::google::protobuf::int32 type_;
+  ::google::protobuf::int64 time_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class BallotJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.BallotJute) */ {
+ public:
+  BallotJute();
+  virtual ~BallotJute();
+
+  BallotJute(const BallotJute& from);
+
+  inline BallotJute& operator=(const BallotJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BallotJute& default_instance();
+
+  static inline const BallotJute* internal_default_instance() {
+    return reinterpret_cast<const BallotJute*>(
+               &_BallotJute_default_instance_);
+  }
+
+  void Swap(BallotJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline BallotJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  BallotJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const BallotJute& from);
+  void MergeFrom(const BallotJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(BallotJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int64 number = 2;
+  void clear_number();
+  static const int kNumberFieldNumber = 2;
+  ::google::protobuf::int64 number() const;
+  void set_number(::google::protobuf::int64 value);
+
+  // int32 epoch = 1;
+  void clear_epoch();
+  static const int kEpochFieldNumber = 1;
+  ::google::protobuf::int32 epoch() const;
+  void set_epoch(::google::protobuf::int32 value);
+
+  // int32 replicaId = 3;
+  void clear_replicaid();
+  static const int kReplicaIdFieldNumber = 3;
+  ::google::protobuf::int32 replicaid() const;
+  void set_replicaid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.BallotJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int64 number_;
+  ::google::protobuf::int32 epoch_;
+  ::google::protobuf::int32 replicaid_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PackedRecoveryInfoJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.PackedRecoveryInfoJute) */ {
+ public:
+  PackedRecoveryInfoJute();
+  virtual ~PackedRecoveryInfoJute();
+
+  PackedRecoveryInfoJute(const PackedRecoveryInfoJute& from);
+
+  inline PackedRecoveryInfoJute& operator=(const PackedRecoveryInfoJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PackedRecoveryInfoJute& default_instance();
+
+  static inline const PackedRecoveryInfoJute* internal_default_instance() {
+    return reinterpret_cast<const PackedRecoveryInfoJute*>(
+               &_PackedRecoveryInfoJute_default_instance_);
+  }
+
+  void Swap(PackedRecoveryInfoJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline PackedRecoveryInfoJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  PackedRecoveryInfoJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const PackedRecoveryInfoJute& from);
+  void MergeFrom(const PackedRecoveryInfoJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(PackedRecoveryInfoJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .tkJute.tk_command_jute commands = 2;
+  int commands_size() const;
+  void clear_commands();
+  static const int kCommandsFieldNumber = 2;
+  const ::tkJute::tk_command_jute& commands(int index) const;
+  ::tkJute::tk_command_jute* mutable_commands(int index);
+  ::tkJute::tk_command_jute* add_commands();
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+      mutable_commands();
+  const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+      commands() const;
+
+  // repeated uint64 deps = 3;
+  int deps_size() const;
+  void clear_deps();
+  static const int kDepsFieldNumber = 3;
+  ::google::protobuf::uint64 deps(int index) const;
+  void set_deps(int index, ::google::protobuf::uint64 value);
+  void add_deps(::google::protobuf::uint64 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::uint64 >&
+      deps() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint64 >*
+      mutable_deps();
+
+  // .tkJute.BallotJute ballot = 1;
+  bool has_ballot() const;
+  void clear_ballot();
+  static const int kBallotFieldNumber = 1;
+  const ::tkJute::BallotJute& ballot() const;
+  ::tkJute::BallotJute* mutable_ballot();
+  ::tkJute::BallotJute* release_ballot();
+  void set_allocated_ballot(::tkJute::BallotJute* ballot);
+
+  // uint32 status = 4;
+  void clear_status();
+  static const int kStatusFieldNumber = 4;
+  ::google::protobuf::uint32 status() const;
+  void set_status(::google::protobuf::uint32 value);
+
+  // uint32 formerStatus = 5;
+  void clear_formerstatus();
+  static const int kFormerStatusFieldNumber = 5;
+  ::google::protobuf::uint32 formerstatus() const;
+  void set_formerstatus(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.PackedRecoveryInfoJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute > commands_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint64 > deps_;
+  mutable int _deps_cached_byte_size_;
+  ::tkJute::BallotJute* ballot_;
+  ::google::protobuf::uint32 status_;
+  ::google::protobuf::uint32 formerstatus_;
+  mutable int _cached_size_;
+  friend struct protobuf_protobuff_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PackedInstanceJute : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tkJute.PackedInstanceJute) */ {
+ public:
+  PackedInstanceJute();
+  virtual ~PackedInstanceJute();
+
+  PackedInstanceJute(const PackedInstanceJute& from);
+
+  inline PackedInstanceJute& operator=(const PackedInstanceJute& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PackedInstanceJute& default_instance();
+
+  static inline const PackedInstanceJute* internal_default_instance() {
+    return reinterpret_cast<const PackedInstanceJute*>(
+               &_PackedInstanceJute_default_instance_);
+  }
+
+  void Swap(PackedInstanceJute* other);
+
+  // implements Message ----------------------------------------------
+
+  inline PackedInstanceJute* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  PackedInstanceJute* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const PackedInstanceJute& from);
+  void MergeFrom(const PackedInstanceJute& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(PackedInstanceJute* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .tkJute.tk_command_jute commands = 1;
+  int commands_size() const;
+  void clear_commands();
+  static const int kCommandsFieldNumber = 1;
+  const ::tkJute::tk_command_jute& commands(int index) const;
+  ::tkJute::tk_command_jute* mutable_commands(int index);
+  ::tkJute::tk_command_jute* add_commands();
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+      mutable_commands();
+  const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+      commands() const;
+
+  // repeated uint64 deps = 2;
+  int deps_size() const;
+  void clear_deps();
+  static const int kDepsFieldNumber = 2;
+  ::google::protobuf::uint64 deps(int index) const;
+  void set_deps(int index, ::google::protobuf::uint64 value);
+  void add_deps(::google::protobuf::uint64 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::uint64 >&
+      deps() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint64 >*
+      mutable_deps();
+
+  // .tkJute.BallotJute ballot = 4;
+  bool has_ballot() const;
+  void clear_ballot();
+  static const int kBallotFieldNumber = 4;
+  const ::tkJute::BallotJute& ballot() const;
+  ::tkJute::BallotJute* mutable_ballot();
+  ::tkJute::BallotJute* release_ballot();
+  void set_allocated_ballot(::tkJute::BallotJute* ballot);
+
+  // .tkJute.PackedRecoveryInfoJute packedrecoveryinfo = 8;
+  bool has_packedrecoveryinfo() const;
+  void clear_packedrecoveryinfo();
+  static const int kPackedrecoveryinfoFieldNumber = 8;
+  const ::tkJute::PackedRecoveryInfoJute& packedrecoveryinfo() const;
+  ::tkJute::PackedRecoveryInfoJute* mutable_packedrecoveryinfo();
+  ::tkJute::PackedRecoveryInfoJute* release_packedrecoveryinfo();
+  void set_allocated_packedrecoveryinfo(::tkJute::PackedRecoveryInfoJute* packedrecoveryinfo);
+
+  // uint32 status = 3;
+  void clear_status();
+  static const int kStatusFieldNumber = 3;
+  ::google::protobuf::uint32 status() const;
+  void set_status(::google::protobuf::uint32 value);
+
+  // uint32 rowId = 5;
+  void clear_rowid();
+  static const int kRowIdFieldNumber = 5;
+  ::google::protobuf::uint32 rowid() const;
+  void set_rowid(::google::protobuf::uint32 value);
+
+  // uint64 Id = 6;
+  void clear_id();
+  static const int kIdFieldNumber = 6;
+  ::google::protobuf::uint64 id() const;
+  void set_id(::google::protobuf::uint64 value);
+
+  // bool executed = 7;
+  void clear_executed();
+  static const int kExecutedFieldNumber = 7;
+  bool executed() const;
+  void set_executed(bool value);
+
+  // @@protoc_insertion_point(class_scope:tkJute.PackedInstanceJute)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute > commands_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint64 > deps_;
+  mutable int _deps_cached_byte_size_;
+  ::tkJute::BallotJute* ballot_;
+  ::tkJute::PackedRecoveryInfoJute* packedrecoveryinfo_;
+  ::google::protobuf::uint32 status_;
+  ::google::protobuf::uint32 rowid_;
+  ::google::protobuf::uint64 id_;
+  bool executed_;
   mutable int _cached_size_;
   friend struct protobuf_protobuff_2eproto::TableStruct;
 };
@@ -1634,7 +4106,49 @@ inline void tk_command_jute::set_allocated_key(::std::string* key) {
   // @@protoc_insertion_point(field_set_allocated:tkJute.tk_command_jute.key)
 }
 
-// string val = 3;
+// int64 sessioId = 3;
+inline void tk_command_jute::clear_sessioid() {
+  sessioid_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 tk_command_jute::sessioid() const {
+  // @@protoc_insertion_point(field_get:tkJute.tk_command_jute.sessioId)
+  return sessioid_;
+}
+inline void tk_command_jute::set_sessioid(::google::protobuf::int64 value) {
+  
+  sessioid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.tk_command_jute.sessioId)
+}
+
+// int32 owner = 4;
+inline void tk_command_jute::clear_owner() {
+  owner_ = 0;
+}
+inline ::google::protobuf::int32 tk_command_jute::owner() const {
+  // @@protoc_insertion_point(field_get:tkJute.tk_command_jute.owner)
+  return owner_;
+}
+inline void tk_command_jute::set_owner(::google::protobuf::int32 value) {
+  
+  owner_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.tk_command_jute.owner)
+}
+
+// int32 valSize = 5;
+inline void tk_command_jute::clear_valsize() {
+  valsize_ = 0;
+}
+inline ::google::protobuf::int32 tk_command_jute::valsize() const {
+  // @@protoc_insertion_point(field_get:tkJute.tk_command_jute.valSize)
+  return valsize_;
+}
+inline void tk_command_jute::set_valsize(::google::protobuf::int32 value) {
+  
+  valsize_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.tk_command_jute.valSize)
+}
+
+// string val = 6;
 inline void tk_command_jute::clear_val() {
   val_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1690,7 +4204,21 @@ inline void tk_command_jute::set_allocated_val(::std::string* val) {
 
 // PrepareJute
 
-// int32 LeaderId = 1;
+// uint32 Type = 1;
+inline void PrepareJute::clear_type() {
+  type_ = 0u;
+}
+inline ::google::protobuf::uint32 PrepareJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.PrepareJute.Type)
+  return type_;
+}
+inline void PrepareJute::set_type(::google::protobuf::uint32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PrepareJute.Type)
+}
+
+// int32 LeaderId = 2;
 inline void PrepareJute::clear_leaderid() {
   leaderid_ = 0;
 }
@@ -1704,7 +4232,7 @@ inline void PrepareJute::set_leaderid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PrepareJute.LeaderId)
 }
 
-// int32 Replica = 2;
+// int32 Replica = 3;
 inline void PrepareJute::clear_replica() {
   replica_ = 0;
 }
@@ -1718,7 +4246,7 @@ inline void PrepareJute::set_replica(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PrepareJute.Replica)
 }
 
-// int32 Instance = 3;
+// int32 Instance = 4;
 inline void PrepareJute::clear_instance() {
   instance_ = 0;
 }
@@ -1732,7 +4260,7 @@ inline void PrepareJute::set_instance(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PrepareJute.Instance)
 }
 
-// int32 Ballot = 4;
+// int32 Ballot = 5;
 inline void PrepareJute::clear_ballot() {
   ballot_ = 0;
 }
@@ -1750,77 +4278,35 @@ inline void PrepareJute::set_ballot(::google::protobuf::int32 value) {
 
 // PrepareReplyJute
 
-// int32 AcceptorId = 1;
-inline void PrepareReplyJute::clear_acceptorid() {
-  acceptorid_ = 0;
+// int32 Type = 1;
+inline void PrepareReplyJute::clear_type() {
+  type_ = 0;
 }
-inline ::google::protobuf::int32 PrepareReplyJute::acceptorid() const {
-  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.AcceptorId)
-  return acceptorid_;
+inline ::google::protobuf::int32 PrepareReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Type)
+  return type_;
 }
-inline void PrepareReplyJute::set_acceptorid(::google::protobuf::int32 value) {
+inline void PrepareReplyJute::set_type(::google::protobuf::int32 value) {
   
-  acceptorid_ = value;
-  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.AcceptorId)
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Type)
 }
 
-// int32 Replica = 2;
-inline void PrepareReplyJute::clear_replica() {
-  replica_ = 0;
-}
-inline ::google::protobuf::int32 PrepareReplyJute::replica() const {
-  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Replica)
-  return replica_;
-}
-inline void PrepareReplyJute::set_replica(::google::protobuf::int32 value) {
-  
-  replica_ = value;
-  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Replica)
-}
-
-// int32 Instance = 3;
-inline void PrepareReplyJute::clear_instance() {
-  instance_ = 0;
-}
-inline ::google::protobuf::int32 PrepareReplyJute::instance() const {
-  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Instance)
-  return instance_;
-}
-inline void PrepareReplyJute::set_instance(::google::protobuf::int32 value) {
-  
-  instance_ = value;
-  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Instance)
-}
-
-// int32 Ok = 4;
+// bool Ok = 2;
 inline void PrepareReplyJute::clear_ok() {
-  ok_ = 0;
+  ok_ = false;
 }
-inline ::google::protobuf::int32 PrepareReplyJute::ok() const {
+inline bool PrepareReplyJute::ok() const {
   // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Ok)
   return ok_;
 }
-inline void PrepareReplyJute::set_ok(::google::protobuf::int32 value) {
+inline void PrepareReplyJute::set_ok(bool value) {
   
   ok_ = value;
   // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Ok)
 }
 
-// int32 Ballot = 5;
-inline void PrepareReplyJute::clear_ballot() {
-  ballot_ = 0;
-}
-inline ::google::protobuf::int32 PrepareReplyJute::ballot() const {
-  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Ballot)
-  return ballot_;
-}
-inline void PrepareReplyJute::set_ballot(::google::protobuf::int32 value) {
-  
-  ballot_ = value;
-  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Ballot)
-}
-
-// int32 Status = 6;
+// int32 Status = 3;
 inline void PrepareReplyJute::clear_status() {
   status_ = 0;
 }
@@ -1834,43 +4320,60 @@ inline void PrepareReplyJute::set_status(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Status)
 }
 
-// .tkJute.tk_command_jute cmd = 7;
-inline bool PrepareReplyJute::has_cmd() const {
-  return this != internal_default_instance() && cmd_ != NULL;
+// int32 AcceptorId = 4;
+inline void PrepareReplyJute::clear_acceptorid() {
+  acceptorid_ = 0;
 }
-inline void PrepareReplyJute::clear_cmd() {
-  if (GetArenaNoVirtual() == NULL && cmd_ != NULL) delete cmd_;
-  cmd_ = NULL;
+inline ::google::protobuf::int32 PrepareReplyJute::acceptorid() const {
+  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.AcceptorId)
+  return acceptorid_;
 }
-inline const ::tkJute::tk_command_jute& PrepareReplyJute::cmd() const {
-  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.cmd)
-  return cmd_ != NULL ? *cmd_
-                         : *::tkJute::tk_command_jute::internal_default_instance();
-}
-inline ::tkJute::tk_command_jute* PrepareReplyJute::mutable_cmd() {
+inline void PrepareReplyJute::set_acceptorid(::google::protobuf::int32 value) {
   
-  if (cmd_ == NULL) {
-    cmd_ = new ::tkJute::tk_command_jute;
-  }
-  // @@protoc_insertion_point(field_mutable:tkJute.PrepareReplyJute.cmd)
-  return cmd_;
+  acceptorid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.AcceptorId)
 }
-inline ::tkJute::tk_command_jute* PrepareReplyJute::release_cmd() {
-  // @@protoc_insertion_point(field_release:tkJute.PrepareReplyJute.cmd)
+
+// int32 Replica = 5;
+inline void PrepareReplyJute::clear_replica() {
+  replica_ = 0;
+}
+inline ::google::protobuf::int32 PrepareReplyJute::replica() const {
+  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Replica)
+  return replica_;
+}
+inline void PrepareReplyJute::set_replica(::google::protobuf::int32 value) {
   
-  ::tkJute::tk_command_jute* temp = cmd_;
-  cmd_ = NULL;
-  return temp;
+  replica_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Replica)
 }
-inline void PrepareReplyJute::set_allocated_cmd(::tkJute::tk_command_jute* cmd) {
-  delete cmd_;
-  cmd_ = cmd;
-  if (cmd) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_set_allocated:tkJute.PrepareReplyJute.cmd)
+
+// int32 Instance = 6;
+inline void PrepareReplyJute::clear_instance() {
+  instance_ = 0;
+}
+inline ::google::protobuf::int32 PrepareReplyJute::instance() const {
+  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Instance)
+  return instance_;
+}
+inline void PrepareReplyJute::set_instance(::google::protobuf::int32 value) {
+  
+  instance_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Instance)
+}
+
+// int32 Ballot = 7;
+inline void PrepareReplyJute::clear_ballot() {
+  ballot_ = 0;
+}
+inline ::google::protobuf::int32 PrepareReplyJute::ballot() const {
+  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Ballot)
+  return ballot_;
+}
+inline void PrepareReplyJute::set_ballot(::google::protobuf::int32 value) {
+  
+  ballot_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Ballot)
 }
 
 // int32 Seq = 8;
@@ -1887,7 +4390,37 @@ inline void PrepareReplyJute::set_seq(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PrepareReplyJute.Seq)
 }
 
-// repeated int32 Deps = 9;
+// repeated .tkJute.tk_command_jute Command = 9;
+inline int PrepareReplyJute::command_size() const {
+  return command_.size();
+}
+inline void PrepareReplyJute::clear_command() {
+  command_.Clear();
+}
+inline const ::tkJute::tk_command_jute& PrepareReplyJute::command(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.PrepareReplyJute.Command)
+  return command_.Get(index);
+}
+inline ::tkJute::tk_command_jute* PrepareReplyJute::mutable_command(int index) {
+  // @@protoc_insertion_point(field_mutable:tkJute.PrepareReplyJute.Command)
+  return command_.Mutable(index);
+}
+inline ::tkJute::tk_command_jute* PrepareReplyJute::add_command() {
+  // @@protoc_insertion_point(field_add:tkJute.PrepareReplyJute.Command)
+  return command_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+PrepareReplyJute::mutable_command() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.PrepareReplyJute.Command)
+  return &command_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+PrepareReplyJute::command() const {
+  // @@protoc_insertion_point(field_list:tkJute.PrepareReplyJute.Command)
+  return command_;
+}
+
+// repeated int32 Deps = 10;
 inline int PrepareReplyJute::deps_size() const {
   return deps_.size();
 }
@@ -1921,7 +4454,21 @@ PrepareReplyJute::mutable_deps() {
 
 // PreAcceptJute
 
-// int32 LeaderId = 1;
+// int32 Type = 1;
+inline void PreAcceptJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 PreAcceptJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.PreAcceptJute.Type)
+  return type_;
+}
+inline void PreAcceptJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PreAcceptJute.Type)
+}
+
+// int32 LeaderId = 2;
 inline void PreAcceptJute::clear_leaderid() {
   leaderid_ = 0;
 }
@@ -1935,7 +4482,7 @@ inline void PreAcceptJute::set_leaderid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptJute.LeaderId)
 }
 
-// int32 Replica = 2;
+// int32 Replica = 3;
 inline void PreAcceptJute::clear_replica() {
   replica_ = 0;
 }
@@ -1949,7 +4496,7 @@ inline void PreAcceptJute::set_replica(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptJute.Replica)
 }
 
-// int32 Instance = 3;
+// int32 Instance = 4;
 inline void PreAcceptJute::clear_instance() {
   instance_ = 0;
 }
@@ -1963,7 +4510,7 @@ inline void PreAcceptJute::set_instance(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptJute.Instance)
 }
 
-// int32 Ballot = 4;
+// int32 Ballot = 5;
 inline void PreAcceptJute::clear_ballot() {
   ballot_ = 0;
 }
@@ -1975,45 +4522,6 @@ inline void PreAcceptJute::set_ballot(::google::protobuf::int32 value) {
   
   ballot_ = value;
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptJute.Ballot)
-}
-
-// .tkJute.tk_command_jute cmd = 5;
-inline bool PreAcceptJute::has_cmd() const {
-  return this != internal_default_instance() && cmd_ != NULL;
-}
-inline void PreAcceptJute::clear_cmd() {
-  if (GetArenaNoVirtual() == NULL && cmd_ != NULL) delete cmd_;
-  cmd_ = NULL;
-}
-inline const ::tkJute::tk_command_jute& PreAcceptJute::cmd() const {
-  // @@protoc_insertion_point(field_get:tkJute.PreAcceptJute.cmd)
-  return cmd_ != NULL ? *cmd_
-                         : *::tkJute::tk_command_jute::internal_default_instance();
-}
-inline ::tkJute::tk_command_jute* PreAcceptJute::mutable_cmd() {
-  
-  if (cmd_ == NULL) {
-    cmd_ = new ::tkJute::tk_command_jute;
-  }
-  // @@protoc_insertion_point(field_mutable:tkJute.PreAcceptJute.cmd)
-  return cmd_;
-}
-inline ::tkJute::tk_command_jute* PreAcceptJute::release_cmd() {
-  // @@protoc_insertion_point(field_release:tkJute.PreAcceptJute.cmd)
-  
-  ::tkJute::tk_command_jute* temp = cmd_;
-  cmd_ = NULL;
-  return temp;
-}
-inline void PreAcceptJute::set_allocated_cmd(::tkJute::tk_command_jute* cmd) {
-  delete cmd_;
-  cmd_ = cmd;
-  if (cmd) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_set_allocated:tkJute.PreAcceptJute.cmd)
 }
 
 // int32 Seq = 6;
@@ -2030,7 +4538,37 @@ inline void PreAcceptJute::set_seq(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptJute.Seq)
 }
 
-// repeated int32 Deps = 7;
+// repeated .tkJute.tk_command_jute Command = 7;
+inline int PreAcceptJute::command_size() const {
+  return command_.size();
+}
+inline void PreAcceptJute::clear_command() {
+  command_.Clear();
+}
+inline const ::tkJute::tk_command_jute& PreAcceptJute::command(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.PreAcceptJute.Command)
+  return command_.Get(index);
+}
+inline ::tkJute::tk_command_jute* PreAcceptJute::mutable_command(int index) {
+  // @@protoc_insertion_point(field_mutable:tkJute.PreAcceptJute.Command)
+  return command_.Mutable(index);
+}
+inline ::tkJute::tk_command_jute* PreAcceptJute::add_command() {
+  // @@protoc_insertion_point(field_add:tkJute.PreAcceptJute.Command)
+  return command_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+PreAcceptJute::mutable_command() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.PreAcceptJute.Command)
+  return &command_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+PreAcceptJute::command() const {
+  // @@protoc_insertion_point(field_list:tkJute.PreAcceptJute.Command)
+  return command_;
+}
+
+// repeated int32 Deps = 8;
 inline int PreAcceptJute::deps_size() const {
   return deps_.size();
 }
@@ -2064,7 +4602,35 @@ PreAcceptJute::mutable_deps() {
 
 // PreAcceptReplyJute
 
-// int32 Replica = 1;
+// int32 Type = 1;
+inline void PreAcceptReplyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 PreAcceptReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.PreAcceptReplyJute.Type)
+  return type_;
+}
+inline void PreAcceptReplyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PreAcceptReplyJute.Type)
+}
+
+// bool Ok = 2;
+inline void PreAcceptReplyJute::clear_ok() {
+  ok_ = false;
+}
+inline bool PreAcceptReplyJute::ok() const {
+  // @@protoc_insertion_point(field_get:tkJute.PreAcceptReplyJute.Ok)
+  return ok_;
+}
+inline void PreAcceptReplyJute::set_ok(bool value) {
+  
+  ok_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PreAcceptReplyJute.Ok)
+}
+
+// int32 Replica = 3;
 inline void PreAcceptReplyJute::clear_replica() {
   replica_ = 0;
 }
@@ -2078,7 +4644,7 @@ inline void PreAcceptReplyJute::set_replica(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptReplyJute.Replica)
 }
 
-// int32 Instance = 2;
+// int32 Instance = 4;
 inline void PreAcceptReplyJute::clear_instance() {
   instance_ = 0;
 }
@@ -2092,21 +4658,7 @@ inline void PreAcceptReplyJute::set_instance(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptReplyJute.Instance)
 }
 
-// int32 Ok = 3;
-inline void PreAcceptReplyJute::clear_ok() {
-  ok_ = 0;
-}
-inline ::google::protobuf::int32 PreAcceptReplyJute::ok() const {
-  // @@protoc_insertion_point(field_get:tkJute.PreAcceptReplyJute.Ok)
-  return ok_;
-}
-inline void PreAcceptReplyJute::set_ok(::google::protobuf::int32 value) {
-  
-  ok_ = value;
-  // @@protoc_insertion_point(field_set:tkJute.PreAcceptReplyJute.Ok)
-}
-
-// int32 Ballot = 4;
+// int32 Ballot = 5;
 inline void PreAcceptReplyJute::clear_ballot() {
   ballot_ = 0;
 }
@@ -2120,7 +4672,7 @@ inline void PreAcceptReplyJute::set_ballot(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptReplyJute.Ballot)
 }
 
-// int32 Seq = 5;
+// int32 Seq = 6;
 inline void PreAcceptReplyJute::clear_seq() {
   seq_ = 0;
 }
@@ -2134,7 +4686,7 @@ inline void PreAcceptReplyJute::set_seq(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.PreAcceptReplyJute.Seq)
 }
 
-// repeated int32 Deps = 6;
+// repeated int32 Deps = 7;
 inline int PreAcceptReplyJute::deps_size() const {
   return deps_.size();
 }
@@ -2164,7 +4716,7 @@ PreAcceptReplyJute::mutable_deps() {
   return &deps_;
 }
 
-// repeated int32 CommittedDeps = 7;
+// repeated int32 CommittedDeps = 8;
 inline int PreAcceptReplyJute::committeddeps_size() const {
   return committeddeps_.size();
 }
@@ -2198,7 +4750,21 @@ PreAcceptReplyJute::mutable_committeddeps() {
 
 // PreAcceptOkJute
 
-// int32 Instance = 1;
+// int32 Type = 1;
+inline void PreAcceptOkJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 PreAcceptOkJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.PreAcceptOkJute.Type)
+  return type_;
+}
+inline void PreAcceptOkJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PreAcceptOkJute.Type)
+}
+
+// int32 Instance = 2;
 inline void PreAcceptOkJute::clear_instance() {
   instance_ = 0;
 }
@@ -2216,7 +4782,21 @@ inline void PreAcceptOkJute::set_instance(::google::protobuf::int32 value) {
 
 // AcceptJute
 
-// int32 LeaderId = 1;
+// int32 Type = 1;
+inline void AcceptJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 AcceptJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.AcceptJute.Type)
+  return type_;
+}
+inline void AcceptJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.AcceptJute.Type)
+}
+
+// int32 LeaderId = 2;
 inline void AcceptJute::clear_leaderid() {
   leaderid_ = 0;
 }
@@ -2230,7 +4810,7 @@ inline void AcceptJute::set_leaderid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.AcceptJute.LeaderId)
 }
 
-// int32 Replica = 2;
+// int32 Replica = 3;
 inline void AcceptJute::clear_replica() {
   replica_ = 0;
 }
@@ -2244,7 +4824,7 @@ inline void AcceptJute::set_replica(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.AcceptJute.Replica)
 }
 
-// int32 Instance = 3;
+// int32 Instance = 4;
 inline void AcceptJute::clear_instance() {
   instance_ = 0;
 }
@@ -2258,7 +4838,7 @@ inline void AcceptJute::set_instance(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.AcceptJute.Instance)
 }
 
-// int32 Ballot = 4;
+// int32 Ballot = 5;
 inline void AcceptJute::clear_ballot() {
   ballot_ = 0;
 }
@@ -2272,7 +4852,7 @@ inline void AcceptJute::set_ballot(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.AcceptJute.Ballot)
 }
 
-// int32 Count = 5;
+// int32 Count = 6;
 inline void AcceptJute::clear_count() {
   count_ = 0;
 }
@@ -2286,7 +4866,7 @@ inline void AcceptJute::set_count(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.AcceptJute.Count)
 }
 
-// int32 Seq = 6;
+// int32 Seq = 7;
 inline void AcceptJute::clear_seq() {
   seq_ = 0;
 }
@@ -2300,7 +4880,7 @@ inline void AcceptJute::set_seq(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.AcceptJute.Seq)
 }
 
-// repeated int32 Deps = 7;
+// repeated int32 Deps = 8;
 inline int AcceptJute::deps_size() const {
   return deps_.size();
 }
@@ -2334,7 +4914,35 @@ AcceptJute::mutable_deps() {
 
 // AcceptReplyJute
 
-// int32 Replica = 1;
+// int32 Type = 1;
+inline void AcceptReplyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 AcceptReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.AcceptReplyJute.Type)
+  return type_;
+}
+inline void AcceptReplyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.AcceptReplyJute.Type)
+}
+
+// bool Ok = 2;
+inline void AcceptReplyJute::clear_ok() {
+  ok_ = false;
+}
+inline bool AcceptReplyJute::ok() const {
+  // @@protoc_insertion_point(field_get:tkJute.AcceptReplyJute.Ok)
+  return ok_;
+}
+inline void AcceptReplyJute::set_ok(bool value) {
+  
+  ok_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.AcceptReplyJute.Ok)
+}
+
+// int32 Replica = 3;
 inline void AcceptReplyJute::clear_replica() {
   replica_ = 0;
 }
@@ -2348,7 +4956,7 @@ inline void AcceptReplyJute::set_replica(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.AcceptReplyJute.Replica)
 }
 
-// int32 Instance = 2;
+// int32 Instance = 4;
 inline void AcceptReplyJute::clear_instance() {
   instance_ = 0;
 }
@@ -2362,21 +4970,7 @@ inline void AcceptReplyJute::set_instance(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.AcceptReplyJute.Instance)
 }
 
-// int32 Ok = 3;
-inline void AcceptReplyJute::clear_ok() {
-  ok_ = 0;
-}
-inline ::google::protobuf::int32 AcceptReplyJute::ok() const {
-  // @@protoc_insertion_point(field_get:tkJute.AcceptReplyJute.Ok)
-  return ok_;
-}
-inline void AcceptReplyJute::set_ok(::google::protobuf::int32 value) {
-  
-  ok_ = value;
-  // @@protoc_insertion_point(field_set:tkJute.AcceptReplyJute.Ok)
-}
-
-// int32 Ballot = 4;
+// int32 Ballot = 5;
 inline void AcceptReplyJute::clear_ballot() {
   ballot_ = 0;
 }
@@ -2394,7 +4988,21 @@ inline void AcceptReplyJute::set_ballot(::google::protobuf::int32 value) {
 
 // CommitJute
 
-// int32 LeaderId = 1;
+// int32 Type = 1;
+inline void CommitJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 CommitJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.CommitJute.Type)
+  return type_;
+}
+inline void CommitJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.CommitJute.Type)
+}
+
+// int32 LeaderId = 2;
 inline void CommitJute::clear_leaderid() {
   leaderid_ = 0;
 }
@@ -2408,7 +5016,7 @@ inline void CommitJute::set_leaderid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.CommitJute.LeaderId)
 }
 
-// int32 Replica = 2;
+// int32 Replica = 3;
 inline void CommitJute::clear_replica() {
   replica_ = 0;
 }
@@ -2422,7 +5030,7 @@ inline void CommitJute::set_replica(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.CommitJute.Replica)
 }
 
-// int32 Instance = 3;
+// int32 Instance = 4;
 inline void CommitJute::clear_instance() {
   instance_ = 0;
 }
@@ -2434,45 +5042,6 @@ inline void CommitJute::set_instance(::google::protobuf::int32 value) {
   
   instance_ = value;
   // @@protoc_insertion_point(field_set:tkJute.CommitJute.Instance)
-}
-
-// .tkJute.tk_command_jute cmd = 4;
-inline bool CommitJute::has_cmd() const {
-  return this != internal_default_instance() && cmd_ != NULL;
-}
-inline void CommitJute::clear_cmd() {
-  if (GetArenaNoVirtual() == NULL && cmd_ != NULL) delete cmd_;
-  cmd_ = NULL;
-}
-inline const ::tkJute::tk_command_jute& CommitJute::cmd() const {
-  // @@protoc_insertion_point(field_get:tkJute.CommitJute.cmd)
-  return cmd_ != NULL ? *cmd_
-                         : *::tkJute::tk_command_jute::internal_default_instance();
-}
-inline ::tkJute::tk_command_jute* CommitJute::mutable_cmd() {
-  
-  if (cmd_ == NULL) {
-    cmd_ = new ::tkJute::tk_command_jute;
-  }
-  // @@protoc_insertion_point(field_mutable:tkJute.CommitJute.cmd)
-  return cmd_;
-}
-inline ::tkJute::tk_command_jute* CommitJute::release_cmd() {
-  // @@protoc_insertion_point(field_release:tkJute.CommitJute.cmd)
-  
-  ::tkJute::tk_command_jute* temp = cmd_;
-  cmd_ = NULL;
-  return temp;
-}
-inline void CommitJute::set_allocated_cmd(::tkJute::tk_command_jute* cmd) {
-  delete cmd_;
-  cmd_ = cmd;
-  if (cmd) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_set_allocated:tkJute.CommitJute.cmd)
 }
 
 // int32 Seq = 5;
@@ -2489,7 +5058,37 @@ inline void CommitJute::set_seq(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.CommitJute.Seq)
 }
 
-// repeated int32 Deps = 6;
+// repeated .tkJute.tk_command_jute Command = 6;
+inline int CommitJute::command_size() const {
+  return command_.size();
+}
+inline void CommitJute::clear_command() {
+  command_.Clear();
+}
+inline const ::tkJute::tk_command_jute& CommitJute::command(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.CommitJute.Command)
+  return command_.Get(index);
+}
+inline ::tkJute::tk_command_jute* CommitJute::mutable_command(int index) {
+  // @@protoc_insertion_point(field_mutable:tkJute.CommitJute.Command)
+  return command_.Mutable(index);
+}
+inline ::tkJute::tk_command_jute* CommitJute::add_command() {
+  // @@protoc_insertion_point(field_add:tkJute.CommitJute.Command)
+  return command_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+CommitJute::mutable_command() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.CommitJute.Command)
+  return &command_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+CommitJute::command() const {
+  // @@protoc_insertion_point(field_list:tkJute.CommitJute.Command)
+  return command_;
+}
+
+// repeated int32 Deps = 7;
 inline int CommitJute::deps_size() const {
   return deps_.size();
 }
@@ -2523,7 +5122,21 @@ CommitJute::mutable_deps() {
 
 // CommitShortJute
 
-// int32 LeaderId = 1;
+// int32 Type = 1;
+inline void CommitShortJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 CommitShortJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.CommitShortJute.Type)
+  return type_;
+}
+inline void CommitShortJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.CommitShortJute.Type)
+}
+
+// int32 LeaderId = 2;
 inline void CommitShortJute::clear_leaderid() {
   leaderid_ = 0;
 }
@@ -2537,7 +5150,7 @@ inline void CommitShortJute::set_leaderid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.CommitShortJute.LeaderId)
 }
 
-// int32 Replica = 2;
+// int32 Replica = 3;
 inline void CommitShortJute::clear_replica() {
   replica_ = 0;
 }
@@ -2551,7 +5164,7 @@ inline void CommitShortJute::set_replica(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.CommitShortJute.Replica)
 }
 
-// int32 Instance = 3;
+// int32 Instance = 4;
 inline void CommitShortJute::clear_instance() {
   instance_ = 0;
 }
@@ -2565,7 +5178,7 @@ inline void CommitShortJute::set_instance(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.CommitShortJute.Instance)
 }
 
-// int32 Count = 4;
+// int32 Count = 5;
 inline void CommitShortJute::clear_count() {
   count_ = 0;
 }
@@ -2579,7 +5192,7 @@ inline void CommitShortJute::set_count(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.CommitShortJute.Count)
 }
 
-// int32 Seq = 5;
+// int32 Seq = 6;
 inline void CommitShortJute::clear_seq() {
   seq_ = 0;
 }
@@ -2593,7 +5206,7 @@ inline void CommitShortJute::set_seq(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.CommitShortJute.Seq)
 }
 
-// repeated int32 Deps = 6;
+// repeated int32 Deps = 7;
 inline int CommitShortJute::deps_size() const {
   return deps_.size();
 }
@@ -2627,7 +5240,21 @@ CommitShortJute::mutable_deps() {
 
 // TryPreAcceptJute
 
-// int32 LeaderId = 1;
+// int32 Type = 1;
+inline void TryPreAcceptJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 TryPreAcceptJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.TryPreAcceptJute.Type)
+  return type_;
+}
+inline void TryPreAcceptJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptJute.Type)
+}
+
+// int32 LeaderId = 2;
 inline void TryPreAcceptJute::clear_leaderid() {
   leaderid_ = 0;
 }
@@ -2641,7 +5268,7 @@ inline void TryPreAcceptJute::set_leaderid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptJute.LeaderId)
 }
 
-// int32 Replica = 2;
+// int32 Replica = 3;
 inline void TryPreAcceptJute::clear_replica() {
   replica_ = 0;
 }
@@ -2655,7 +5282,7 @@ inline void TryPreAcceptJute::set_replica(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptJute.Replica)
 }
 
-// int32 Instance = 3;
+// int32 Instance = 4;
 inline void TryPreAcceptJute::clear_instance() {
   instance_ = 0;
 }
@@ -2669,7 +5296,7 @@ inline void TryPreAcceptJute::set_instance(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptJute.Instance)
 }
 
-// int32 Ballot = 4;
+// int32 Ballot = 5;
 inline void TryPreAcceptJute::clear_ballot() {
   ballot_ = 0;
 }
@@ -2681,45 +5308,6 @@ inline void TryPreAcceptJute::set_ballot(::google::protobuf::int32 value) {
   
   ballot_ = value;
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptJute.Ballot)
-}
-
-// .tkJute.tk_command_jute cmd = 5;
-inline bool TryPreAcceptJute::has_cmd() const {
-  return this != internal_default_instance() && cmd_ != NULL;
-}
-inline void TryPreAcceptJute::clear_cmd() {
-  if (GetArenaNoVirtual() == NULL && cmd_ != NULL) delete cmd_;
-  cmd_ = NULL;
-}
-inline const ::tkJute::tk_command_jute& TryPreAcceptJute::cmd() const {
-  // @@protoc_insertion_point(field_get:tkJute.TryPreAcceptJute.cmd)
-  return cmd_ != NULL ? *cmd_
-                         : *::tkJute::tk_command_jute::internal_default_instance();
-}
-inline ::tkJute::tk_command_jute* TryPreAcceptJute::mutable_cmd() {
-  
-  if (cmd_ == NULL) {
-    cmd_ = new ::tkJute::tk_command_jute;
-  }
-  // @@protoc_insertion_point(field_mutable:tkJute.TryPreAcceptJute.cmd)
-  return cmd_;
-}
-inline ::tkJute::tk_command_jute* TryPreAcceptJute::release_cmd() {
-  // @@protoc_insertion_point(field_release:tkJute.TryPreAcceptJute.cmd)
-  
-  ::tkJute::tk_command_jute* temp = cmd_;
-  cmd_ = NULL;
-  return temp;
-}
-inline void TryPreAcceptJute::set_allocated_cmd(::tkJute::tk_command_jute* cmd) {
-  delete cmd_;
-  cmd_ = cmd;
-  if (cmd) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_set_allocated:tkJute.TryPreAcceptJute.cmd)
 }
 
 // int32 Seq = 6;
@@ -2736,7 +5324,37 @@ inline void TryPreAcceptJute::set_seq(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptJute.Seq)
 }
 
-// repeated int32 Deps = 7;
+// repeated .tkJute.tk_command_jute Command = 7;
+inline int TryPreAcceptJute::command_size() const {
+  return command_.size();
+}
+inline void TryPreAcceptJute::clear_command() {
+  command_.Clear();
+}
+inline const ::tkJute::tk_command_jute& TryPreAcceptJute::command(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.TryPreAcceptJute.Command)
+  return command_.Get(index);
+}
+inline ::tkJute::tk_command_jute* TryPreAcceptJute::mutable_command(int index) {
+  // @@protoc_insertion_point(field_mutable:tkJute.TryPreAcceptJute.Command)
+  return command_.Mutable(index);
+}
+inline ::tkJute::tk_command_jute* TryPreAcceptJute::add_command() {
+  // @@protoc_insertion_point(field_add:tkJute.TryPreAcceptJute.Command)
+  return command_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+TryPreAcceptJute::mutable_command() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.TryPreAcceptJute.Command)
+  return &command_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+TryPreAcceptJute::command() const {
+  // @@protoc_insertion_point(field_list:tkJute.TryPreAcceptJute.Command)
+  return command_;
+}
+
+// repeated int32 Deps = 8;
 inline int TryPreAcceptJute::deps_size() const {
   return deps_.size();
 }
@@ -2770,7 +5388,35 @@ TryPreAcceptJute::mutable_deps() {
 
 // TryPreAcceptReplyJute
 
-// int32 AcceptorId = 1;
+// int32 Type = 1;
+inline void TryPreAcceptReplyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 TryPreAcceptReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.TryPreAcceptReplyJute.Type)
+  return type_;
+}
+inline void TryPreAcceptReplyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.Type)
+}
+
+// bool Ok = 2;
+inline void TryPreAcceptReplyJute::clear_ok() {
+  ok_ = false;
+}
+inline bool TryPreAcceptReplyJute::ok() const {
+  // @@protoc_insertion_point(field_get:tkJute.TryPreAcceptReplyJute.Ok)
+  return ok_;
+}
+inline void TryPreAcceptReplyJute::set_ok(bool value) {
+  
+  ok_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.Ok)
+}
+
+// int32 AcceptorId = 3;
 inline void TryPreAcceptReplyJute::clear_acceptorid() {
   acceptorid_ = 0;
 }
@@ -2784,7 +5430,7 @@ inline void TryPreAcceptReplyJute::set_acceptorid(::google::protobuf::int32 valu
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.AcceptorId)
 }
 
-// int32 Replica = 2;
+// int32 Replica = 4;
 inline void TryPreAcceptReplyJute::clear_replica() {
   replica_ = 0;
 }
@@ -2798,7 +5444,7 @@ inline void TryPreAcceptReplyJute::set_replica(::google::protobuf::int32 value) 
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.Replica)
 }
 
-// int32 Instance = 3;
+// int32 Instance = 5;
 inline void TryPreAcceptReplyJute::clear_instance() {
   instance_ = 0;
 }
@@ -2812,21 +5458,7 @@ inline void TryPreAcceptReplyJute::set_instance(::google::protobuf::int32 value)
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.Instance)
 }
 
-// int32 Ok = 4;
-inline void TryPreAcceptReplyJute::clear_ok() {
-  ok_ = 0;
-}
-inline ::google::protobuf::int32 TryPreAcceptReplyJute::ok() const {
-  // @@protoc_insertion_point(field_get:tkJute.TryPreAcceptReplyJute.Ok)
-  return ok_;
-}
-inline void TryPreAcceptReplyJute::set_ok(::google::protobuf::int32 value) {
-  
-  ok_ = value;
-  // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.Ok)
-}
-
-// int32 Ballot = 5;
+// int32 Ballot = 6;
 inline void TryPreAcceptReplyJute::clear_ballot() {
   ballot_ = 0;
 }
@@ -2840,7 +5472,7 @@ inline void TryPreAcceptReplyJute::set_ballot(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.Ballot)
 }
 
-// int32 ConfilctReplica = 6;
+// int32 ConfilctReplica = 7;
 inline void TryPreAcceptReplyJute::clear_confilctreplica() {
   confilctreplica_ = 0;
 }
@@ -2854,7 +5486,7 @@ inline void TryPreAcceptReplyJute::set_confilctreplica(::google::protobuf::int32
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.ConfilctReplica)
 }
 
-// int32 ConfilctInstance = 7;
+// int32 ConfilctInstance = 8;
 inline void TryPreAcceptReplyJute::clear_confilctinstance() {
   confilctinstance_ = 0;
 }
@@ -2868,7 +5500,7 @@ inline void TryPreAcceptReplyJute::set_confilctinstance(::google::protobuf::int3
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.ConfilctInstance)
 }
 
-// int32 ConfilctStatus = 8;
+// int32 ConfilctStatus = 9;
 inline void TryPreAcceptReplyJute::clear_confilctstatus() {
   confilctstatus_ = 0;
 }
@@ -2882,7 +5514,1650 @@ inline void TryPreAcceptReplyJute::set_confilctstatus(::google::protobuf::int32 
   // @@protoc_insertion_point(field_set:tkJute.TryPreAcceptReplyJute.ConfilctStatus)
 }
 
+// -------------------------------------------------------------------
+
+// ProposeJute
+
+// int32 Type = 1;
+inline void ProposeJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 ProposeJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeJute.Type)
+  return type_;
+}
+inline void ProposeJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeJute.Type)
+}
+
+// int32 CommandId = 2;
+inline void ProposeJute::clear_commandid() {
+  commandid_ = 0;
+}
+inline ::google::protobuf::int32 ProposeJute::commandid() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeJute.CommandId)
+  return commandid_;
+}
+inline void ProposeJute::set_commandid(::google::protobuf::int32 value) {
+  
+  commandid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeJute.CommandId)
+}
+
+// int64 Timestamp = 3;
+inline void ProposeJute::clear_timestamp() {
+  timestamp_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 ProposeJute::timestamp() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeJute.Timestamp)
+  return timestamp_;
+}
+inline void ProposeJute::set_timestamp(::google::protobuf::int64 value) {
+  
+  timestamp_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeJute.Timestamp)
+}
+
+// .tkJute.tk_command_jute Command = 4;
+inline bool ProposeJute::has_command() const {
+  return this != internal_default_instance() && command_ != NULL;
+}
+inline void ProposeJute::clear_command() {
+  if (GetArenaNoVirtual() == NULL && command_ != NULL) delete command_;
+  command_ = NULL;
+}
+inline const ::tkJute::tk_command_jute& ProposeJute::command() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeJute.Command)
+  return command_ != NULL ? *command_
+                         : *::tkJute::tk_command_jute::internal_default_instance();
+}
+inline ::tkJute::tk_command_jute* ProposeJute::mutable_command() {
+  
+  if (command_ == NULL) {
+    command_ = new ::tkJute::tk_command_jute;
+  }
+  // @@protoc_insertion_point(field_mutable:tkJute.ProposeJute.Command)
+  return command_;
+}
+inline ::tkJute::tk_command_jute* ProposeJute::release_command() {
+  // @@protoc_insertion_point(field_release:tkJute.ProposeJute.Command)
+  
+  ::tkJute::tk_command_jute* temp = command_;
+  command_ = NULL;
+  return temp;
+}
+inline void ProposeJute::set_allocated_command(::tkJute::tk_command_jute* command) {
+  delete command_;
+  command_ = command;
+  if (command) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:tkJute.ProposeJute.Command)
+}
+
+// -------------------------------------------------------------------
+
+// ProposeReplyJute
+
+// int32 Type = 1;
+inline void ProposeReplyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 ProposeReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyJute.Type)
+  return type_;
+}
+inline void ProposeReplyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyJute.Type)
+}
+
+// bool Ok = 2;
+inline void ProposeReplyJute::clear_ok() {
+  ok_ = false;
+}
+inline bool ProposeReplyJute::ok() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyJute.Ok)
+  return ok_;
+}
+inline void ProposeReplyJute::set_ok(bool value) {
+  
+  ok_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyJute.Ok)
+}
+
+// int32 CommandId = 3;
+inline void ProposeReplyJute::clear_commandid() {
+  commandid_ = 0;
+}
+inline ::google::protobuf::int32 ProposeReplyJute::commandid() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyJute.CommandId)
+  return commandid_;
+}
+inline void ProposeReplyJute::set_commandid(::google::protobuf::int32 value) {
+  
+  commandid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyJute.CommandId)
+}
+
+// -------------------------------------------------------------------
+
+// ProposeReplyTSJute
+
+// int32 Type = 1;
+inline void ProposeReplyTSJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 ProposeReplyTSJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyTSJute.Type)
+  return type_;
+}
+inline void ProposeReplyTSJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyTSJute.Type)
+}
+
+// bool Ok = 2;
+inline void ProposeReplyTSJute::clear_ok() {
+  ok_ = false;
+}
+inline bool ProposeReplyTSJute::ok() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyTSJute.Ok)
+  return ok_;
+}
+inline void ProposeReplyTSJute::set_ok(bool value) {
+  
+  ok_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyTSJute.Ok)
+}
+
+// int32 CommandId = 3;
+inline void ProposeReplyTSJute::clear_commandid() {
+  commandid_ = 0;
+}
+inline ::google::protobuf::int32 ProposeReplyTSJute::commandid() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyTSJute.CommandId)
+  return commandid_;
+}
+inline void ProposeReplyTSJute::set_commandid(::google::protobuf::int32 value) {
+  
+  commandid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyTSJute.CommandId)
+}
+
+// int32 ValueSize = 4;
+inline void ProposeReplyTSJute::clear_valuesize() {
+  valuesize_ = 0;
+}
+inline ::google::protobuf::int32 ProposeReplyTSJute::valuesize() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyTSJute.ValueSize)
+  return valuesize_;
+}
+inline void ProposeReplyTSJute::set_valuesize(::google::protobuf::int32 value) {
+  
+  valuesize_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyTSJute.ValueSize)
+}
+
+// string Value = 5;
+inline void ProposeReplyTSJute::clear_value() {
+  value_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& ProposeReplyTSJute::value() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyTSJute.Value)
+  return value_.GetNoArena();
+}
+inline void ProposeReplyTSJute::set_value(const ::std::string& value) {
+  
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyTSJute.Value)
+}
+#if LANG_CXX11
+inline void ProposeReplyTSJute::set_value(::std::string&& value) {
+  
+  value_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:tkJute.ProposeReplyTSJute.Value)
+}
+#endif
+inline void ProposeReplyTSJute::set_value(const char* value) {
+  
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:tkJute.ProposeReplyTSJute.Value)
+}
+inline void ProposeReplyTSJute::set_value(const char* value, size_t size) {
+  
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:tkJute.ProposeReplyTSJute.Value)
+}
+inline ::std::string* ProposeReplyTSJute::mutable_value() {
+  
+  // @@protoc_insertion_point(field_mutable:tkJute.ProposeReplyTSJute.Value)
+  return value_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* ProposeReplyTSJute::release_value() {
+  // @@protoc_insertion_point(field_release:tkJute.ProposeReplyTSJute.Value)
+  
+  return value_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void ProposeReplyTSJute::set_allocated_value(::std::string* value) {
+  if (value != NULL) {
+    
+  } else {
+    
+  }
+  value_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set_allocated:tkJute.ProposeReplyTSJute.Value)
+}
+
+// int64 Timestamp = 6;
+inline void ProposeReplyTSJute::clear_timestamp() {
+  timestamp_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 ProposeReplyTSJute::timestamp() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeReplyTSJute.Timestamp)
+  return timestamp_;
+}
+inline void ProposeReplyTSJute::set_timestamp(::google::protobuf::int64 value) {
+  
+  timestamp_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeReplyTSJute.Timestamp)
+}
+
+// -------------------------------------------------------------------
+
+// ReadJute
+
+// int32 Type = 1;
+inline void ReadJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 ReadJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.ReadJute.Type)
+  return type_;
+}
+inline void ReadJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ReadJute.Type)
+}
+
+// int32 CommandId = 2;
+inline void ReadJute::clear_commandid() {
+  commandid_ = 0;
+}
+inline ::google::protobuf::int32 ReadJute::commandid() const {
+  // @@protoc_insertion_point(field_get:tkJute.ReadJute.CommandId)
+  return commandid_;
+}
+inline void ReadJute::set_commandid(::google::protobuf::int32 value) {
+  
+  commandid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ReadJute.CommandId)
+}
+
+// string key = 3;
+inline void ReadJute::clear_key() {
+  key_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& ReadJute::key() const {
+  // @@protoc_insertion_point(field_get:tkJute.ReadJute.key)
+  return key_.GetNoArena();
+}
+inline void ReadJute::set_key(const ::std::string& value) {
+  
+  key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:tkJute.ReadJute.key)
+}
+#if LANG_CXX11
+inline void ReadJute::set_key(::std::string&& value) {
+  
+  key_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:tkJute.ReadJute.key)
+}
+#endif
+inline void ReadJute::set_key(const char* value) {
+  
+  key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:tkJute.ReadJute.key)
+}
+inline void ReadJute::set_key(const char* value, size_t size) {
+  
+  key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:tkJute.ReadJute.key)
+}
+inline ::std::string* ReadJute::mutable_key() {
+  
+  // @@protoc_insertion_point(field_mutable:tkJute.ReadJute.key)
+  return key_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* ReadJute::release_key() {
+  // @@protoc_insertion_point(field_release:tkJute.ReadJute.key)
+  
+  return key_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void ReadJute::set_allocated_key(::std::string* key) {
+  if (key != NULL) {
+    
+  } else {
+    
+  }
+  key_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), key);
+  // @@protoc_insertion_point(field_set_allocated:tkJute.ReadJute.key)
+}
+
+// -------------------------------------------------------------------
+
+// ProposeAndReadJute
+
+// int32 Type = 1;
+inline void ProposeAndReadJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 ProposeAndReadJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeAndReadJute.Type)
+  return type_;
+}
+inline void ProposeAndReadJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeAndReadJute.Type)
+}
+
+// int32 CommandId = 2;
+inline void ProposeAndReadJute::clear_commandid() {
+  commandid_ = 0;
+}
+inline ::google::protobuf::int32 ProposeAndReadJute::commandid() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeAndReadJute.CommandId)
+  return commandid_;
+}
+inline void ProposeAndReadJute::set_commandid(::google::protobuf::int32 value) {
+  
+  commandid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ProposeAndReadJute.CommandId)
+}
+
+// .tkJute.tk_command_jute Command = 3;
+inline bool ProposeAndReadJute::has_command() const {
+  return this != internal_default_instance() && command_ != NULL;
+}
+inline void ProposeAndReadJute::clear_command() {
+  if (GetArenaNoVirtual() == NULL && command_ != NULL) delete command_;
+  command_ = NULL;
+}
+inline const ::tkJute::tk_command_jute& ProposeAndReadJute::command() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeAndReadJute.Command)
+  return command_ != NULL ? *command_
+                         : *::tkJute::tk_command_jute::internal_default_instance();
+}
+inline ::tkJute::tk_command_jute* ProposeAndReadJute::mutable_command() {
+  
+  if (command_ == NULL) {
+    command_ = new ::tkJute::tk_command_jute;
+  }
+  // @@protoc_insertion_point(field_mutable:tkJute.ProposeAndReadJute.Command)
+  return command_;
+}
+inline ::tkJute::tk_command_jute* ProposeAndReadJute::release_command() {
+  // @@protoc_insertion_point(field_release:tkJute.ProposeAndReadJute.Command)
+  
+  ::tkJute::tk_command_jute* temp = command_;
+  command_ = NULL;
+  return temp;
+}
+inline void ProposeAndReadJute::set_allocated_command(::tkJute::tk_command_jute* command) {
+  delete command_;
+  command_ = command;
+  if (command) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:tkJute.ProposeAndReadJute.Command)
+}
+
+// string key = 4;
+inline void ProposeAndReadJute::clear_key() {
+  key_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& ProposeAndReadJute::key() const {
+  // @@protoc_insertion_point(field_get:tkJute.ProposeAndReadJute.key)
+  return key_.GetNoArena();
+}
+inline void ProposeAndReadJute::set_key(const ::std::string& value) {
+  
+  key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:tkJute.ProposeAndReadJute.key)
+}
+#if LANG_CXX11
+inline void ProposeAndReadJute::set_key(::std::string&& value) {
+  
+  key_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:tkJute.ProposeAndReadJute.key)
+}
+#endif
+inline void ProposeAndReadJute::set_key(const char* value) {
+  
+  key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:tkJute.ProposeAndReadJute.key)
+}
+inline void ProposeAndReadJute::set_key(const char* value, size_t size) {
+  
+  key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:tkJute.ProposeAndReadJute.key)
+}
+inline ::std::string* ProposeAndReadJute::mutable_key() {
+  
+  // @@protoc_insertion_point(field_mutable:tkJute.ProposeAndReadJute.key)
+  return key_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* ProposeAndReadJute::release_key() {
+  // @@protoc_insertion_point(field_release:tkJute.ProposeAndReadJute.key)
+  
+  return key_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void ProposeAndReadJute::set_allocated_key(::std::string* key) {
+  if (key != NULL) {
+    
+  } else {
+    
+  }
+  key_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), key);
+  // @@protoc_insertion_point(field_set_allocated:tkJute.ProposeAndReadJute.key)
+}
+
+// -------------------------------------------------------------------
+
+// InstanceIdJute
+
+// int32 Type = 1;
+inline void InstanceIdJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 InstanceIdJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.InstanceIdJute.Type)
+  return type_;
+}
+inline void InstanceIdJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.InstanceIdJute.Type)
+}
+
+// int32 replica = 2;
+inline void InstanceIdJute::clear_replica() {
+  replica_ = 0;
+}
+inline ::google::protobuf::int32 InstanceIdJute::replica() const {
+  // @@protoc_insertion_point(field_get:tkJute.InstanceIdJute.replica)
+  return replica_;
+}
+inline void InstanceIdJute::set_replica(::google::protobuf::int32 value) {
+  
+  replica_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.InstanceIdJute.replica)
+}
+
+// int32 instance = 3;
+inline void InstanceIdJute::clear_instance() {
+  instance_ = 0;
+}
+inline ::google::protobuf::int32 InstanceIdJute::instance() const {
+  // @@protoc_insertion_point(field_get:tkJute.InstanceIdJute.instance)
+  return instance_;
+}
+inline void InstanceIdJute::set_instance(::google::protobuf::int32 value) {
+  
+  instance_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.InstanceIdJute.instance)
+}
+
+// -------------------------------------------------------------------
+
+// ClockJute
+
+// int32 Type = 1;
+inline void ClockJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 ClockJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.ClockJute.Type)
+  return type_;
+}
+inline void ClockJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ClockJute.Type)
+}
+
+// -------------------------------------------------------------------
+
+// Beacon_msgJute
+
+// int32 Type = 1;
+inline void Beacon_msgJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 Beacon_msgJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.Beacon_msgJute.Type)
+  return type_;
+}
+inline void Beacon_msgJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.Beacon_msgJute.Type)
+}
+
+// int32 Rid = 2;
+inline void Beacon_msgJute::clear_rid() {
+  rid_ = 0;
+}
+inline ::google::protobuf::int32 Beacon_msgJute::rid() const {
+  // @@protoc_insertion_point(field_get:tkJute.Beacon_msgJute.Rid)
+  return rid_;
+}
+inline void Beacon_msgJute::set_rid(::google::protobuf::int32 value) {
+  
+  rid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.Beacon_msgJute.Rid)
+}
+
+// uint64 timestamp = 3;
+inline void Beacon_msgJute::clear_timestamp() {
+  timestamp_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 Beacon_msgJute::timestamp() const {
+  // @@protoc_insertion_point(field_get:tkJute.Beacon_msgJute.timestamp)
+  return timestamp_;
+}
+inline void Beacon_msgJute::set_timestamp(::google::protobuf::uint64 value) {
+  
+  timestamp_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.Beacon_msgJute.timestamp)
+}
+
+// -------------------------------------------------------------------
+
+// Beacon_msg_replyJute
+
+// int32 Type = 1;
+inline void Beacon_msg_replyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 Beacon_msg_replyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.Beacon_msg_replyJute.Type)
+  return type_;
+}
+inline void Beacon_msg_replyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.Beacon_msg_replyJute.Type)
+}
+
+// uint64 timestamp = 2;
+inline void Beacon_msg_replyJute::clear_timestamp() {
+  timestamp_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 Beacon_msg_replyJute::timestamp() const {
+  // @@protoc_insertion_point(field_get:tkJute.Beacon_msg_replyJute.timestamp)
+  return timestamp_;
+}
+inline void Beacon_msg_replyJute::set_timestamp(::google::protobuf::uint64 value) {
+  
+  timestamp_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.Beacon_msg_replyJute.timestamp)
+}
+
+// -------------------------------------------------------------------
+
+// ClientConnectJute
+
+// int32 Type = 1;
+inline void ClientConnectJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 ClientConnectJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.ClientConnectJute.Type)
+  return type_;
+}
+inline void ClientConnectJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.ClientConnectJute.Type)
+}
+
+// -------------------------------------------------------------------
+
+// RegisterArgsJute
+
+// int32 Type = 1;
+inline void RegisterArgsJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 RegisterArgsJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.RegisterArgsJute.Type)
+  return type_;
+}
+inline void RegisterArgsJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.RegisterArgsJute.Type)
+}
+
+// string Addr = 2;
+inline void RegisterArgsJute::clear_addr() {
+  addr_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& RegisterArgsJute::addr() const {
+  // @@protoc_insertion_point(field_get:tkJute.RegisterArgsJute.Addr)
+  return addr_.GetNoArena();
+}
+inline void RegisterArgsJute::set_addr(const ::std::string& value) {
+  
+  addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:tkJute.RegisterArgsJute.Addr)
+}
+#if LANG_CXX11
+inline void RegisterArgsJute::set_addr(::std::string&& value) {
+  
+  addr_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:tkJute.RegisterArgsJute.Addr)
+}
+#endif
+inline void RegisterArgsJute::set_addr(const char* value) {
+  
+  addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:tkJute.RegisterArgsJute.Addr)
+}
+inline void RegisterArgsJute::set_addr(const char* value, size_t size) {
+  
+  addr_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:tkJute.RegisterArgsJute.Addr)
+}
+inline ::std::string* RegisterArgsJute::mutable_addr() {
+  
+  // @@protoc_insertion_point(field_mutable:tkJute.RegisterArgsJute.Addr)
+  return addr_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* RegisterArgsJute::release_addr() {
+  // @@protoc_insertion_point(field_release:tkJute.RegisterArgsJute.Addr)
+  
+  return addr_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void RegisterArgsJute::set_allocated_addr(::std::string* addr) {
+  if (addr != NULL) {
+    
+  } else {
+    
+  }
+  addr_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), addr);
+  // @@protoc_insertion_point(field_set_allocated:tkJute.RegisterArgsJute.Addr)
+}
+
+// int32 Port = 3;
+inline void RegisterArgsJute::clear_port() {
+  port_ = 0;
+}
+inline ::google::protobuf::int32 RegisterArgsJute::port() const {
+  // @@protoc_insertion_point(field_get:tkJute.RegisterArgsJute.Port)
+  return port_;
+}
+inline void RegisterArgsJute::set_port(::google::protobuf::int32 value) {
+  
+  port_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.RegisterArgsJute.Port)
+}
+
+// -------------------------------------------------------------------
+
+// RegisterReplyJute
+
+// int32 Type = 1;
+inline void RegisterReplyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 RegisterReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.RegisterReplyJute.Type)
+  return type_;
+}
+inline void RegisterReplyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.RegisterReplyJute.Type)
+}
+
+// int32 ReplicaId = 2;
+inline void RegisterReplyJute::clear_replicaid() {
+  replicaid_ = 0;
+}
+inline ::google::protobuf::int32 RegisterReplyJute::replicaid() const {
+  // @@protoc_insertion_point(field_get:tkJute.RegisterReplyJute.ReplicaId)
+  return replicaid_;
+}
+inline void RegisterReplyJute::set_replicaid(::google::protobuf::int32 value) {
+  
+  replicaid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.RegisterReplyJute.ReplicaId)
+}
+
+// repeated string AddrList = 3;
+inline int RegisterReplyJute::addrlist_size() const {
+  return addrlist_.size();
+}
+inline void RegisterReplyJute::clear_addrlist() {
+  addrlist_.Clear();
+}
+inline const ::std::string& RegisterReplyJute::addrlist(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.RegisterReplyJute.AddrList)
+  return addrlist_.Get(index);
+}
+inline ::std::string* RegisterReplyJute::mutable_addrlist(int index) {
+  // @@protoc_insertion_point(field_mutable:tkJute.RegisterReplyJute.AddrList)
+  return addrlist_.Mutable(index);
+}
+inline void RegisterReplyJute::set_addrlist(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:tkJute.RegisterReplyJute.AddrList)
+  addrlist_.Mutable(index)->assign(value);
+}
+#if LANG_CXX11
+inline void RegisterReplyJute::set_addrlist(int index, ::std::string&& value) {
+  // @@protoc_insertion_point(field_set:tkJute.RegisterReplyJute.AddrList)
+  addrlist_.Mutable(index)->assign(std::move(value));
+}
+#endif
+inline void RegisterReplyJute::set_addrlist(int index, const char* value) {
+  addrlist_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:tkJute.RegisterReplyJute.AddrList)
+}
+inline void RegisterReplyJute::set_addrlist(int index, const char* value, size_t size) {
+  addrlist_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:tkJute.RegisterReplyJute.AddrList)
+}
+inline ::std::string* RegisterReplyJute::add_addrlist() {
+  // @@protoc_insertion_point(field_add_mutable:tkJute.RegisterReplyJute.AddrList)
+  return addrlist_.Add();
+}
+inline void RegisterReplyJute::add_addrlist(const ::std::string& value) {
+  addrlist_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:tkJute.RegisterReplyJute.AddrList)
+}
+#if LANG_CXX11
+inline void RegisterReplyJute::add_addrlist(::std::string&& value) {
+  addrlist_.Add()->assign(std::move(value));
+  // @@protoc_insertion_point(field_add:tkJute.RegisterReplyJute.AddrList)
+}
+#endif
+inline void RegisterReplyJute::add_addrlist(const char* value) {
+  addrlist_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:tkJute.RegisterReplyJute.AddrList)
+}
+inline void RegisterReplyJute::add_addrlist(const char* value, size_t size) {
+  addrlist_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:tkJute.RegisterReplyJute.AddrList)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+RegisterReplyJute::addrlist() const {
+  // @@protoc_insertion_point(field_list:tkJute.RegisterReplyJute.AddrList)
+  return addrlist_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+RegisterReplyJute::mutable_addrlist() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.RegisterReplyJute.AddrList)
+  return &addrlist_;
+}
+
+// repeated int32 PortList = 4;
+inline int RegisterReplyJute::portlist_size() const {
+  return portlist_.size();
+}
+inline void RegisterReplyJute::clear_portlist() {
+  portlist_.Clear();
+}
+inline ::google::protobuf::int32 RegisterReplyJute::portlist(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.RegisterReplyJute.PortList)
+  return portlist_.Get(index);
+}
+inline void RegisterReplyJute::set_portlist(int index, ::google::protobuf::int32 value) {
+  portlist_.Set(index, value);
+  // @@protoc_insertion_point(field_set:tkJute.RegisterReplyJute.PortList)
+}
+inline void RegisterReplyJute::add_portlist(::google::protobuf::int32 value) {
+  portlist_.Add(value);
+  // @@protoc_insertion_point(field_add:tkJute.RegisterReplyJute.PortList)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+RegisterReplyJute::portlist() const {
+  // @@protoc_insertion_point(field_list:tkJute.RegisterReplyJute.PortList)
+  return portlist_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+RegisterReplyJute::mutable_portlist() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.RegisterReplyJute.PortList)
+  return &portlist_;
+}
+
+// bool Ready = 5;
+inline void RegisterReplyJute::clear_ready() {
+  ready_ = false;
+}
+inline bool RegisterReplyJute::ready() const {
+  // @@protoc_insertion_point(field_get:tkJute.RegisterReplyJute.Ready)
+  return ready_;
+}
+inline void RegisterReplyJute::set_ready(bool value) {
+  
+  ready_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.RegisterReplyJute.Ready)
+}
+
+// -------------------------------------------------------------------
+
+// GetLeaderArgsJute
+
+// int32 Type = 1;
+inline void GetLeaderArgsJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 GetLeaderArgsJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.GetLeaderArgsJute.Type)
+  return type_;
+}
+inline void GetLeaderArgsJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.GetLeaderArgsJute.Type)
+}
+
+// -------------------------------------------------------------------
+
+// GetLeaderReplyJute
+
+// int32 Type = 1;
+inline void GetLeaderReplyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 GetLeaderReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.GetLeaderReplyJute.Type)
+  return type_;
+}
+inline void GetLeaderReplyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.GetLeaderReplyJute.Type)
+}
+
+// int32 LeaderId = 2;
+inline void GetLeaderReplyJute::clear_leaderid() {
+  leaderid_ = 0;
+}
+inline ::google::protobuf::int32 GetLeaderReplyJute::leaderid() const {
+  // @@protoc_insertion_point(field_get:tkJute.GetLeaderReplyJute.LeaderId)
+  return leaderid_;
+}
+inline void GetLeaderReplyJute::set_leaderid(::google::protobuf::int32 value) {
+  
+  leaderid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.GetLeaderReplyJute.LeaderId)
+}
+
+// -------------------------------------------------------------------
+
+// GetReplicaListArgsJute
+
+// int32 Type = 1;
+inline void GetReplicaListArgsJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 GetReplicaListArgsJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.GetReplicaListArgsJute.Type)
+  return type_;
+}
+inline void GetReplicaListArgsJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.GetReplicaListArgsJute.Type)
+}
+
+// -------------------------------------------------------------------
+
+// GetReplicaListReplyJute
+
+// int32 Type = 1;
+inline void GetReplicaListReplyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 GetReplicaListReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.GetReplicaListReplyJute.Type)
+  return type_;
+}
+inline void GetReplicaListReplyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.GetReplicaListReplyJute.Type)
+}
+
+// bool Ready = 2;
+inline void GetReplicaListReplyJute::clear_ready() {
+  ready_ = false;
+}
+inline bool GetReplicaListReplyJute::ready() const {
+  // @@protoc_insertion_point(field_get:tkJute.GetReplicaListReplyJute.Ready)
+  return ready_;
+}
+inline void GetReplicaListReplyJute::set_ready(bool value) {
+  
+  ready_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.GetReplicaListReplyJute.Ready)
+}
+
+// repeated string ReplicaAddrList = 3;
+inline int GetReplicaListReplyJute::replicaaddrlist_size() const {
+  return replicaaddrlist_.size();
+}
+inline void GetReplicaListReplyJute::clear_replicaaddrlist() {
+  replicaaddrlist_.Clear();
+}
+inline const ::std::string& GetReplicaListReplyJute::replicaaddrlist(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+  return replicaaddrlist_.Get(index);
+}
+inline ::std::string* GetReplicaListReplyJute::mutable_replicaaddrlist(int index) {
+  // @@protoc_insertion_point(field_mutable:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+  return replicaaddrlist_.Mutable(index);
+}
+inline void GetReplicaListReplyJute::set_replicaaddrlist(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+  replicaaddrlist_.Mutable(index)->assign(value);
+}
+#if LANG_CXX11
+inline void GetReplicaListReplyJute::set_replicaaddrlist(int index, ::std::string&& value) {
+  // @@protoc_insertion_point(field_set:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+  replicaaddrlist_.Mutable(index)->assign(std::move(value));
+}
+#endif
+inline void GetReplicaListReplyJute::set_replicaaddrlist(int index, const char* value) {
+  replicaaddrlist_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+}
+inline void GetReplicaListReplyJute::set_replicaaddrlist(int index, const char* value, size_t size) {
+  replicaaddrlist_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+}
+inline ::std::string* GetReplicaListReplyJute::add_replicaaddrlist() {
+  // @@protoc_insertion_point(field_add_mutable:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+  return replicaaddrlist_.Add();
+}
+inline void GetReplicaListReplyJute::add_replicaaddrlist(const ::std::string& value) {
+  replicaaddrlist_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+}
+#if LANG_CXX11
+inline void GetReplicaListReplyJute::add_replicaaddrlist(::std::string&& value) {
+  replicaaddrlist_.Add()->assign(std::move(value));
+  // @@protoc_insertion_point(field_add:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+}
+#endif
+inline void GetReplicaListReplyJute::add_replicaaddrlist(const char* value) {
+  replicaaddrlist_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+}
+inline void GetReplicaListReplyJute::add_replicaaddrlist(const char* value, size_t size) {
+  replicaaddrlist_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+GetReplicaListReplyJute::replicaaddrlist() const {
+  // @@protoc_insertion_point(field_list:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+  return replicaaddrlist_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+GetReplicaListReplyJute::mutable_replicaaddrlist() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.GetReplicaListReplyJute.ReplicaAddrList)
+  return &replicaaddrlist_;
+}
+
+// repeated int32 ReplicaPortList = 4;
+inline int GetReplicaListReplyJute::replicaportlist_size() const {
+  return replicaportlist_.size();
+}
+inline void GetReplicaListReplyJute::clear_replicaportlist() {
+  replicaportlist_.Clear();
+}
+inline ::google::protobuf::int32 GetReplicaListReplyJute::replicaportlist(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.GetReplicaListReplyJute.ReplicaPortList)
+  return replicaportlist_.Get(index);
+}
+inline void GetReplicaListReplyJute::set_replicaportlist(int index, ::google::protobuf::int32 value) {
+  replicaportlist_.Set(index, value);
+  // @@protoc_insertion_point(field_set:tkJute.GetReplicaListReplyJute.ReplicaPortList)
+}
+inline void GetReplicaListReplyJute::add_replicaportlist(::google::protobuf::int32 value) {
+  replicaportlist_.Add(value);
+  // @@protoc_insertion_point(field_add:tkJute.GetReplicaListReplyJute.ReplicaPortList)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+GetReplicaListReplyJute::replicaportlist() const {
+  // @@protoc_insertion_point(field_list:tkJute.GetReplicaListReplyJute.ReplicaPortList)
+  return replicaportlist_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+GetReplicaListReplyJute::mutable_replicaportlist() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.GetReplicaListReplyJute.ReplicaPortList)
+  return &replicaportlist_;
+}
+
+// -------------------------------------------------------------------
+
+// BeTheLeaderReplyJute
+
+// int32 Type = 1;
+inline void BeTheLeaderReplyJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 BeTheLeaderReplyJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.BeTheLeaderReplyJute.Type)
+  return type_;
+}
+inline void BeTheLeaderReplyJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.BeTheLeaderReplyJute.Type)
+}
+
+// bool Ok = 2;
+inline void BeTheLeaderReplyJute::clear_ok() {
+  ok_ = false;
+}
+inline bool BeTheLeaderReplyJute::ok() const {
+  // @@protoc_insertion_point(field_get:tkJute.BeTheLeaderReplyJute.Ok)
+  return ok_;
+}
+inline void BeTheLeaderReplyJute::set_ok(bool value) {
+  
+  ok_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.BeTheLeaderReplyJute.Ok)
+}
+
+// -------------------------------------------------------------------
+
+// GENERALJute
+
+// int32 Type = 1;
+inline void GENERALJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 GENERALJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.GENERALJute.Type)
+  return type_;
+}
+inline void GENERALJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.GENERALJute.Type)
+}
+
+// -------------------------------------------------------------------
+
+// TxnHeaderJute
+
+// int64 sessionId = 1;
+inline void TxnHeaderJute::clear_sessionid() {
+  sessionid_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 TxnHeaderJute::sessionid() const {
+  // @@protoc_insertion_point(field_get:tkJute.TxnHeaderJute.sessionId)
+  return sessionid_;
+}
+inline void TxnHeaderJute::set_sessionid(::google::protobuf::int64 value) {
+  
+  sessionid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.TxnHeaderJute.sessionId)
+}
+
+// int32 cxid = 2;
+inline void TxnHeaderJute::clear_cxid() {
+  cxid_ = 0;
+}
+inline ::google::protobuf::int32 TxnHeaderJute::cxid() const {
+  // @@protoc_insertion_point(field_get:tkJute.TxnHeaderJute.cxid)
+  return cxid_;
+}
+inline void TxnHeaderJute::set_cxid(::google::protobuf::int32 value) {
+  
+  cxid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.TxnHeaderJute.cxid)
+}
+
+// int64 zxid = 3;
+inline void TxnHeaderJute::clear_zxid() {
+  zxid_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 TxnHeaderJute::zxid() const {
+  // @@protoc_insertion_point(field_get:tkJute.TxnHeaderJute.zxid)
+  return zxid_;
+}
+inline void TxnHeaderJute::set_zxid(::google::protobuf::int64 value) {
+  
+  zxid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.TxnHeaderJute.zxid)
+}
+
+// int64 time = 4;
+inline void TxnHeaderJute::clear_time() {
+  time_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 TxnHeaderJute::time() const {
+  // @@protoc_insertion_point(field_get:tkJute.TxnHeaderJute.time)
+  return time_;
+}
+inline void TxnHeaderJute::set_time(::google::protobuf::int64 value) {
+  
+  time_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.TxnHeaderJute.time)
+}
+
+// int32 type = 5;
+inline void TxnHeaderJute::clear_type() {
+  type_ = 0;
+}
+inline ::google::protobuf::int32 TxnHeaderJute::type() const {
+  // @@protoc_insertion_point(field_get:tkJute.TxnHeaderJute.type)
+  return type_;
+}
+inline void TxnHeaderJute::set_type(::google::protobuf::int32 value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.TxnHeaderJute.type)
+}
+
+// string status = 6;
+inline void TxnHeaderJute::clear_status() {
+  status_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& TxnHeaderJute::status() const {
+  // @@protoc_insertion_point(field_get:tkJute.TxnHeaderJute.status)
+  return status_.GetNoArena();
+}
+inline void TxnHeaderJute::set_status(const ::std::string& value) {
+  
+  status_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:tkJute.TxnHeaderJute.status)
+}
+#if LANG_CXX11
+inline void TxnHeaderJute::set_status(::std::string&& value) {
+  
+  status_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:tkJute.TxnHeaderJute.status)
+}
+#endif
+inline void TxnHeaderJute::set_status(const char* value) {
+  
+  status_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:tkJute.TxnHeaderJute.status)
+}
+inline void TxnHeaderJute::set_status(const char* value, size_t size) {
+  
+  status_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:tkJute.TxnHeaderJute.status)
+}
+inline ::std::string* TxnHeaderJute::mutable_status() {
+  
+  // @@protoc_insertion_point(field_mutable:tkJute.TxnHeaderJute.status)
+  return status_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* TxnHeaderJute::release_status() {
+  // @@protoc_insertion_point(field_release:tkJute.TxnHeaderJute.status)
+  
+  return status_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void TxnHeaderJute::set_allocated_status(::std::string* status) {
+  if (status != NULL) {
+    
+  } else {
+    
+  }
+  status_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), status);
+  // @@protoc_insertion_point(field_set_allocated:tkJute.TxnHeaderJute.status)
+}
+
+// -------------------------------------------------------------------
+
+// BallotJute
+
+// int32 epoch = 1;
+inline void BallotJute::clear_epoch() {
+  epoch_ = 0;
+}
+inline ::google::protobuf::int32 BallotJute::epoch() const {
+  // @@protoc_insertion_point(field_get:tkJute.BallotJute.epoch)
+  return epoch_;
+}
+inline void BallotJute::set_epoch(::google::protobuf::int32 value) {
+  
+  epoch_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.BallotJute.epoch)
+}
+
+// int64 number = 2;
+inline void BallotJute::clear_number() {
+  number_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 BallotJute::number() const {
+  // @@protoc_insertion_point(field_get:tkJute.BallotJute.number)
+  return number_;
+}
+inline void BallotJute::set_number(::google::protobuf::int64 value) {
+  
+  number_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.BallotJute.number)
+}
+
+// int32 replicaId = 3;
+inline void BallotJute::clear_replicaid() {
+  replicaid_ = 0;
+}
+inline ::google::protobuf::int32 BallotJute::replicaid() const {
+  // @@protoc_insertion_point(field_get:tkJute.BallotJute.replicaId)
+  return replicaid_;
+}
+inline void BallotJute::set_replicaid(::google::protobuf::int32 value) {
+  
+  replicaid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.BallotJute.replicaId)
+}
+
+// -------------------------------------------------------------------
+
+// PackedRecoveryInfoJute
+
+// .tkJute.BallotJute ballot = 1;
+inline bool PackedRecoveryInfoJute::has_ballot() const {
+  return this != internal_default_instance() && ballot_ != NULL;
+}
+inline void PackedRecoveryInfoJute::clear_ballot() {
+  if (GetArenaNoVirtual() == NULL && ballot_ != NULL) delete ballot_;
+  ballot_ = NULL;
+}
+inline const ::tkJute::BallotJute& PackedRecoveryInfoJute::ballot() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedRecoveryInfoJute.ballot)
+  return ballot_ != NULL ? *ballot_
+                         : *::tkJute::BallotJute::internal_default_instance();
+}
+inline ::tkJute::BallotJute* PackedRecoveryInfoJute::mutable_ballot() {
+  
+  if (ballot_ == NULL) {
+    ballot_ = new ::tkJute::BallotJute;
+  }
+  // @@protoc_insertion_point(field_mutable:tkJute.PackedRecoveryInfoJute.ballot)
+  return ballot_;
+}
+inline ::tkJute::BallotJute* PackedRecoveryInfoJute::release_ballot() {
+  // @@protoc_insertion_point(field_release:tkJute.PackedRecoveryInfoJute.ballot)
+  
+  ::tkJute::BallotJute* temp = ballot_;
+  ballot_ = NULL;
+  return temp;
+}
+inline void PackedRecoveryInfoJute::set_allocated_ballot(::tkJute::BallotJute* ballot) {
+  delete ballot_;
+  ballot_ = ballot;
+  if (ballot) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:tkJute.PackedRecoveryInfoJute.ballot)
+}
+
+// repeated .tkJute.tk_command_jute commands = 2;
+inline int PackedRecoveryInfoJute::commands_size() const {
+  return commands_.size();
+}
+inline void PackedRecoveryInfoJute::clear_commands() {
+  commands_.Clear();
+}
+inline const ::tkJute::tk_command_jute& PackedRecoveryInfoJute::commands(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedRecoveryInfoJute.commands)
+  return commands_.Get(index);
+}
+inline ::tkJute::tk_command_jute* PackedRecoveryInfoJute::mutable_commands(int index) {
+  // @@protoc_insertion_point(field_mutable:tkJute.PackedRecoveryInfoJute.commands)
+  return commands_.Mutable(index);
+}
+inline ::tkJute::tk_command_jute* PackedRecoveryInfoJute::add_commands() {
+  // @@protoc_insertion_point(field_add:tkJute.PackedRecoveryInfoJute.commands)
+  return commands_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+PackedRecoveryInfoJute::mutable_commands() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.PackedRecoveryInfoJute.commands)
+  return &commands_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+PackedRecoveryInfoJute::commands() const {
+  // @@protoc_insertion_point(field_list:tkJute.PackedRecoveryInfoJute.commands)
+  return commands_;
+}
+
+// repeated uint64 deps = 3;
+inline int PackedRecoveryInfoJute::deps_size() const {
+  return deps_.size();
+}
+inline void PackedRecoveryInfoJute::clear_deps() {
+  deps_.Clear();
+}
+inline ::google::protobuf::uint64 PackedRecoveryInfoJute::deps(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedRecoveryInfoJute.deps)
+  return deps_.Get(index);
+}
+inline void PackedRecoveryInfoJute::set_deps(int index, ::google::protobuf::uint64 value) {
+  deps_.Set(index, value);
+  // @@protoc_insertion_point(field_set:tkJute.PackedRecoveryInfoJute.deps)
+}
+inline void PackedRecoveryInfoJute::add_deps(::google::protobuf::uint64 value) {
+  deps_.Add(value);
+  // @@protoc_insertion_point(field_add:tkJute.PackedRecoveryInfoJute.deps)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint64 >&
+PackedRecoveryInfoJute::deps() const {
+  // @@protoc_insertion_point(field_list:tkJute.PackedRecoveryInfoJute.deps)
+  return deps_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::uint64 >*
+PackedRecoveryInfoJute::mutable_deps() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.PackedRecoveryInfoJute.deps)
+  return &deps_;
+}
+
+// uint32 status = 4;
+inline void PackedRecoveryInfoJute::clear_status() {
+  status_ = 0u;
+}
+inline ::google::protobuf::uint32 PackedRecoveryInfoJute::status() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedRecoveryInfoJute.status)
+  return status_;
+}
+inline void PackedRecoveryInfoJute::set_status(::google::protobuf::uint32 value) {
+  
+  status_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PackedRecoveryInfoJute.status)
+}
+
+// uint32 formerStatus = 5;
+inline void PackedRecoveryInfoJute::clear_formerstatus() {
+  formerstatus_ = 0u;
+}
+inline ::google::protobuf::uint32 PackedRecoveryInfoJute::formerstatus() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedRecoveryInfoJute.formerStatus)
+  return formerstatus_;
+}
+inline void PackedRecoveryInfoJute::set_formerstatus(::google::protobuf::uint32 value) {
+  
+  formerstatus_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PackedRecoveryInfoJute.formerStatus)
+}
+
+// -------------------------------------------------------------------
+
+// PackedInstanceJute
+
+// repeated .tkJute.tk_command_jute commands = 1;
+inline int PackedInstanceJute::commands_size() const {
+  return commands_.size();
+}
+inline void PackedInstanceJute::clear_commands() {
+  commands_.Clear();
+}
+inline const ::tkJute::tk_command_jute& PackedInstanceJute::commands(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedInstanceJute.commands)
+  return commands_.Get(index);
+}
+inline ::tkJute::tk_command_jute* PackedInstanceJute::mutable_commands(int index) {
+  // @@protoc_insertion_point(field_mutable:tkJute.PackedInstanceJute.commands)
+  return commands_.Mutable(index);
+}
+inline ::tkJute::tk_command_jute* PackedInstanceJute::add_commands() {
+  // @@protoc_insertion_point(field_add:tkJute.PackedInstanceJute.commands)
+  return commands_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >*
+PackedInstanceJute::mutable_commands() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.PackedInstanceJute.commands)
+  return &commands_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::tkJute::tk_command_jute >&
+PackedInstanceJute::commands() const {
+  // @@protoc_insertion_point(field_list:tkJute.PackedInstanceJute.commands)
+  return commands_;
+}
+
+// repeated uint64 deps = 2;
+inline int PackedInstanceJute::deps_size() const {
+  return deps_.size();
+}
+inline void PackedInstanceJute::clear_deps() {
+  deps_.Clear();
+}
+inline ::google::protobuf::uint64 PackedInstanceJute::deps(int index) const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedInstanceJute.deps)
+  return deps_.Get(index);
+}
+inline void PackedInstanceJute::set_deps(int index, ::google::protobuf::uint64 value) {
+  deps_.Set(index, value);
+  // @@protoc_insertion_point(field_set:tkJute.PackedInstanceJute.deps)
+}
+inline void PackedInstanceJute::add_deps(::google::protobuf::uint64 value) {
+  deps_.Add(value);
+  // @@protoc_insertion_point(field_add:tkJute.PackedInstanceJute.deps)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint64 >&
+PackedInstanceJute::deps() const {
+  // @@protoc_insertion_point(field_list:tkJute.PackedInstanceJute.deps)
+  return deps_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::uint64 >*
+PackedInstanceJute::mutable_deps() {
+  // @@protoc_insertion_point(field_mutable_list:tkJute.PackedInstanceJute.deps)
+  return &deps_;
+}
+
+// uint32 status = 3;
+inline void PackedInstanceJute::clear_status() {
+  status_ = 0u;
+}
+inline ::google::protobuf::uint32 PackedInstanceJute::status() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedInstanceJute.status)
+  return status_;
+}
+inline void PackedInstanceJute::set_status(::google::protobuf::uint32 value) {
+  
+  status_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PackedInstanceJute.status)
+}
+
+// .tkJute.BallotJute ballot = 4;
+inline bool PackedInstanceJute::has_ballot() const {
+  return this != internal_default_instance() && ballot_ != NULL;
+}
+inline void PackedInstanceJute::clear_ballot() {
+  if (GetArenaNoVirtual() == NULL && ballot_ != NULL) delete ballot_;
+  ballot_ = NULL;
+}
+inline const ::tkJute::BallotJute& PackedInstanceJute::ballot() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedInstanceJute.ballot)
+  return ballot_ != NULL ? *ballot_
+                         : *::tkJute::BallotJute::internal_default_instance();
+}
+inline ::tkJute::BallotJute* PackedInstanceJute::mutable_ballot() {
+  
+  if (ballot_ == NULL) {
+    ballot_ = new ::tkJute::BallotJute;
+  }
+  // @@protoc_insertion_point(field_mutable:tkJute.PackedInstanceJute.ballot)
+  return ballot_;
+}
+inline ::tkJute::BallotJute* PackedInstanceJute::release_ballot() {
+  // @@protoc_insertion_point(field_release:tkJute.PackedInstanceJute.ballot)
+  
+  ::tkJute::BallotJute* temp = ballot_;
+  ballot_ = NULL;
+  return temp;
+}
+inline void PackedInstanceJute::set_allocated_ballot(::tkJute::BallotJute* ballot) {
+  delete ballot_;
+  ballot_ = ballot;
+  if (ballot) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:tkJute.PackedInstanceJute.ballot)
+}
+
+// uint32 rowId = 5;
+inline void PackedInstanceJute::clear_rowid() {
+  rowid_ = 0u;
+}
+inline ::google::protobuf::uint32 PackedInstanceJute::rowid() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedInstanceJute.rowId)
+  return rowid_;
+}
+inline void PackedInstanceJute::set_rowid(::google::protobuf::uint32 value) {
+  
+  rowid_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PackedInstanceJute.rowId)
+}
+
+// uint64 Id = 6;
+inline void PackedInstanceJute::clear_id() {
+  id_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 PackedInstanceJute::id() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedInstanceJute.Id)
+  return id_;
+}
+inline void PackedInstanceJute::set_id(::google::protobuf::uint64 value) {
+  
+  id_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PackedInstanceJute.Id)
+}
+
+// bool executed = 7;
+inline void PackedInstanceJute::clear_executed() {
+  executed_ = false;
+}
+inline bool PackedInstanceJute::executed() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedInstanceJute.executed)
+  return executed_;
+}
+inline void PackedInstanceJute::set_executed(bool value) {
+  
+  executed_ = value;
+  // @@protoc_insertion_point(field_set:tkJute.PackedInstanceJute.executed)
+}
+
+// .tkJute.PackedRecoveryInfoJute packedrecoveryinfo = 8;
+inline bool PackedInstanceJute::has_packedrecoveryinfo() const {
+  return this != internal_default_instance() && packedrecoveryinfo_ != NULL;
+}
+inline void PackedInstanceJute::clear_packedrecoveryinfo() {
+  if (GetArenaNoVirtual() == NULL && packedrecoveryinfo_ != NULL) delete packedrecoveryinfo_;
+  packedrecoveryinfo_ = NULL;
+}
+inline const ::tkJute::PackedRecoveryInfoJute& PackedInstanceJute::packedrecoveryinfo() const {
+  // @@protoc_insertion_point(field_get:tkJute.PackedInstanceJute.packedrecoveryinfo)
+  return packedrecoveryinfo_ != NULL ? *packedrecoveryinfo_
+                         : *::tkJute::PackedRecoveryInfoJute::internal_default_instance();
+}
+inline ::tkJute::PackedRecoveryInfoJute* PackedInstanceJute::mutable_packedrecoveryinfo() {
+  
+  if (packedrecoveryinfo_ == NULL) {
+    packedrecoveryinfo_ = new ::tkJute::PackedRecoveryInfoJute;
+  }
+  // @@protoc_insertion_point(field_mutable:tkJute.PackedInstanceJute.packedrecoveryinfo)
+  return packedrecoveryinfo_;
+}
+inline ::tkJute::PackedRecoveryInfoJute* PackedInstanceJute::release_packedrecoveryinfo() {
+  // @@protoc_insertion_point(field_release:tkJute.PackedInstanceJute.packedrecoveryinfo)
+  
+  ::tkJute::PackedRecoveryInfoJute* temp = packedrecoveryinfo_;
+  packedrecoveryinfo_ = NULL;
+  return temp;
+}
+inline void PackedInstanceJute::set_allocated_packedrecoveryinfo(::tkJute::PackedRecoveryInfoJute* packedrecoveryinfo) {
+  delete packedrecoveryinfo_;
+  packedrecoveryinfo_ = packedrecoveryinfo;
+  if (packedrecoveryinfo) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:tkJute.PackedInstanceJute.packedrecoveryinfo)
+}
+
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

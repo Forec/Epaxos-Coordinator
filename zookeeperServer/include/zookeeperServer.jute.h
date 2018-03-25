@@ -78,6 +78,20 @@ struct ConnectRequest {
 int serialize_ConnectRequest(struct oarchive *out, const char *tag, struct ConnectRequest *v);
 int deserialize_ConnectRequest(struct iarchive *in, const char *tag, struct ConnectRequest*v);
 void deallocate_ConnectRequest(struct ConnectRequest*);
+struct CreateSessionRequest {
+    int64_t sessionId;
+    int32_t sessionTimeout;
+    struct buffer passwd;
+};
+int serialize_CreateSessionRequest(struct oarchive *out, const char *tag, struct CreateSessionRequest *v);
+int deserialize_CreateSessionRequest(struct iarchive *in, const char *tag, struct CreateSessionRequest*v);
+void deallocate_CreateSessionRequest(struct CreateSessionRequest*);
+struct DeleteSessionRequest {
+    int64_t sessionId;
+};
+int serialize_DeleteSessionRequest(struct oarchive *out, const char *tag, struct DeleteSessionRequest *v);
+int deserialize_DeleteSessionRequest(struct iarchive *in, const char *tag, struct DeleteSessionRequest*v);
+void deallocate_DeleteSessionRequest(struct DeleteSessionRequest*);
 struct ConnectResponse {
     int32_t protocolVersion;
     int32_t timeOut;

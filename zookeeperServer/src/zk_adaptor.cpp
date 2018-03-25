@@ -17,15 +17,6 @@ int  unlock_buffer_list(buffer_head_t *l)
 {
     return pthread_mutex_unlock(&l->lock);
 }
-int lock_completion_list(completion_head_t *l)
-{
-    return pthread_mutex_lock(&l->lock);
-}
-int unlock_completion_list(completion_head_t *l)
-{
-    pthread_cond_broadcast(&l->cond);
-    return pthread_mutex_unlock(&l->lock);
-}
 
 buffer_list_t *allocate_buffer(char *buff, int32_t len,int64_t sessionId)
 {
@@ -56,8 +47,7 @@ buffer_list_t * dequeue_buffer(buffer_head_t *list)
     buffer_list_t * b;
     lock_buffer_list(list);
     if(list->bufferLength == 0){
-        unlock_buffer_list(list);
-        return nullptr;
+        pthread_cond_wait(&list->cond,&list->lock);
     }
     b = list->head;
     if (b) {
@@ -105,16 +95,26 @@ void queue_buffer(buffer_head_t *list, buffer_list_t *b, int add_to_front)
         list->last = b;
     }
     list->bufferLength++;
+    pthread_cond_signal(&list->cond);
     unlock_buffer_list(list);
 }
 
-int queue_buffer_bytes(buffer_head_t *list, char *buff, int32_t len,int64_t sessionId)
+int queue_buffer_bytes(buffer_head_t *list, char *buff, int32_t len,int64_t sessionId,int32_t fd)
 {
     buffer_list_t *b  = allocate_buffer(buff,len,sessionId);
+    b->ownerOrfd = fd;
     if (!b)
         return ZSYSTEMERROR;
     queue_buffer(list, b, 0);
     return ZOK;
+}
+
+int queue_buffer_reply_bytes(buffer_head_t *list, char *buff, int32_t len,int64_t sessionId,int32_t fd)
+{
+    int32_t rlen = htonl(len - sizeof(int32_t));
+    memcpy(buff,&rlen,sizeof(int32_t));
+    int err = queue_buffer_bytes(list,buff,len,sessionId,fd);
+    return err;
 }
 
 int queue_front_buffer_bytes(buffer_head_t *list, char *buff, int32_t len,int64_t sessionId)

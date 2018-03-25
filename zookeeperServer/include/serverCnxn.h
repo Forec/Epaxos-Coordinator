@@ -13,6 +13,7 @@
 #include "zookeeperServer.recordio.h"
 #include "zookeeperServer.jute.h"
 #include "proto.h"
+//#include "zookeeperServer.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ typedef struct {
     char password[16];
     int64_t tickTime;
     bool isClosing;
-    int64_t owner;
+    int32_t owner;
 }Session;
 
 struct serverCnxn_t{
@@ -36,9 +37,8 @@ typedef serverCnxn_t serverCnxn;
 
 struct sessionTracker_t{
     int64_t nextSessionId;
-    int64_t serverId;
+    int32_t serverId;
     map<int64_t ,Session> sessionById;
-    map<int64_t ,int32_t > sessionWithTimeOut;
     map<int64_t ,set<Session>> sessionSets;
     int32_t expirationInterval;
     int64_t nextExpirationTime;
@@ -59,12 +59,14 @@ struct serverCnxnFactory_t{
 
 typedef serverCnxnFactory_t serverCnxnFactory;
 
-int64_t createSessionId(sessionTracker * st,int32_t timeout);
+int64_t createSessionId(sessionTracker * st);
 void getPassword(char *str,int64_t sessionId);
+bool createCnxn(serverCnxnFactory * cnxnFactory,Session session);
 int64_t createCnxn(serverCnxnFactory * cnxnFactory,int32_t socketfd,int32_t timeout);
 int64_t createSession(sessionTracker * st,int32_t timeout);
 ZOO_ERRORS zoo_addAuth(serverCnxn * cnxn,struct AuthPacket authPacket);
-bool addSession(sessionTracker * st,int64_t sessionId,int32_t timeout);
+bool addNewSession(sessionTracker * st,int64_t sessionId,int32_t timeout,Session session);
+bool addReconnectSession(sessionTracker * st,int64_t sessionId,int32_t timeout);
 bool touchSession(int64_t sessionId,int32_t timeout,sessionTracker * st);
 sessionTracker initSessinTracker(int64_t nextSessionId,int32_t tickTime,map<int64_t ,int32_t > sessionWithTimeOut);
 void setSessionClosing(int64_t sessionId,sessionTracker * st);
@@ -74,5 +76,6 @@ int32_t lockSessionTracker(sessionTracker * st);
 int32_t unLockSessionTracker(sessionTracker * st);
 ZOO_ERRORS checkSession(int64_t sessionId,sessionTracker * st,int64_t serverId);
 ZOO_ERRORS setOwner(int64_t sessionId,sessionTracker * st,int64_t serverId);
+int32_t getFd(int64_t sessionId,serverCnxnFactory * cnxnFactory);
 
 #endif //TKDATABASE_SESSION_H

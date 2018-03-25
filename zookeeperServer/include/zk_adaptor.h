@@ -7,7 +7,9 @@
 
 #include <stdint.h>
 #include <pthread.h>
+#include <arpa/inet.h>
 #include "proto.h"
+#include "zookeeperServer.recordio.h"
 
 
 /* the size of connect request */
@@ -39,6 +41,7 @@ typedef struct _buffer_list {
     char *buffer;
     int32_t len; /* This represents the length of sizeof(header) + length of buffer */
     int64_t sessionId;
+    int32_t ownerOrfd;
     struct _buffer_list *next;
 } buffer_list_t;
 
@@ -47,6 +50,7 @@ typedef struct _buffer_head {
     struct _buffer_list *volatile head;
     struct _buffer_list *last;
     pthread_mutex_t lock;
+    pthread_cond_t cond;
 } buffer_head_t;
 
 
@@ -74,23 +78,17 @@ typedef struct _completion_list {
 } completion_list_t;*/
 
 
-typedef struct _completion_head {
-    struct _completion_list *volatile head;
-    struct _completion_list *last;
-    pthread_cond_t cond;
-    pthread_mutex_t lock;
-} completion_head_t;
+
 
 int lock_buffer_list(buffer_head_t *l);
 int unlock_buffer_list(buffer_head_t *l);
-int lock_completion_list(completion_head_t *l);
-int unlock_completion_list(completion_head_t *l);
 
 buffer_list_t *allocate_buffer(char *buff, int32_t len,int64_t sessionId);
 buffer_list_t *dequeue_buffer(buffer_head_t *list);
 int remove_buffer(buffer_head_t *list);
 void queue_buffer(buffer_head_t *list, buffer_list_t *b, int add_to_front);
-int queue_buffer_bytes(buffer_head_t *list, char *buff, int32_t len,int64_t sessionId);
+int queue_buffer_bytes(buffer_head_t *list, char *buff, int32_t len,int64_t sessionId,int32_t fd);
+int queue_buffer_reply_bytes(buffer_head_t *list, char *buff, int32_t len,int64_t sessionId,int32_t fd);
 int queue_front_buffer_bytes(buffer_head_t *list, char *buff, int32_t len,int64_t sessionId);
 int get_queue_len(buffer_head_t *list);
 

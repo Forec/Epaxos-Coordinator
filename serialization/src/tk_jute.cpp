@@ -16,7 +16,6 @@ void serializeTkCommand(struct tk_command * command,serializeBuff * oa){
     oa->buff = (char*)malloc(len);
     bool f = commandJute.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
 }
 
 void deserializeTkCommand(struct serializeBuff * ia,struct tk_command * command){
@@ -34,8 +33,7 @@ void deserializeTkCommand(struct serializeBuff * ia,struct tk_command * command)
     }else{
         cout<<"deserialize tk command fail"<<endl;
     }
-
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 
 void serializePrepare(struct Prepare *pat,struct serializeBuff* oa){
@@ -50,7 +48,6 @@ void serializePrepare(struct Prepare *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
 
 }
 
@@ -66,7 +63,7 @@ void deserializePrepare(struct serializeBuff* ia,struct Prepare *pat){
 	}else{
         cout<<"deserialize prepare fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 }
 
 void serializePrepareReply(struct PrepareReply *pat,struct serializeBuff* oa){
@@ -95,7 +92,7 @@ void serializePrepareReply(struct PrepareReply *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 }
 
 void deserializePrepareReply(struct serializeBuff* ia,struct PrepareReply *pat){
@@ -127,7 +124,7 @@ void deserializePrepareReply(struct serializeBuff* ia,struct PrepareReply *pat){
 	}else{
         cout<<"deserialize PrepareReply fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 }
 
 
@@ -156,7 +153,7 @@ void serializePreAccept(struct PreAccept *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -188,7 +185,7 @@ void deserializePreAccept(struct serializeBuff* ia,struct PreAccept *pat){
 	}else{
         cout<<"deserialize PreAccept fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -209,7 +206,7 @@ void serializePreAcceptReply(struct PreAcceptReply *pat,struct serializeBuff* oa
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -231,7 +228,7 @@ void deserializePreAcceptReply(struct serializeBuff* ia,struct PreAcceptReply *p
 	}else{
         cout<<"deserialize PreAccept reply fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 }
 
 void serializePreAcceptOk(struct PreAcceptOk *pat,struct serializeBuff* oa){
@@ -243,7 +240,7 @@ void serializePreAcceptOk(struct PreAcceptOk *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -257,7 +254,7 @@ void deserializePreAcceptOk(struct serializeBuff* ia,struct PreAcceptOk *pat){
 	}else{
         cout<<"deserialize PreAcceptOk fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -278,7 +275,7 @@ void serializeAccept(struct Accept *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -300,7 +297,7 @@ void deserializeAccept(struct serializeBuff* ia,struct Accept *pat){
 	}else{
         cout<<"deserialize accept fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -316,7 +313,7 @@ void serializeAcceptReply(struct AcceptReply *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -333,7 +330,7 @@ void deserializeAcceptReply(struct serializeBuff* ia,struct AcceptReply *pat){
 	}else{
         cout<<"deserialize Accept reply fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -361,7 +358,7 @@ void serializeCommit(struct Commit *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -392,7 +389,7 @@ void deserializeCommit(struct serializeBuff* ia,struct Commit *pat){
 	}else{
         cout<<"deserialize Commit fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 }
 
 void serializeCommitShort(struct CommitShort *pat,struct serializeBuff* oa){
@@ -411,7 +408,7 @@ void serializeCommitShort(struct CommitShort *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -432,7 +429,7 @@ void deserializeCommitShort(struct serializeBuff* ia,struct CommitShort *pat){
 	}else{
         cout<<"deserialize CommitShort fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 }
 
 void serializeTryPreAccept(struct TryPreAccept *pat,struct serializeBuff* oa){
@@ -460,7 +457,7 @@ void serializeTryPreAccept(struct TryPreAccept *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -492,7 +489,7 @@ void deserializeTryPreAccept(struct serializeBuff* ia,struct TryPreAccept *pat){
 	}else{
         cout<<"deserialize TryPreAccept fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -512,7 +509,7 @@ void serializeTryPreAcceptReply(struct TryPreAcceptReply *pat,struct serializeBu
     oa->buff = (char*)malloc(len);
 	bool f = pa.SerializeToArray(oa->buff,len);
 	oa->len = len;
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -533,7 +530,7 @@ void deserializeTryPreAcceptReply(struct serializeBuff* ia,struct TryPreAcceptRe
 	}else{
         cout<<"deserialize TryPreAcceptReply fail"<<endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	 
 
 }
 
@@ -555,7 +552,7 @@ void serializePropose(struct Propose *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializePropose(struct serializeBuff* ia,struct Propose *pat){
     tkJute::ProposeJute pa;
@@ -576,7 +573,7 @@ void deserializePropose(struct serializeBuff* ia,struct Propose *pat){
     }else{
         cout<<"deserialize Propose fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 
 //serialize & deserialize ProposeReply
@@ -589,7 +586,7 @@ void serializeProposeReply(struct ProposeReply *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeProposeReply(struct serializeBuff* ia,struct ProposeReply *pat){
     tkJute::ProposeReplyJute pa;
@@ -601,7 +598,7 @@ void deserializeProposeReply(struct serializeBuff* ia,struct ProposeReply *pat){
     }else{
         cout<<"deserialize ProposeReply fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize ProposeReplyTS
 void serializeProposeReplyTS(struct ProposeReplyTS *pat,struct serializeBuff* oa){
@@ -616,7 +613,7 @@ void serializeProposeReplyTS(struct ProposeReplyTS *pat,struct serializeBuff* oa
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeProposeReplyTS(struct serializeBuff* ia,struct ProposeReplyTS *pat){
     tkJute::ProposeReplyTSJute pa;
@@ -633,7 +630,7 @@ void deserializeProposeReplyTS(struct serializeBuff* ia,struct ProposeReplyTS *p
     }else{
         cout<<"deserialize ProposeReplyTS fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize Read
 void serializeRead(struct Read *pat,struct serializeBuff* oa){
@@ -645,7 +642,7 @@ void serializeRead(struct Read *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeRead(struct serializeBuff* ia,struct Read *pat){
     tkJute::ReadJute pa;
@@ -657,7 +654,7 @@ void deserializeRead(struct serializeBuff* ia,struct Read *pat){
     }else{
         cout<<"deserialize Read fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize ProposeAndRead
 void serializeProposeAndRead(struct ProposeAndRead *pat,struct serializeBuff* oa){
@@ -677,7 +674,7 @@ void serializeProposeAndRead(struct ProposeAndRead *pat,struct serializeBuff* oa
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeProposeAndRead(struct serializeBuff* ia,struct ProposeAndRead *pat){
     tkJute::ProposeAndReadJute pa;
@@ -698,7 +695,7 @@ void deserializeProposeAndRead(struct serializeBuff* ia,struct ProposeAndRead *p
     }else{
         cout<<"deserialize ProposeAndRead fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize InstanceId
 void serializeInstanceId(struct InstanceId *pat,struct serializeBuff* oa){
@@ -710,7 +707,7 @@ void serializeInstanceId(struct InstanceId *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeInstanceId(struct serializeBuff* ia,struct InstanceId *pat){
     tkJute::InstanceIdJute pa;
@@ -722,7 +719,7 @@ void deserializeInstanceId(struct serializeBuff* ia,struct InstanceId *pat){
     }else{
         cout<<"deserialize InstanceId fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize Clock
 void serializeClock(struct Clock *pat,struct serializeBuff* oa){
@@ -732,7 +729,7 @@ void serializeClock(struct Clock *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeClock(struct serializeBuff* ia,struct Clock *pat){
     tkJute::ClockJute pa;
@@ -742,7 +739,7 @@ void deserializeClock(struct serializeBuff* ia,struct Clock *pat){
     }else{
         cout<<"deserializeClock fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize Beacon_msg
 void serializeBeacon_msg(struct Beacon_msg *pat,struct serializeBuff* oa){
@@ -754,7 +751,7 @@ void serializeBeacon_msg(struct Beacon_msg *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeBeacon_msg(struct serializeBuff* ia,struct Beacon_msg *pat){
     tkJute::Beacon_msgJute pa;
@@ -766,7 +763,7 @@ void deserializeBeacon_msg(struct serializeBuff* ia,struct Beacon_msg *pat){
     }else{
         cout<<"deserializeBeacon_msg fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize Beacon_msg_reply
 void serializeBeacon_msg_reply(struct Beacon_msg_reply *pat,struct serializeBuff* oa){
@@ -778,7 +775,7 @@ void serializeBeacon_msg_reply(struct Beacon_msg_reply *pat,struct serializeBuff
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeBeacon_msg_reply(struct serializeBuff* ia,struct Beacon_msg_reply *pat){
     tkJute::Beacon_msg_replyJute pa;
@@ -789,7 +786,7 @@ void deserializeBeacon_msg_reply(struct serializeBuff* ia,struct Beacon_msg_repl
     }else{
         cout<<"deserialize beacon_msg_reply fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize ClientConnect
 void serializeClientConnect(struct ClientConnect *pat,struct serializeBuff* oa){
@@ -799,7 +796,7 @@ void serializeClientConnect(struct ClientConnect *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeClientConnect(struct serializeBuff* ia,struct ClientConnect *pat){
     tkJute::ClientConnectJute pa;
@@ -809,7 +806,7 @@ void deserializeClientConnect(struct serializeBuff* ia,struct ClientConnect *pat
     }else{
         cout<<"deserialize clientconnect fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 
 //serialize & deserialize RegisterArgs
@@ -822,7 +819,7 @@ void serializeRegisterArgs(struct RegisterArgs *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeRegisterArgs(struct serializeBuff* ia,struct RegisterArgs *pat){
     tkJute::RegisterArgsJute pa;
@@ -834,7 +831,7 @@ void deserializeRegisterArgs(struct serializeBuff* ia,struct RegisterArgs *pat){
     }else{
         cout<<"deserialize registerargs fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize RegisterReply
 void serializeRegisterReply(struct RegisterReply *pat,struct serializeBuff* oa){
@@ -852,7 +849,7 @@ void serializeRegisterReply(struct RegisterReply *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeRegisterReply(struct serializeBuff* ia,struct RegisterReply *pat){
     tkJute::RegisterReplyJute pa;
@@ -870,7 +867,7 @@ void deserializeRegisterReply(struct serializeBuff* ia,struct RegisterReply *pat
     }else{
         cout<<"deserialize registerreply fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize GetLeaderArgs
 void serializeGetLeaderArgs(struct GetLeaderArgs *pat,struct serializeBuff* oa){
@@ -881,7 +878,7 @@ void serializeGetLeaderArgs(struct GetLeaderArgs *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeGetLeaderArgs(struct serializeBuff* ia,struct GetLeaderArgs *pat){
     tkJute::GetLeaderArgsJute pa;
@@ -891,7 +888,7 @@ void deserializeGetLeaderArgs(struct serializeBuff* ia,struct GetLeaderArgs *pat
     }else{
         cout<<"deserialize getleaderargs fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize GetLeaderReply
 void serializeGetLeaderReply(struct GetLeaderReply *pat,struct serializeBuff* oa){
@@ -903,7 +900,7 @@ void serializeGetLeaderReply(struct GetLeaderReply *pat,struct serializeBuff* oa
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeGetLeaderReply(struct serializeBuff* ia,struct GetLeaderReply *pat){
     tkJute::GetLeaderReplyJute pa;
@@ -914,7 +911,7 @@ void deserializeGetLeaderReply(struct serializeBuff* ia,struct GetLeaderReply *p
     }else{
         cout<<"deserialize getleaderreply fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize GetReplicaListArgs
 void serializeGetReplicaListArgs(struct GetReplicaListArgs *pat,struct serializeBuff* oa){
@@ -925,7 +922,7 @@ void serializeGetReplicaListArgs(struct GetReplicaListArgs *pat,struct serialize
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeGetReplicaListArgs(struct serializeBuff* ia,struct GetReplicaListArgs *pat){
     tkJute::GetReplicaListArgsJute pa;
@@ -935,7 +932,7 @@ void deserializeGetReplicaListArgs(struct serializeBuff* ia,struct GetReplicaLis
     }else{
         cout<<"deserialize getreplicalistargs fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize GetReplicaListReply
 void serializeGetReplicaListReply(struct GetReplicaListReply *pat,struct serializeBuff* oa){
@@ -953,7 +950,7 @@ void serializeGetReplicaListReply(struct GetReplicaListReply *pat,struct seriali
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeGetReplicaListReply(struct serializeBuff* ia,struct GetReplicaListReply *pat){
     tkJute::GetReplicaListReplyJute pa;
@@ -970,7 +967,7 @@ void deserializeGetReplicaListReply(struct serializeBuff* ia,struct GetReplicaLi
     }else{
         cout<<"deserialize getreplicalistreply fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize BeTheLeaderReply
 void serializeBeTheLeaderReply(struct BeTheLeaderReply *pat,struct serializeBuff* oa){
@@ -981,7 +978,7 @@ void serializeBeTheLeaderReply(struct BeTheLeaderReply *pat,struct serializeBuff
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeBeTheLeaderReply(struct serializeBuff* ia,struct BeTheLeaderReply *pat){
     tkJute::BeTheLeaderReplyJute pa;
@@ -992,7 +989,7 @@ void deserializeBeTheLeaderReply(struct serializeBuff* ia,struct BeTheLeaderRepl
     }else{
         cout<<"deserialize be the leader fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 //serialize & deserialize GENERAL
 void serializeGENERAL(struct GENERAL *pat,struct serializeBuff* oa){
@@ -1003,7 +1000,7 @@ void serializeGENERAL(struct GENERAL *pat,struct serializeBuff* oa){
     oa->buff = (char*)malloc(len);
     bool f = pa.SerializeToArray(oa->buff,len);
     oa->len = len;
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 void deserializeGENERAL(struct serializeBuff* ia,struct GENERAL *pat){
     tkJute::TryPreAcceptJute pa;
@@ -1013,6 +1010,6 @@ void deserializeGENERAL(struct serializeBuff* ia,struct GENERAL *pat){
     }else{
         cout<<"deserialize general fail"<<endl;
     }
-    google::protobuf::ShutdownProtobufLibrary();
+     
 }
 

@@ -55,6 +55,13 @@ TEST(protobuff__Test,Prepare){
     ASSERT_EQ(result.Ballot,pat.Ballot);
     ASSERT_EQ(result.Instance,pat.Instance);
     ASSERT_EQ(result.LeaderId,pat.LeaderId);
+
+    struct tk_command command = getTkCommand();
+    struct serializeBuff sb1;
+    serializeTkCommand(&command,&sb1);
+    struct tk_command result1;
+    deserializeTkCommand(&sb1,&result1);
+    eqTkCommand(command,result1);
 }
 
 TEST(protobuff__Test,PrepareReply){
